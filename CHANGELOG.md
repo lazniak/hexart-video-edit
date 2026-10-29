@@ -2,6 +2,43 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.17.0 (2026-10-29)
+
+Okna na wszystkich monitorach i workspaces:
+
+- Każdy panel można wypiąć do osobnego okna systemu i przenieść na dowolny monitor: przeciągnij
+  kartę poza okno albo wybierz „Wypnij do osobnego okna” (cała grupa: „Wypnij grupę do osobnego
+  okna”) w menu karty. W oknie może być wiele kart i podziałów, jak w głównym.
+- Karty przenoszą się między oknami przeciąganiem: nad grupą innego okna pokazują się te same
+  przyciski co w doku (do grupy albo na jej bok). Zamknięcie okna przypina jego panele z
+  powrotem do okna głównego; menu karty ma też „Przypnij do głównego okna” i „Przypnij całe okno
+  do głównego”, a menu Okno „Przypnij wszystkie okna do głównego”.
+- Skróty klawiszowe i skupienie paneli działają w wypiętych oknach.
+- Program zapamiętuje układ wszystkich okien: miejsce, rozmiar, maksymalizację i monitor. Gdy
+  monitora już nie ma albo okno wypadłoby poza ekrany, ląduje na monitorze głównym w tym samym
+  miejscu względem ekranu; zmiana skali (DPI) i rozdzielczości nie psuje układu.
+- Nowe menu Workspace obok wyboru projektu, z nazwą bieżącego: Montaż, Kolor, Audio i mikser,
+  Efekty i animacja, Napisy i tekst, AI i generacje, Recenzja. Przełączenie jednym kliknięciem,
+  workspace pamięta, jak go zostawiłeś. „Zapisz zmiany”, „Zapisz bieżący jako nowy…”, „Przywróć
+  zapisany układ”, „Przywróć domyślny preset”, zmiana nazwy i usuwanie własnych. Workspace
+  obejmuje okno główne i wszystkie wypięte okna na wszystkich ekranach; zapamiętany jest
+  ostatnio użyty.
+
+Praca razem online przez link:
+
+- „Praca razem online”: „Zacznij udostępniać” daje link, z którym inne osoby pracują w tym
+  samym projekcie na żywo, także w jednej osi czasu; zmiany każdego, również agenta, widać u
+  wszystkich od razu. Osobny „Link do podglądu” daje dostęp tylko do oglądania.
+- Projekt jest szyfrowany od końca do końca. Pliki zaimportowane u jednej osoby same trafiają na
+  dysk pozostałych i zostają na serwerze najwyżej 24 godziny; ścieżki do plików są prywatne. Głowice innych osób są na osi czasu przygaszone na
+  błękitno.
+
+Markery:
+
+- Edytor markera: nazwa, etykiety i opis. Opis to zwykły tekst albo, po przełączeniu na
+  JSON, dokument z rozmową z agentem i listą zadań do poprawek. Wszystko to także w narzędziach
+  MCP dla agenta. Eksport markerów do Premiere, EDL i OTIO bez zmian.
+
 ## 0.16.0 (2026-10-29)
 
 Automatyczne aktualizacje:
