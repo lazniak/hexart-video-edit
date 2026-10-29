@@ -50,7 +50,9 @@ Ręcznie: pobierz `hexart-video-edit-<wersja>-windows-x64.zip` z [Releases](http
 
 ### Aktualizacja
 
-Uruchom ten sam instalator jeszcze raz. Zamknie program i serwer agenta w tle (jeśli działają), zostawi kopię poprzednich plików jako `*.exe.old` i podmieni pliki. Twoje projekty i ustawienia zostają. Sesję Claude Code uruchom po aktualizacji od nowa.
+Od wersji 0.16.0 program aktualizuje się sam: krótko po starcie i co kilka godzin sprawdza, czy jest nowe wydanie, pobiera je w tle, sprawdza sumę SHA-256 i instaluje, gdy zamykasz edytor (albo gdy serwer agenta w tle nic nie robi). Gdy nowa wersja czeka, na pasku stanu jest przycisk „Aktualizacja X”, który od razu uruchamia program ponownie. Wyłączysz to w Preferencjach, sekcja Aktualizacje. Z wiersza poleceń: `hve update` (albo `hve update --check`).
+
+Ręcznie: uruchom ten sam instalator jeszcze raz. Zamknie program i serwer agenta w tle (jeśli działają), zostawi kopię poprzednich plików jako `*.exe.old` i podmieni pliki. Twoje projekty i ustawienia zostają. Sesję Claude Code uruchom po aktualizacji od nowa.
 
 ### Pierwsze kroki
 
@@ -164,7 +166,9 @@ Manually: download `hexart-video-edit-<version>-windows-x64.zip` from [Releases]
 
 ### Update
 
-Run the same installer again. It closes the program and the background agent server (if running), keeps a copy of the previous files as `*.exe.old` and replaces the files. Your projects and settings stay. Restart your Claude Code session after an update.
+From version 0.16.0 the program updates itself: shortly after it starts and every few hours it checks for a new release, downloads it in the background, verifies its SHA-256 and installs it when you close the editor (or when the background agent server is idle). While a new version waits, the status bar shows an "Update X" button that restarts the program right away. Turn it off in Preferences, Updates. From the command line: `hve update` (or `hve update --check`).
+
+Manually: run the same installer again. It closes the program and the background agent server (if running), keeps a copy of the previous files as `*.exe.old` and replaces the files. Your projects and settings stay. Restart your Claude Code session after an update.
 
 ### First steps
 

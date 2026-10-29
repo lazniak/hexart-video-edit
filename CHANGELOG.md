@@ -2,6 +2,65 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.16.0 (2026-10-29)
+
+Automatyczne aktualizacje:
+
+- Zainstalowany program sam sprawdza, czy na GitHubie jest nowa wersja (krótko po starcie i co 6
+  godzin), pobiera ją w tle, sprawdza sumę SHA-256 i numer wersji, a instaluje bez pytania, gdy
+  edytor się zamyka albo gdy serwer agenta w tle od 10 minut nic nie robi (potem sam wraca w nowej
+  wersji z tym samym projektem). Nieudana podmiana niczego nie psuje: pliki wracają na miejsce.
+- Na pasku stanu złoty przycisk „Aktualizacja X”: zamyka edytor (najpierw pyta o niezapisane
+  zmiany) i uruchamia go w nowej wersji.
+- Preferencje, sekcja Aktualizacje: „Aktualizuj automatycznie” (domyślnie włączone), numer wersji,
+  „Sprawdź teraz” i stan.
+- `hve update` aktualizuje z wiersza poleceń, `hve update --check` tylko sprawdza.
+
+Mikser audio i oś czasu dokończone:
+
+- Mikser: wskaźniki szczytu L i P przy suwaku każdej ścieżki (po suwaku i balansie, z
+  przytrzymaniem i znacznikiem przesterowania jak na masterze).
+- 35 wbudowanych efektów audio z około 90 presetami: kompresor wielopasmowy (4 pasma, zwrotnice
+  Linkwitz-Riley, presety Stare radio, Krótkofalówka, Telefon, Zabawka, Radio AM, Megafon,
+  Broadcast, Podcast i inne), kompresor jednopasmowy, limiter, bramka, de-esser, kompresor
+  lampowy, dynamika; dolno-, górno-, pasmowo- i wieloprzepustowy, korektor parametryczny (7 pasm)
+  i graficzny (10 pasm), bas, sopran; pogłos studyjny (FDN) i pogłos przestrzenny (splot z
+  wygenerowanymi odpowiedziami 10 pomieszczeń albo z własnego pliku WAV, kanały 5.1 i 7.1);
+  delay, multitap, chorus i flanger, phaser; odszumianie, usuwanie przydźwięku; przester,
+  bitcrusher, wzmacniacz wokalu; narzędzia stereo i mastering; declicker (trzaski i trzeszczenie
+  płyty). Przester z nadpróbkowaniem (do 8x), limiter i maksymalizer z wyprzedzeniem i szczytem
+  rzeczywistym; ich opóźnienie jest kompensowane jak we wtyczkach. Plik odpowiedzi impulsowej
+  ze ścieżką względną do folderu projektu.
+- MCP: `list_effects` i `list_bus_effects` pokazują presety, nowe narzędzie `apply_effect_preset`
+  (jedna rewizja).
+- Presety w nagłówku efektu w Ustawieniach efektów: jeden krok cofania, parametry, których preset
+  nie zmienia, wracają do domyślnych. Wyszukiwarka efektów znajduje też po identyfikatorze
+  („multiband”).
+- Linie klatek kluczowych na klipach osi: głośność dla audio i krycie dla wideo, rozwijana lista w
+  nagłówku ścieżki wybiera dowolny parametr klipu, efektu na szynie ścieżki albo wtyczki (także
+  automatyzacja głośności i panoramy ścieżki). Ctrl i klik dodaje klucz, przeciąganie linii
+  podnosi cały odcinek, Alt i przeciągnięcie klucza robi Beziera (także w Ustawieniach efektów i
+  w edytorze wykresu), Alt i klik przełącza liniowy i automatyczny Bezier.
+- Lasso wyrażeń także między klipami, szynami ścieżek i masterem: `thisComp.track("A1")` i
+  `thisComp.master` z `effect()`, `effects` i `numEffects`; wskaźniki powiązań skaczą do szyny.
+- Prawy klik na klipie: „Rozwiń audio ze źródła” i „Rozwiń wideo ze źródła” dokłada drugi
+  strumień na pierwszej wolnej ścieżce i łączy go z klipem.
+- Ścieżki zawsze wypełniają panel; Shift i plus albo minus nad osią delikatnie powiększa albo
+  zmniejsza wszystkie ścieżki; przeciągnięcie granicy między ścieżkami zmienia całą grupę
+  sprężyście (chwycona granica idzie za kursorem), środkowy separator dzieli wysokość między
+  wideo i audio proporcjonalnie.
+- Szerokość kolumny nagłówków przeciąga się za jej prawą krawędź (pamiętana), narożnik z nazwą
+  narzędzia i czasem końca zniknął, długie nazwy ścieżek kończą się wielokropkiem (pełna nazwa w
+  podpowiedzi).
+- Ctrl i klik na timecode przełącza timecode, numer klatki i sekundy; linijki osi i Ustawień
+  efektów pokazują to samo.
+- Każde pole liczbowe przyjmuje działania: `*2`, `+10%`, `/4`, `-=1.5`, `(1920-40)/2`, funkcje
+  (`round`, `min`, `max`, `clamp`, `db`), jednostki czasu w polach czasu (`+2s`, `-12f`,
+  `1:30`), przecinek dziesiętny.
+- Przejścia: rysowane nad oboma klipami z nazwą, krawędzie ciągną się we właściwą stronę
+  (wyśrodkowane rosną symetrycznie), Delete na zaznaczonym przejściu usuwa przejście, nie klip;
+  przejście wejściowe na cięciu, którego odtwarzanie i tak nie używa, nie jest już pokazywane.
+
 ## 0.15.0 (2026-10-28)
 
 Pierwsze wydanie publiczne: https://github.com/lazniak/hexart-video-edit (instalator jedną linią

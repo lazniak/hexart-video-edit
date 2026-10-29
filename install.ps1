@@ -319,6 +319,10 @@ function Main {
             }
             throw
         }
+        # A staged automatic update and the record of the last one describe the files just
+        # replaced: the app must not swap or trust them over this install.
+        $upd = Join-Path $InstallDir 'update'
+        if (Test-Path -LiteralPath $upd) { Remove-Item -LiteralPath $upd -Recurse -Force -ErrorAction SilentlyContinue }
         Get-ChildItem -LiteralPath $InstallDir -Recurse -File -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue
 
         $appExe = Join-Path $InstallDir 'hexart-video-edit.exe'
@@ -392,7 +396,7 @@ function Main {
         } else {
             Line '  3. Agent AI: serwer MCP jest zarejestrowany / the MCP server is registered.'
         }
-        Line '  4. Aktualizacja / Update: uruchom ten instalator ponownie / run this installer again.'
+        Line '  4. Aktualizacje / Updates: program aktualizuje si\u0119 sam (Preferencje > Aktualizacje) / the app updates itself (Preferences > Updates).'
         Line '  5. Zg\u0142oszenia b\u0142\u0119d\u00f3w / Bug reports: w programie lub https://github.com/lazniak/hexart-video-edit/issues'
         Write-Host ''
     } finally {
