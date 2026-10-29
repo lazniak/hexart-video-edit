@@ -25,8 +25,8 @@
 .PARAMETER NoAutostart
   Nie ruszaj wpisu autostartu. / Leave the autostart entry alone.
 
-  Parametry -ShortcutsDir, -RunKeyPath, -ClaudeCli, -DataDir, -CacheDir sluza testom.
-  -ShortcutsDir, -RunKeyPath, -ClaudeCli, -DataDir, -CacheDir exist for tests.
+  Parametry -ShortcutsDir, -RunKeyPath, -ClassesPath, -ClaudeCli, -DataDir, -CacheDir sluza testom.
+  -ShortcutsDir, -RunKeyPath, -ClassesPath, -ClaudeCli, -DataDir, -CacheDir exist for tests.
 #>
 [CmdletBinding()]
 param(
@@ -38,6 +38,7 @@ param(
     [switch]$NoAutostart,
     [string]$ShortcutsDir,
     [string]$RunKeyPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run',
+    [string]$ClassesPath = 'HKCU:\Software\Classes',
     [string]$ClaudeCli,
     [string]$DataDir,
     [string]$CacheDir
@@ -49,6 +50,7 @@ $ProgressPreference = 'SilentlyContinue'
 $AppName = 'HEXART Video Edit'
 $RunValueName = 'HEXART Video Edit agent server'
 $McpName = 'hexart-video-edit'
+$UrlScheme = 'hve'
 
 # Messages carry \uXXXX escapes instead of Polish letters: this file is plain ASCII, so Windows
 # PowerShell 5.1 reads it the same from a file, from irm | iex, with or without a BOM.
@@ -191,6 +193,18 @@ function Main {
         if ($has) {
             Remove-ItemProperty -Path $RunKeyPath -Name $RunValueName -ErrorAction SilentlyContinue
             Say 'Autostart serwera agenta: usuni\u0119ty.' 'Agent server autostart: removed.' 'ok'
+        }
+    }
+
+    # ---- hve:// links: only when they open this installation ------------------------------
+    $schemeKey = Join-Path $ClassesPath $UrlScheme
+    $cmdKey = "$schemeKey\shell\open\command"
+    if (Test-Path -LiteralPath $cmdKey) {
+        $cmd = [string](Get-ItemProperty -LiteralPath $cmdKey -ErrorAction SilentlyContinue).'(default)'
+        $ours = '"' + (Join-Path $InstallDir 'hexart-video-edit.exe') + '"'
+        if ($cmd -and $cmd.StartsWith($ours, [StringComparison]::OrdinalIgnoreCase)) {
+            Remove-Item -LiteralPath $schemeKey -Recurse -Force -ErrorAction SilentlyContinue
+            Say 'Linki hve://: usuni\u0119te.' 'hve:// links: removed.' 'ok'
         }
     }
 

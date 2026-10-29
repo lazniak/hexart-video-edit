@@ -40,8 +40,13 @@
   Zamknij uruchomione procesy HEXART bez pytania (po lagodnej probie). / Stop running HEXART
   processes without asking (after a graceful attempt).
 
-  Parametry -ApiBase, -ShortcutsDir, -RunKeyPath, -ClaudeCli sluza testom.
-  -ApiBase, -ShortcutsDir, -RunKeyPath, -ClaudeCli exist for tests.
+  Linki wspolpracy hve:// otwieraja program: schemat URL jest rejestrowany dla biezacego
+  uzytkownika (HKCU\Software\Classes\hve, bez praw administratora).
+  Collaboration links (hve://) open the app: the URL scheme is registered for the current user
+  (HKCU\Software\Classes\hve, no administrator rights).
+
+  Parametry -ApiBase, -ShortcutsDir, -RunKeyPath, -ClassesPath, -ClaudeCli sluza testom.
+  -ApiBase, -ShortcutsDir, -RunKeyPath, -ClassesPath, -ClaudeCli exist for tests.
 #>
 [CmdletBinding()]
 param(
@@ -59,6 +64,7 @@ param(
     [string]$ApiBase = 'https://api.github.com/repos/lazniak/hexart-video-edit',
     [string]$ShortcutsDir,
     [string]$RunKeyPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run',
+    [string]$ClassesPath = 'HKCU:\Software\Classes',
     [string]$ClaudeCli
 )
 
@@ -71,6 +77,8 @@ try {
 $AppName = 'HEXART Video Edit'
 $RunValueName = 'HEXART Video Edit agent server'   # the same value the app writes itself
 $McpName = 'hexart-video-edit'
+$UrlScheme = 'hve'                          # the same values the app writes at start
+$UrlSchemeName = 'URL:HEXART Video Edit'
 
 # Messages carry \uXXXX escapes instead of Polish letters: this file is plain ASCII, so Windows
 # PowerShell 5.1 reads it the same from a file, from irm | iex, with or without a BOM.
@@ -350,6 +358,19 @@ function Main {
             New-Shortcut (Join-Path $deskDir "$AppName.lnk") $appExe $InstallDir 'HEXART Video Edit'
             Say 'Skr\u00f3t na pulpicie: gotowy.' 'Desktop shortcut: done.'
         }
+
+        # ---- 4b. hve:// links (collaboration) open this installation ------------------------
+        # The same values the app writes itself at start (the scheme module of the editor), so it
+        # finds them current and leaves them alone.
+        $schemeKey = Join-Path $ClassesPath $UrlScheme
+        foreach ($k in @($ClassesPath, $schemeKey, "$schemeKey\DefaultIcon", "$schemeKey\shell", "$schemeKey\shell\open", "$schemeKey\shell\open\command")) {
+            if (-not (Test-Path -LiteralPath $k)) { New-Item -Path $k -Force | Out-Null }
+        }
+        Set-ItemProperty -LiteralPath $schemeKey -Name '(default)' -Value $UrlSchemeName -Type String
+        Set-ItemProperty -LiteralPath $schemeKey -Name 'URL Protocol' -Value '' -Type String
+        Set-ItemProperty -LiteralPath "$schemeKey\DefaultIcon" -Name '(default)' -Value ('"' + $appExe + '",0') -Type String
+        Set-ItemProperty -LiteralPath "$schemeKey\shell\open\command" -Name '(default)' -Value ('"' + $appExe + '" --link "%1"') -Type String
+        Say 'Linki hve:// (wsp\u00f3\u0142praca): otwieraj\u0105 program.' 'hve:// links (collaboration): open the app.' 'ok'
 
         # ---- 5. Autostart of the background agent server (same value as the app) ---------
         $doAuto = $false

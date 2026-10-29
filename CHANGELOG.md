@@ -2,6 +2,105 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.18.0 (2026-10-29)
+
+Poprawki po pierwszym teście z montażystą.
+
+Linki do współpracy:
+
+- Kliknięcie linku `hve://` w przeglądarce otwiera program (instalator rejestruje link, a
+  zainstalowany program naprawia rejestrację przy starcie). Gdy edytor już działa, link trafia do
+  otwartego okna, które wychodzi na wierzch z wypełnionym formularzem dołączania. Dołączenie
+  zawsze potwierdzasz sam.
+- Linki wklejone z czatu albo maila działają także bez `https://`, z tekstem dookoła, z `%23`
+  zamiast `#` i z dopisanym ukośnikiem. Uszkodzony link mówi, co jest nie tak.
+
+Praca razem online:
+
+- Link do podglądu daje tryb tylko do oglądania: zmiany nie znikają już po cichu. Okno
+  udostępniania pokazuje najpierw link do edycji.
+- Projekt otwiera się u gościa od razu, a pliki dociągają się w tle z postępem (najpierw te przy
+  głowicy) i podmieniają same.
+- „Śledź” (prawy przycisk na etykiecie głowicy innej osoby albo lista osób): głowica,
+  odtwarzanie, powiększenie i przewijanie osi, sekwencja i aktywny monitor idą za tą osobą, dopóki
+  nie przerwiesz (Esc, kliknięcie albo własna akcja).
+- W sesji online Ctrl+Z cofa najnowszą zmianę wspólnej historii, czyjąkolwiek, a komunikat mówi,
+  czyja to była zmiana. Cofanie nie gubi już zmian współpracowników. Schowek zostaje osobisty.
+- Dwie osoby o tej samej nazwie rozróżnia kolor i krótki kod przy nazwie.
+- Plik > „Otwórz link do wspólnego projektu…” i przycisk w oknie projektów; link można też po
+  prostu wkleić (Ctrl+V poza polami tekstowymi).
+- Klipy jeszcze niepobrane mają znacznik z postępem wysyłania albo pobierania.
+
+Oś czasu i przejścia:
+
+- Uchwyty przejść: krawędź zmienia długość tylko po swojej stronie, z Alt obie
+  naraz, środek przesuwa całe przejście wzdłuż cięcia. Kursor pokazuje tryb.
+- Część przejścia poza materiałem źródłowym jest zakreskowana, a podpowiedź mówi, ilu klatek
+  brakuje z każdej strony.
+- Ctrl+D ma jedną zasadę: zaznaczone sąsiednie klipy dostają przejście tylko między sobą, jeden
+  zaznaczony klip na cięciu najbliższym głowicy, bez zaznaczenia na cięciu pod głowicą. Jedno
+  naciśnięcie nigdy nie dodaje dwóch przejść.
+- Krótkie przejścia ze starszych projektów znowu pokazują nazwę.
+- Rolka nad linijką czasu przesuwa głowicę o klatkę, Shift o 5 klatek.
+
+Monitory:
+
+- Powiększenie 10 do 400% działa w Program i Source (100% to piksel obrazu na piksel ekranu),
+  przesuwanie środkowym przyciskiem albo narzędziem Rączka (H), Ctrl + rolka powiększa wokół
+  kursora, podwójne kliknięcie menu powiększenia albo Backslash wraca do dopasowania.
+- Rolka nad monitorem: klatka po klatce, Shift o 5 klatek.
+- Jog/shuttle pod przyciskami transportu: chwytasz suwak, wychylenie to prędkość i kierunek (do
+  8x), puszczenie zatrzymuje. J/L zmieniają prędkość bez przeskoku.
+
+Klatki kluczowe:
+
+- Przeciągana klatka kluczowa idzie za kursorem (Shift przyciąga do głowicy i innych kluczy, Esc
+  anuluje), całe przeciągnięcie to jedna zmiana w historii i nie uruchamia odtwarzania.
+- W edytorze wykresu przeciągany klucz zabiera pozostałe zaznaczone.
+- Głowicę w panelu Effect Controls można chwycić i przewijać.
+
+Audio:
+
+- Przebieg na osi pokazuje głośność klipu (także klucze i wyciszenie), na żywo przy
+  przeciąganiu; przester ma czerwoną końcówkę.
+- „Normalizuj audio…” w menu klipu: do szczytu dBFS albo głośności LUFS, każdy klip osobno albo
+  wszystkie razem, z podglądem zmiany i jedną zmianą w historii. To samo dla agenta w MCP.
+
+Projekt i pliki:
+
+- Nazwa projektu wynika z folderu albo z dialogu tworzenia; „Projekt bez nazwy” już się nie
+  pojawia. „Zapisz jako” ma ten sam dialog nazwy i miejsca i nie gubi mediów.
+- Przeciągnięcie klipu na „+” w panelu Projekt (albo „Nowa sekwencja z klipu”) tworzy sekwencję z
+  ustawieniami klipu: rozmiar, klatkaż, HDR i audio.
+- Plik > „Zbierz pliki…” kopiuje wszystkie media do folderu projektu (identyczne pliki raz).
+  Opcjonalne kopiowanie przy imporcie w preferencjach.
+
+Eksport:
+
+- Filmy z dźwiękiem mają zawsze wszystkie klatki i dźwięk dokładnie tak długi jak obraz (wcześniej
+  bywało o klatkę mniej, np. w MXF).
+
+Pamięć podręczna:
+
+- Ustawienia > Pamięć podręczna: wybór folderu cache (np. na innym dysku). Zmiana działa od
+  następnego uruchomienia: fonty i generacje przechodzą do nowego folderu, podglądy i klatki
+  Pixel Motion ze starego znikają.
+- Podglądy (miniatury galerii, przebiegi audio) mają limit rozmiaru (domyślnie 5 GB) i wieku
+  (domyślnie 30 dni bez użycia); najdawniej używane znikają same. „Wyczyść podglądy” usuwa je od
+  razu.
+- Miniatury i filmstripy zapisują się jako WebP zamiast PNG: kilka razy mniej miejsca na dysku.
+
+Proxy w kodeku HXC:
+
+- Nowy format proxy HXC (kodek HEXART): menu Widok „Utwórz proxy HXC zaznaczonych mediów”.
+  Szorowanie bez czekania (każda klatka osobno), mniejszy podgląd dekoduje tylko potrzebną
+  rozdzielczość, dekodowanie na karcie graficznej. Dźwięk proxy obok, w pliku `.m4a`.
+- Proxy gra samo, gdy oryginału nie ma na dysku (także dźwięk), a po włączeniu w preferencjach
+  także dla ciężkich źródeł (ProRes, DNx, RAW, powyżej UHD). „Wyłącz proxy zaznaczonych mediów”
+  zdejmuje proxy z wybranych mediów.
+- Folder proxy ma limit i wiek w preferencjach (domyślnie 50 GB, 60 dni), pokazany rozmiar i
+  przycisk „Usuń nieużywane proxy”; proxy otwartego projektu nigdy nie znikają.
+
 ## 0.17.0 (2026-10-29)
 
 Okna na wszystkich monitorach i workspaces:
