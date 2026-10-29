@@ -1,0 +1,33 @@
+HEXART Video Edit
+Copyright (c) 2026 HEXART Sp. z o.o. Wszelkie prawa zastrzeżone. / All rights reserved.
+
+[PL] Licencja na korzystanie (freeware)
+
+1. Wolno Ci używać programu bezpłatnie, prywatnie i komercyjnie, także do filmów, które
+   sprzedajesz. Filmy i projekty, które w nim zrobisz, należą do Ciebie.
+2. Nie wolno: sprzedawać, wynajmować ani udostępniać programu innym osobom w inny sposób
+   niż przez oficjalne wydania na https://github.com/lazniak/hexart-video-edit (możesz
+   podać komuś link do tej strony); zmieniać programu; usuwać informacji o prawach
+   autorskich; dekompilować ani odtwarzać kodu programu poza tym, na co pozwala Ci
+   bezwzględnie obowiązujące prawo.
+3. Program jest dostarczany "tak jak jest", bez gwarancji jakiegokolwiek rodzaju. W granicach
+   dozwolonych przez prawo HEXART Sp. z o.o. nie odpowiada za szkody wynikłe z używania
+   programu, w tym za utratę danych. Rób kopie swoich projektów.
+4. Do dołączonych komponentów zewnętrznych (FFmpeg i inne) stosują się ich własne licencje,
+   opisane w THIRD-PARTY-NOTICES.txt. Ta licencja ich nie zmienia.
+5. Nie przenosimy na Ciebie żadnych praw, których tu wprost nie wymieniono.
+
+[EN] Licence to use (freeware)
+
+1. You may use the program free of charge, privately and commercially, including for films
+   you sell. The films and projects you make with it are yours.
+2. You may not: sell, rent or otherwise make the program available to others except through
+   the official releases at https://github.com/lazniak/hexart-video-edit (you may give
+   someone the link to that page); modify the program; remove copyright notices; decompile
+   or reverse engineer the program except to the extent mandatory law allows you to.
+3. The program is provided "as is", without warranty of any kind. To the extent permitted by
+   law HEXART Sp. z o.o. is not liable for any damage arising from the use of the program,
+   including loss of data. Back up your projects.
+4. The bundled third-party components (FFmpeg and others) are covered by their own licences,
+   described in THIRD-PARTY-NOTICES.txt. This licence does not change them.
+5. No rights are granted to you other than those expressly listed here.

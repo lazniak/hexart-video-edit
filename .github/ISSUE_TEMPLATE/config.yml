@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Zgłoszenie z programu / Report from inside the app
+    url: https://github.com/lazniak/hexart-video-edit#zgłaszanie-błędów-z-programu
+    about: Najłatwiej zgłosić błąd przyciskiem w programie. Dołącza wersję, log i dane urządzenia, które możesz poprawić przed wysłaniem. / The easiest way is the button in the app. It adds the version, log and device info, which you can edit before sending.
+  - name: Luka w zabezpieczeniach / Security vulnerability
+    url: https://github.com/lazniak/hexart-video-edit/security/advisories/new
+    about: Zgłoś prywatnie, nie w publicznym issue. / Report privately, not in a public issue.

@@ -1,0 +1,55 @@
+name: Błąd / Bug report
+description: Coś nie działa w HEXART Video Edit. / Something does not work in HEXART Video Edit.
+title: "[Błąd] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Najłatwiej zgłosić błąd przyciskiem w programie: dołącza wersję, log i dane urządzenia.
+        Ten formularz jest do zgłoszeń ręcznych. Issue jest publiczne: nie wklejaj haseł, kluczy ani danych klientów.
+
+        The easiest way is the bug report button in the app: it adds the version, log and device info.
+        This form is for manual reports. The issue is public: do not paste passwords, keys or client data.
+  - type: input
+    id: version
+    attributes:
+      label: Wersja / Version
+      description: "Wynik `hve.exe --version` albo wersja z okna O programie. / Output of `hve.exe --version` or the version in the About window."
+      placeholder: "0.15.0"
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: System i karta graficzna / System and graphics card
+      placeholder: "Windows 11 24H2, NVIDIA RTX 4070, sterownik / driver 5xx.xx"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Kroki do odtworzenia / Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Czego oczekiwałeś / What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Co się stało / What happened
+      description: Jeśli to pomaga, dodaj zrzut ekranu (przeciągnij go tutaj). / Add a screenshot if it helps (drag it here).
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log / Log
+      description: "Folder z logami: `%APPDATA%\\HEXART\\HEXART Video Edit\\data\\logs`. Wklej końcówkę najnowszego pliku i usuń ścieżki oraz nazwy, których nie chcesz ujawniać. / Paste the tail of the newest file and remove paths or names you do not want to share."
+      render: text
