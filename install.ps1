@@ -20,6 +20,9 @@
   Folder instalacji. / Install folder.
 .PARAMETER ZipPath
   Lokalny zip zamiast pobierania (obok moze lezec plik .sha256). / Local zip instead of a download.
+  Bez -ZipPath i -Version skrypt uruchomiony z rozpakowanej paczki (obok hexart-video-edit.exe)
+  instaluje pliki z tego folderu. / Without -ZipPath and -Version, run from an unpacked package
+  (next to hexart-video-edit.exe), the script installs the files of that folder.
 .PARAMETER Desktop
   Dodatkowo skrot na pulpicie. / Also a desktop shortcut.
 .PARAMETER Autostart
@@ -77,6 +80,7 @@ try {
 $AppName = 'HEXART Video Edit'
 $RunValueName = 'HEXART Video Edit agent server'   # the same value the app writes itself
 $McpName = 'hexart-video-edit'
+$InstallMarker = '.hve-install'              # marks a folder as an installation
 $UrlScheme = 'hve'                          # the same values the app writes at start
 $UrlSchemeName = 'URL:HEXART Video Edit'
 
@@ -228,7 +232,12 @@ function Main {
     if (-not [Environment]::Is64BitOperatingSystem) { Fail 'Wymagany Windows 64-bit.' '64-bit Windows is required.' }
     if ($Version) { $Version = $Version.TrimStart('v') }
 
-    if (-not $InstallDir) { $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\$AppName" }
+    if (-not $InstallDir) {
+        $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\$AppName"
+        # The copy of this script inside an installation in another folder updates that
+        # installation, not a second one in the default folder.
+        if ($PSScriptRoot -and (Test-Path -LiteralPath (Join-Path $PSScriptRoot $InstallMarker))) { $InstallDir = $PSScriptRoot }
+    }
     $InstallDir = [IO.Path]::GetFullPath($InstallDir)
 
     Say "HEXART Video Edit: instalacja w $InstallDir" "HEXART Video Edit: installing to $InstallDir"
@@ -236,56 +245,73 @@ function Main {
     $work = Join-Path ([IO.Path]::GetTempPath()) ("hve-install-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
     New-Item -ItemType Directory -Force -Path $work | Out-Null
     try {
-        # ---- 1. Zip + checksum --------------------------------------------------------
-        $zip = $null
-        $expected = $null
-        if ($ZipPath) {
-            if (-not (Test-Path -LiteralPath $ZipPath)) { Fail "Brak pliku $ZipPath." "File not found: $ZipPath" }
-            $zip = (Resolve-Path -LiteralPath $ZipPath).Path
-            $shaFile = "$zip.sha256"
-            if (Test-Path -LiteralPath $shaFile) {
-                $expected = ((Get-Content -LiteralPath $shaFile -Raw).Trim() -split '\s+')[0].ToLowerInvariant()
+        # ---- 1. Source: the unpacked package this script came in, else a zip ------------
+        # install.ps1 also ships inside the zip: run from an unpacked package (next to
+        # hexart-video-edit.exe and hve.exe) without -ZipPath or -Version, it installs those
+        # files. Run from the installation itself (an update copied it there), it downloads.
+        $src = $null
+        if (-not $ZipPath -and -not $Version -and $PSScriptRoot) {
+            $here = [IO.Path]::GetFullPath($PSScriptRoot).TrimEnd('\')
+            $hasExes = (Test-Path -LiteralPath (Join-Path $here 'hexart-video-edit.exe')) -and (Test-Path -LiteralPath (Join-Path $here 'hve.exe'))
+            if ($hasExes -and -not [string]::Equals($here, $InstallDir.TrimEnd('\'), [StringComparison]::OrdinalIgnoreCase)) {
+                $src = $here
+                Say "Instaluj\u0119 z rozpakowanej paczki: $here" "Installing from the unpacked package: $here"
+                # Unpacked from a downloaded zip, the files carry the "from the internet" mark.
+                Get-ChildItem -LiteralPath $src -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
+            }
+        }
+        if (-not $src) {
+            # ---- 1. Zip + checksum --------------------------------------------------------
+            $zip = $null
+            $expected = $null
+            if ($ZipPath) {
+                if (-not (Test-Path -LiteralPath $ZipPath)) { Fail "Brak pliku $ZipPath." "File not found: $ZipPath" }
+                $zip = (Resolve-Path -LiteralPath $ZipPath).Path
+                $shaFile = "$zip.sha256"
+                if (Test-Path -LiteralPath $shaFile) {
+                    $expected = ((Get-Content -LiteralPath $shaFile -Raw).Trim() -split '\s+')[0].ToLowerInvariant()
+                } else {
+                    Say 'Brak pliku .sha256 obok zipa, pomijam sprawdzanie sumy.' 'No .sha256 next to the zip, skipping the checksum check.' 'warn'
+                }
             } else {
-                Say 'Brak pliku .sha256 obok zipa, pomijam sprawdzanie sumy.' 'No .sha256 next to the zip, skipping the checksum check.' 'warn'
+                $headers = @{ 'User-Agent' = 'hexart-video-edit-installer'; 'Accept' = 'application/vnd.github+json' }
+                $url = "$ApiBase/releases/latest"
+                if ($Version) { $url = "$ApiBase/releases/tags/v$Version" }
+                Say 'Sprawdzam wydanie na GitHub...' 'Checking the release on GitHub...'
+                try { $rel = Invoke-RestMethod -UseBasicParsing -Uri $url -Headers $headers }
+                catch { Fail "Nie uda\u0142o si\u0119 pobra\u0107 informacji o wydaniu ($url): $($_.Exception.Message)" "Could not read the release info." }
+                $ver = ([string]$rel.tag_name).TrimStart('v')
+                $zipName = "hexart-video-edit-$ver-windows-x64.zip"
+                $zipAsset = @($rel.assets | Where-Object { $_.name -eq $zipName }) | Select-Object -First 1
+                $shaAsset = @($rel.assets | Where-Object { $_.name -eq "$zipName.sha256" }) | Select-Object -First 1
+                if (-not $zipAsset) { Fail "Wydanie v$ver nie ma pliku $zipName." "Release v$ver has no $zipName." }
+                if (-not $shaAsset) { Fail "Wydanie v$ver nie ma pliku $zipName.sha256, nie instaluj\u0119 bez sumy kontrolnej." "No checksum asset, refusing to install." }
+                $sizeMb = [math]::Round($zipAsset.size / 1MB)
+                Say "Pobieram wersj\u0119 $ver (oko\u0142o $sizeMb MB)..." "Downloading version $ver (about $sizeMb MB)..."
+                $zip = Join-Path $work $zipName
+                Invoke-WebRequest -UseBasicParsing -Uri $zipAsset.browser_download_url -OutFile $zip -Headers @{ 'User-Agent' = 'hexart-video-edit-installer' }
+                $shaText = (Invoke-WebRequest -UseBasicParsing -Uri $shaAsset.browser_download_url -Headers @{ 'User-Agent' = 'hexart-video-edit-installer' }).Content
+                if ($shaText -is [byte[]]) { $shaText = [Text.Encoding]::UTF8.GetString($shaText) }
+                $expected = (([string]$shaText).Trim() -split '\s+')[0].ToLowerInvariant()
             }
-        } else {
-            $headers = @{ 'User-Agent' = 'hexart-video-edit-installer'; 'Accept' = 'application/vnd.github+json' }
-            $url = "$ApiBase/releases/latest"
-            if ($Version) { $url = "$ApiBase/releases/tags/v$Version" }
-            Say 'Sprawdzam wydanie na GitHub...' 'Checking the release on GitHub...'
-            try { $rel = Invoke-RestMethod -UseBasicParsing -Uri $url -Headers $headers }
-            catch { Fail "Nie uda\u0142o si\u0119 pobra\u0107 informacji o wydaniu ($url): $($_.Exception.Message)" "Could not read the release info." }
-            $ver = ([string]$rel.tag_name).TrimStart('v')
-            $zipName = "hexart-video-edit-$ver-windows-x64.zip"
-            $zipAsset = @($rel.assets | Where-Object { $_.name -eq $zipName }) | Select-Object -First 1
-            $shaAsset = @($rel.assets | Where-Object { $_.name -eq "$zipName.sha256" }) | Select-Object -First 1
-            if (-not $zipAsset) { Fail "Wydanie v$ver nie ma pliku $zipName." "Release v$ver has no $zipName." }
-            if (-not $shaAsset) { Fail "Wydanie v$ver nie ma pliku $zipName.sha256, nie instaluj\u0119 bez sumy kontrolnej." "No checksum asset, refusing to install." }
-            $sizeMb = [math]::Round($zipAsset.size / 1MB)
-            Say "Pobieram wersj\u0119 $ver (oko\u0142o $sizeMb MB)..." "Downloading version $ver (about $sizeMb MB)..."
-            $zip = Join-Path $work $zipName
-            Invoke-WebRequest -UseBasicParsing -Uri $zipAsset.browser_download_url -OutFile $zip -Headers @{ 'User-Agent' = 'hexart-video-edit-installer' }
-            $shaText = (Invoke-WebRequest -UseBasicParsing -Uri $shaAsset.browser_download_url -Headers @{ 'User-Agent' = 'hexart-video-edit-installer' }).Content
-            if ($shaText -is [byte[]]) { $shaText = [Text.Encoding]::UTF8.GetString($shaText) }
-            $expected = (([string]$shaText).Trim() -split '\s+')[0].ToLowerInvariant()
-        }
-        if ($expected) {
-            $actual = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-            if ($actual -ne $expected) {
-                Fail "Suma SHA-256 si\u0119 nie zgadza (jest $actual, powinno by\u0107 $expected). Nic nie zainstalowano." "SHA-256 mismatch. Nothing was installed."
+            if ($expected) {
+                $actual = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
+                if ($actual -ne $expected) {
+                    Fail "Suma SHA-256 si\u0119 nie zgadza (jest $actual, powinno by\u0107 $expected). Nic nie zainstalowano." "SHA-256 mismatch. Nothing was installed."
+                }
+                Say 'Suma SHA-256 zgodna.' 'SHA-256 verified.' 'ok'
             }
-            Say 'Suma SHA-256 zgodna.' 'SHA-256 verified.' 'ok'
-        }
 
-        # ---- 2. Unpack ----------------------------------------------------------------
-        Say 'Rozpakowuj\u0119...' 'Unpacking...'
-        $unz = Join-Path $work 'unz'
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-        [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $unz)
-        $exeHit = Get-ChildItem -LiteralPath $unz -Recurse -Filter 'hexart-video-edit.exe' -File | Select-Object -First 1
-        if (-not $exeHit) { Fail 'W zipie nie ma hexart-video-edit.exe.' 'hexart-video-edit.exe is not in the zip.' }
-        $src = $exeHit.DirectoryName
-        Get-ChildItem -LiteralPath $src -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
+            # ---- 2. Unpack ----------------------------------------------------------------
+            Say 'Rozpakowuj\u0119...' 'Unpacking...'
+            $unz = Join-Path $work 'unz'
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $unz)
+            $exeHit = Get-ChildItem -LiteralPath $unz -Recurse -Filter 'hexart-video-edit.exe' -File | Select-Object -First 1
+            if (-not $exeHit) { Fail 'W zipie nie ma hexart-video-edit.exe.' 'hexart-video-edit.exe is not in the zip.' }
+            $src = $exeHit.DirectoryName
+            Get-ChildItem -LiteralPath $src -Recurse -File | Unblock-File -ErrorAction SilentlyContinue
+        }
 
         # ---- 3. Stop what runs, replace files ------------------------------------------
         if (Test-Path -LiteralPath $InstallDir) { Stop-Hve $InstallDir }
@@ -311,7 +337,14 @@ function Main {
                 if (Test-Path -LiteralPath $ffDst) { Remove-Item -LiteralPath $ffDst -Recurse -Force }
                 Copy-Item -LiteralPath $ffSrc -Destination $ffDst -Recurse -Force
             }
-            foreach ($name in @('LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt')) {
+            # Web component library (read only, D58): replaced whole, like FFmpeg.
+            $libSrc = Join-Path $src 'library'
+            if (Test-Path -LiteralPath $libSrc) {
+                $libDst = Join-Path $InstallDir 'library'
+                if (Test-Path -LiteralPath $libDst) { Remove-Item -LiteralPath $libDst -Recurse -Force }
+                Copy-Item -LiteralPath $libSrc -Destination $libDst -Recurse -Force
+            }
+            foreach ($name in @('LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt', 'install.ps1', 'uninstall.ps1')) {
                 $p = Join-Path $src $name
                 if (Test-Path -LiteralPath $p) { Copy-Item -LiteralPath $p -Destination (Join-Path $InstallDir $name) -Force }
             }
@@ -331,6 +364,8 @@ function Main {
         # replaced: the app must not swap or trust them over this install.
         $upd = Join-Path $InstallDir 'update'
         if (Test-Path -LiteralPath $upd) { Remove-Item -LiteralPath $upd -Recurse -Force -ErrorAction SilentlyContinue }
+        # Marks the folder as an installation (its install.ps1 and uninstall.ps1 then work on it).
+        Set-Content -LiteralPath (Join-Path $InstallDir $InstallMarker) -Value 'HEXART Video Edit installation' -Encoding ASCII
         Get-ChildItem -LiteralPath $InstallDir -Recurse -File -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue
 
         $appExe = Join-Path $InstallDir 'hexart-video-edit.exe'
@@ -417,6 +452,8 @@ function Main {
         } else {
             Line '  3. Agent AI: serwer MCP jest zarejestrowany / the MCP server is registered.'
         }
+        Line '     Claude Desktop i inne / and others: Preferencje > Agent > Pod\u0142\u0105cz / Preferences > Agent > Connect'
+
         Line '  4. Aktualizacje / Updates: program aktualizuje si\u0119 sam (Preferencje > Aktualizacje) / the app updates itself (Preferences > Updates).'
         Line '  5. Zg\u0142oszenia b\u0142\u0119d\u00f3w / Bug reports: w programie lub https://github.com/lazniak/hexart-video-edit/issues'
         Write-Host ''

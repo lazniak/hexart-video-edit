@@ -2,6 +2,112 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.0 (2026-10-30)
+
+Poprawki po drugim teście z montażystą i nowe uwagi do interfejsu.
+
+Okna i układ:
+
+- Nic nie wychodzi poza ekran: okna, dialogi, menu, listy rozwijane i dymki mieszczą się w
+  ekranie (także 1280x720), długa treść się przewija, a tytuł i przyciski zostają widoczne.
+- Okna AI osobno: Agent, Prośby o zgodę, Analiza, Szukaj w materiałach, Wstępny montaż oraz
+  Rotoskopia i ścieżki to osobne panele. Menu Okno ma kategorie (Montaż, Efekty i grafika, Kolor,
+  Dźwięk i tekst, AI, Wyjście), a otwarty panel ma złotą ikonę.
+- Zakładki doku: złoty pasek nie zostaje na zakrytej zakładce, a gdy zakładki się nie mieszczą,
+  przycisk na końcu paska pokazuje pozostałe.
+- Przeciąganie między panelami: efekt z panelu Efekty na Effect Controls, na monitor Program i na
+  klip, presety efektów, efekty w stosie (zmiana kolejności, na inny klip: przenosi, z Ctrl
+  kopiuje).
+- Inteligentne poszerzanie paneli: przełącznik w górnym pasku obok Workspace (na start
+  wyłączony, także w Preferencjach > Interfejs). Grupa paneli pod kursorem po chwili bierze
+  miejsce sąsiadów; Twój układ zostaje bazą, a ręczne przesunięcie krawędzi ustawia nową.
+- Ustawienia projektu mają własne okno (Plik > Ustawienia projektu), Preferencje nie powtarzają
+  już sekcji Interfejs.
+
+Projekt:
+
+- Suwak wielkości w trybie listy i siatki (także Ctrl + kółko). Siatka zawsze wypełnia szerokość
+  panelu.
+- Podgląd pod kursorem przewija klip ruchem w poziomie (Projekt i AI Assets).
+
+Oś czasu:
+
+- Każda sekwencja może mieć własną zakładkę osi czasu (menu sekwencji w Projekcie i klipu
+  zagnieżdżonego), a głowica idzie przez zagnieżdżenia.
+- Pasy nad najwyższą ścieżką wideo i pod najniższą ścieżką audio: upuszczony tam klip tworzy nową
+  ścieżkę. Na dole „+” dodaje ścieżkę wideo i audio, a „−” usuwa puste.
+- Ostatnia klatka filmstripu na końcu klipu to naprawdę ostatnia klatka klipu.
+- Podmiana klipu: klip z Projektu upuszczony z Alt na klip osi podmienia go (jak Replace w
+  Premiere), Shift+Alt z synchronizacją czasu źródła.
+- Markery na osi: najechanie je podświetla, kliknięcie zaznacza jak w panelu Markery, prawy
+  przycisk otwiera ich menu.
+- Panel narzędzi ma stałą szerokość i stały rozmiar ikon.
+- Rolka nad ścieżkami może przewijać oś w poziomie (Preferencje).
+- Przewijanie z dźwiękiem jak taśma: jog/shuttle i Ctrl z przeciąganiem głowicy grają płynnie, z
+  wysokością idącą za prędkością, bez trzasków przy zmianie kierunku i zatrzymaniu.
+
+Efekty, kolor i warstwy web:
+
+- Lista efektów to drzewo z chowanymi gałęziami i sortowaniem (polskie litery na swoim miejscu),
+  z presetami efektów jako osobną gałęzią.
+- Wysokość wykresów w Effect Controls zmieniasz chwytem krawędzi, a krzywa głośności klipu ma
+  widoczne uchwyty Béziera.
+- Ujemna skala w Effect Controls odbija obraz w tej osi, jak w After Effects.
+- Z-depth z Video Depth Anything ze stałym zakresem głębi w czasie i efekt Camera Lens Blur.
+- Tryby mieszania liczone poprawnie: Multiply, Darken i pozostałe nie zaciemniają tła sekwencji,
+  a Add i Screen wyglądają różnie.
+- Warstwy web nie pokazują już migających resztek starych klatek po zmianie bez klucza, a
+  rozmycie ruchu działa także wewnątrz strony.
+- Biblioteka komponentów web w panelu Warstwy web (pierwsze komponenty), parametry z danymi JSON i
+  edytor danych.
+- Podgląd sekwencji Rec.709 (monitor, NDI, `render_frame`) ma te same kolory co eksport. Mapowanie
+  tonów podglądu SDR działa już tylko w sekwencjach HDR, więc szczyt monitora masteringowego nie
+  przyciemnia i nie ściska świateł klipów SDR.
+- Listy rozwijane nie skaczą przy najechaniu, a wektoroskop ma wyższą rozdzielczość.
+
+Dźwięk:
+
+- Submiksy z własnym łańcuchem efektów: ścieżka idzie na Master albo na submiks. Podziałki dB
+  przy suwakach w Audio Mixerze.
+- Efekty w łańcuchu ścieżki i submiksu: kolejność zmieniasz przeciąganiem, przeciągnięcie na
+  inny pasek przenosi efekt z ustawieniami, z Ctrl kopiuje.
+- 5.1 i 7.1: panorama surround, osobny center i LFE na ścieżce i na klipie, ścieżki
+  wielokanałowe na osi i eksport wielościeżkowy z ustawieniami zaawansowanymi.
+- Stemy filmowe w panelu AI i w `separate_stems`: dialog, muzyka i efekty, a także muzyka z
+  efektami, głos i reszta oraz sześć stemów (z gitarą i pianinem). Nowy silnik CASS (Bandit v2
+  i DBS-TIGER); ostatni stem bierze resztę, więc stemy sumują się do źródła.
+- Transkrypcje słów, które idą za montażem: lokalny Whisper (darmowy, offline, instalowany w
+  Preferencjach > Transkrypcja) albo ElevenLabs Scribe (płatny, z mówcami, po wycenie).
+
+Praca razem online:
+
+- Sesja trwa bez gospodarza: goście pracują dalej, gdy host wyjdzie albo zamknie program, a media
+  raz pobrane zostają.
+- Po restarcie program proponuje „Wróć do sesji online” jednym kliknięciem.
+- Przy udostępnianiu ustalasz, czy goście mogą zapraszać kolejne osoby.
+- Przesyłanie mediów mieści się w limitach serwera: odmowy serwera kończą się odczekaniem i
+  ponowieniem, postęp jest na każdy plik, a okno sesji z długą listą plików mieści się w ekranie.
+
+Agent i program:
+
+- Eksport do HXC, kodeka HEXART: presety „HXC” i „HXC bezstratny” w grupie montażowej, dźwięk w
+  pliku `.hxc.m4a` obok. To plik pośredni dla HEXART Video Edit (inne programy go nie otworzą), nie
+  plik dla klienta. Plik `.hxc` można zaimportować z powrotem jak każde media.
+- Podłączenie agenta AI z programu: Preferencje > Agent pokazują, czy Claude Code i Claude
+  Desktop są na komputerze i czy widzą program, a przycisk „Podłącz” wpisuje właściwe polecenie
+  (także dla kopii rozpakowanej z zipa). Konfiguracja Claude Desktop dostaje kopię zapasową, a
+  inne serwery i ustawienia zostają bez zmian. W Claude Code wybierasz zakres: wszystkie projekty
+  albo jeden folder (jego `.mcp.json`), z przeniesieniem między nimi, a dla wolących poprosić
+  Claude jest gotowe polecenie do wklejenia. Z terminala: `hve agent status|connect|disconnect`.
+- Kreator przy pierwszym uruchomieniu: język, folder projektów, podłączenie agenta,
+  automatyczne aktualizacje i zgłoszenia błędów. Można go pominąć; wraca z menu Pomoc.
+- Instalator jest też w zipie: uruchomiony z rozpakowanego folderu instaluje te pliki.
+- `hve mcp --connect` kończy się razem ze swoim klientem i nie zostawia procesów.
+- Zgłoszenie błędu może mieć zrzut okna programu (pole „Dołącz zrzut ekranu”, domyślnie
+  wyłączone): miniatura, duży podgląd i „Zrób ponownie”. HEXART przechowuje zrzut prywatnie,
+  nie jest publikowany.
+- Okno „Licencje i komponenty” wymienia modele stemów filmowych i ich licencje.
+
 ## 0.18.1 (2026-10-29)
 
 - Okno „Licencje i komponenty” z listą składników programu i ich licencjami. Przeznaczenie

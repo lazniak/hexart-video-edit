@@ -46,7 +46,7 @@ Opcje (zamiast jednej linii):
 | `-Yes` | nie pyta o nic, bierze odpowiedzi domyślne |
 | `-InstallDir` | inny folder instalacji |
 
-Ręcznie: pobierz `hexart-video-edit-<wersja>-windows-x64.zip` z [Releases](https://github.com/lazniak/hexart-video-edit/releases), rozpakuj do dowolnego folderu i uruchom `hexart-video-edit.exe`. Obok zipa leży plik `.sha256` do sprawdzenia: `Get-FileHash plik.zip -Algorithm SHA256`.
+Ręcznie: pobierz `hexart-video-edit-<wersja>-windows-x64.zip` z [Releases](https://github.com/lazniak/hexart-video-edit/releases), rozpakuj do dowolnego folderu i uruchom `hexart-video-edit.exe`. Obok zipa leży plik `.sha256` do sprawdzenia: `Get-FileHash plik.zip -Algorithm SHA256`. Przy pierwszym uruchomieniu krótki kreator ustawia język, folder projektów i podłącza agenta AI. Rozpakowaną kopię zainstalujesz później instalatorem, który jest w zipie: `powershell -ExecutionPolicy Bypass -File install.ps1` w tym folderze (instaluje pliki z folderu, nic nie pobiera).
 
 ### Aktualizacja
 
@@ -64,11 +64,13 @@ Ręcznie: uruchom ten sam instalator jeszcze raz. Zamknie program i serwer agent
 
 Linia poleceń: `hve.exe --help` w folderze instalacji. `hve new`, `hve import`, `hve render` i inne działają bez okna programu.
 
-### Agent AI i MCP (Claude Code)
+### Agent AI i MCP (Claude Code, Claude Desktop)
 
 Program ma wbudowany serwer MCP. Agent widzi oś czasu, media i historię, a każda jego zmiana jest osobną rewizją, którą cofniesz zwykłym Ctrl+Z.
 
-Rejestracja w Claude Code (instalator robi to za Ciebie, jeśli się zgodzisz):
+Najprościej z programu: Preferencje, sekcja Agent, „Podłącz” przy Claude Code albo Claude Desktop (to samo w kreatorze pierwszego uruchomienia, menu Pomoc). Program sam wpisuje polecenie z właściwą ścieżką, także dla kopii rozpakowanej z zipa. Claude Desktop dostaje wpis w `claude_desktop_config.json` (z kopią poprzedniego pliku, inne serwery zostają) i trzeba go potem całkiem zamknąć (także z zasobnika) i uruchomić ponownie. W Claude Code wybierasz zakres: wszystkie projekty (wpis w głównej konfiguracji Claude Code) albo jeden folder (plik `.mcp.json` w tym folderze, główna konfiguracja bez zmian); „Przenieś tutaj” zmienia zakres. Wolisz poprosić Claude? Program daje gotowe polecenie do wklejenia. Z terminala: `hve agent status`, `hve agent connect claude-desktop`, `hve agent connect claude-code` (z `--folder <folder>` tylko dla jednego folderu).
+
+Ręcznie w Claude Code (instalator robi to za Ciebie, jeśli się zgodzisz):
 
 ```powershell
 claude mcp add --scope user hexart-video-edit -- "%LOCALAPPDATA%\Programs\HEXART Video Edit\hve.exe" mcp --connect
@@ -162,7 +164,7 @@ Options (instead of the one-liner):
 | `-Yes` | ask nothing, take the default answers |
 | `-InstallDir` | another install folder |
 
-Manually: download `hexart-video-edit-<version>-windows-x64.zip` from [Releases](https://github.com/lazniak/hexart-video-edit/releases), unzip anywhere and run `hexart-video-edit.exe`. A `.sha256` file next to the zip lets you verify it: `Get-FileHash file.zip -Algorithm SHA256`.
+Manually: download `hexart-video-edit-<version>-windows-x64.zip` from [Releases](https://github.com/lazniak/hexart-video-edit/releases), unzip anywhere and run `hexart-video-edit.exe`. A `.sha256` file next to the zip lets you verify it: `Get-FileHash file.zip -Algorithm SHA256`. At the first start a short wizard sets the language and the projects folder and connects an AI agent. To install an unpacked copy later, run the installer that comes in the zip: `powershell -ExecutionPolicy Bypass -File install.ps1` in that folder (it installs the files of the folder and downloads nothing).
 
 ### Update
 
@@ -180,11 +182,13 @@ Manually: run the same installer again. It closes the program and the background
 
 Command line: `hve.exe --help` in the install folder. `hve new`, `hve import`, `hve render` and others work without the program window.
 
-### AI agents and MCP (Claude Code)
+### AI agents and MCP (Claude Code, Claude Desktop)
 
 The program has a built-in MCP server. The agent sees the timeline, the media and the history, and each of its changes is a separate revision that you undo with a plain Ctrl+Z.
 
-Register it in Claude Code (the installer does it for you if you agree):
+The simplest way is from the program: Preferences, Agent section, "Connect" next to Claude Code or Claude Desktop (the same in the first-run wizard, Help menu). The program writes the command with the right path itself, also for a copy unpacked from the zip. Claude Desktop gets an entry in `claude_desktop_config.json` (the previous file is backed up, other servers stay); quit it completely (the tray icon too) and start it again. In Claude Code you choose where: all projects (an entry in Claude Code's main config) or one folder (a `.mcp.json` file in that folder, the main config untouched); "Move here" switches between them. Rather ask Claude? The program gives a ready request to paste. From a terminal: `hve agent status`, `hve agent connect claude-desktop`, `hve agent connect claude-code` (with `--folder <folder>` for one folder only).
+
+By hand in Claude Code (the installer does it for you if you agree):
 
 ```powershell
 claude mcp add --scope user hexart-video-edit -- "%LOCALAPPDATA%\Programs\HEXART Video Edit\hve.exe" mcp --connect

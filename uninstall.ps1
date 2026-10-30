@@ -21,12 +21,15 @@
 .PARAMETER Force
   Zakoncz procesy HEXART bez pytania (po lagodnej probie). / End HEXART processes without asking.
 .PARAMETER NoMcp
-  Nie ruszaj rejestracji MCP w Claude Code. / Leave the Claude Code MCP registration alone.
+  Nie ruszaj wpisow MCP (Claude Code, Claude Desktop, .mcp.json folderu). / Leave the MCP entries
+  alone (Claude Code, Claude Desktop, the folder's .mcp.json).
 .PARAMETER NoAutostart
   Nie ruszaj wpisu autostartu. / Leave the autostart entry alone.
 
-  Parametry -ShortcutsDir, -RunKeyPath, -ClassesPath, -ClaudeCli, -DataDir, -CacheDir sluza testom.
-  -ShortcutsDir, -RunKeyPath, -ClassesPath, -ClaudeCli, -DataDir, -CacheDir exist for tests.
+  Parametry -ShortcutsDir, -RunKeyPath, -ClassesPath, -ClaudeCli, -DataDir, -CacheDir sluza testom
+  (HVE_AGENT_HOME kieruje wpisy Claude Desktop do folderu testowego).
+  -ShortcutsDir, -RunKeyPath, -ClassesPath, -ClaudeCli, -DataDir, -CacheDir exist for tests
+  (HVE_AGENT_HOME points the Claude Desktop entries into a test folder).
 #>
 [CmdletBinding()]
 param(
@@ -51,6 +54,7 @@ $AppName = 'HEXART Video Edit'
 $RunValueName = 'HEXART Video Edit agent server'
 $McpName = 'hexart-video-edit'
 $UrlScheme = 'hve'
+$InstallMarker = '.hve-install'
 
 # Messages carry \uXXXX escapes instead of Polish letters: this file is plain ASCII, so Windows
 # PowerShell 5.1 reads it the same from a file, from irm | iex, with or without a BOM.
@@ -169,8 +173,30 @@ function Remove-Tree {
     catch { Say "Nie mog\u0119 usun\u0105\u0107 $Path ($($_.Exception.Message))." "Cannot delete $Path ($($_.Exception.Message))." 'warn' }
 }
 
+function Get-DataDir {
+    if ($DataDir) { return $DataDir }
+    if ($env:HVE_APP_DIR) { return $env:HVE_APP_DIR }
+    return (Join-Path $env:APPDATA 'HEXART\HEXART Video Edit')
+}
+
+function Invoke-Agent {
+    # hve.exe agent ...: JSON on stdout; $null when it could not run.
+    param([string]$Hve, [string[]]$AgentArgs)
+    $old = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        $out = & $Hve @('agent') @AgentArgs 2>$null | Out-String
+        if ($LASTEXITCODE -ne 0) { return $null }
+        return ($out | ConvertFrom-Json)
+    } catch { return $null } finally { $ErrorActionPreference = $old }
+}
+
 function Main {
-    if (-not $InstallDir) { $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\$AppName" }
+    if (-not $InstallDir) {
+        $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\$AppName"
+        # The copy of this script inside an installation in another folder removes that one.
+        if ($PSScriptRoot -and (Test-Path -LiteralPath (Join-Path $PSScriptRoot $InstallMarker))) { $InstallDir = $PSScriptRoot }
+    }
     $InstallDir = [IO.Path]::GetFullPath($InstallDir)
     Say "HEXART Video Edit: usuwanie z $InstallDir" "HEXART Video Edit: removing from $InstallDir"
 
@@ -220,6 +246,22 @@ function Main {
             } finally { $ErrorActionPreference = $old }
             if ($code -eq 0) { Say 'Rejestracja MCP w Claude Code: usuni\u0119ta.' 'Claude Code MCP registration: removed.' 'ok' }
         }
+        # Claude Desktop and the one folder chosen in Preferences > Agent: only entries that
+        # start this installation (another copy keeps its own).
+        $hve = Join-Path $InstallDir 'hve.exe'
+        if (Test-Path -LiteralPath $hve) {
+            $r = Invoke-Agent $hve @('disconnect', 'claude-desktop', '--if-current')
+            if ($r -and $r.changed) { Say 'Wpis w Claude Desktop: usuni\u0119ty (kopia konfiguracji obok pliku).' 'Claude Desktop entry: removed (a backup sits next to its config).' 'ok' }
+            $prefsFile = Join-Path (Get-DataDir) 'prefs.json'
+            $folder = $null
+            if (Test-Path -LiteralPath $prefsFile) {
+                try { $folder = [string](Get-Content -LiteralPath $prefsFile -Raw | ConvertFrom-Json).agent_code_folder } catch { }
+            }
+            if ($folder -and (Test-Path -LiteralPath $folder)) {
+                $r = Invoke-Agent $hve @('disconnect', 'claude-code', '--folder', $folder, '--if-current')
+                if ($r -and $r.changed) { Say "Wpis w $folder\.mcp.json: usuni\u0119ty." "Entry in $folder\.mcp.json: removed." 'ok' }
+            }
+        }
     }
 
     # ---- shortcuts ------------------------------------------------------------------------
@@ -235,7 +277,7 @@ function Main {
 
     # ---- program files: only what the installer put there ------------------------------------
     if (Test-Path -LiteralPath $InstallDir) {
-        $files = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt')
+        $files = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt', 'install.ps1', 'uninstall.ps1', $InstallMarker)
         foreach ($f in $files) {
             foreach ($suffix in @('', '.old')) {
                 $p = Join-Path $InstallDir ($f + $suffix)
@@ -266,10 +308,7 @@ function Main {
     }
 
     # ---- user data --------------------------------------------------------------------------
-    if (-not $DataDir) {
-        $DataDir = $env:HVE_APP_DIR
-        if (-not $DataDir) { $DataDir = Join-Path $env:APPDATA 'HEXART\HEXART Video Edit' }
-    }
+    $DataDir = Get-DataDir
     if (-not $CacheDir) { $CacheDir = Join-Path $env:LOCALAPPDATA 'HEXART\HEXART Video Edit' }
     if ($Purge) {
         Remove-Tree $DataDir
