@@ -16,6 +16,9 @@ Copyright (c) 2026 HEXART Sp. z o.o. Wszelkie prawa zastrzeżone. / All rights r
 4. Do dołączonych komponentów zewnętrznych (FFmpeg i inne) stosują się ich własne licencje,
    opisane w THIRD-PARTY-NOTICES.txt. Ta licencja ich nie zmienia.
 5. Nie przenosimy na Ciebie żadnych praw, których tu wprost nie wymieniono.
+6. To jest skrót. Pełna umowa licencyjna (EULA), regulamin usług online, polityka prywatności
+   i zasady korzystania: https://hve.hexart.io/legal/. W razie rozbieżności rozstrzyga EULA.
+   Kontakt: HEXART Sp. z o.o., Aleja Zwycięstwa 96/98, 81-451 Gdynia, biuro@hexart.pl.
 
 [EN] Licence to use (freeware)
 
@@ -31,3 +34,7 @@ Copyright (c) 2026 HEXART Sp. z o.o. Wszelkie prawa zastrzeżone. / All rights r
 4. The bundled third-party components (FFmpeg and others) are covered by their own licences,
    described in THIRD-PARTY-NOTICES.txt. This licence does not change them.
 5. No rights are granted to you other than those expressly listed here.
+6. This is a summary. The full End User Licence Agreement (EULA), the online services terms,
+   the privacy policy and the acceptable use policy: https://hve.hexart.io/legal/en/. Where they
+   differ, the EULA prevails. Contact: HEXART Sp. z o.o., Aleja Zwycięstwa 96/98, 81-451
+   Gdynia, Poland, biuro@hexart.pl.

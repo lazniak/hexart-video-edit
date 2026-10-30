@@ -2,6 +2,14 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.18.1 (2026-10-29)
+
+- Okno „Licencje i komponenty” z listą składników programu i ich licencjami. Przeznaczenie
+  projektu (komercyjne albo prywatne) w ustawieniach projektu; eksport mówi, gdy projekt używa
+  składnika dozwolonego tylko do użytku niekomercyjnego, i prosi o jedno potwierdzenie.
+- Pełne teksty licencji, umowa licencyjna i informacje o prawach w paczce.
+- Program nie zamyka się już zaraz po starcie, gdy panel Fonty był otwarty z pobranym fontem.
+
 ## 0.18.0 (2026-10-29)
 
 Poprawki po pierwszym teście z montażystą.
