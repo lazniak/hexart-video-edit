@@ -2,6 +2,185 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.5 (2026-11-03)
+
+Szybszy eksport, licencje przy każdym elemencie filmu, nowa przeglądarka warstw web i agent AI
+pracujący w tle na dowolnym projekcie.
+
+Eksport:
+
+- Kolory przy eksporcie liczy karta graficzna: klatki trafiają do FFmpeg od razu w formacie
+  kodeka, więc do FFmpeg idzie 2 do 2,7 raza mniej danych i niczego już nie konwertuje. Jakość
+  obrazu zostaje ta sama.
+- Kolejne klatki są odczytywane z karty graficznej z wyprzedzeniem, a zapis do kodeka idzie osobnym
+  wątkiem. Dekodery źródeł przygotowują następne klatki wcześniej. Pętla eksportu UHD H.264 skróciła
+  się na naszej stacji z 29,6 do 23,5 s, HD z 14,9 do 11,4 s.
+- ProRes bez kanału alfa przy szybkościach Szybko i Zrównoważona używa szybszego kodera ProRes:
+  4K ProRes HQ liczy się w edytorze około 20 klatek na sekundę zamiast 5,5. Pliki są większe (o
+  28 do 72%), a jakość obrazu zostaje bardzo wysoka. Szybkość Jakość i ProRes 4444 z alfą zostają
+  przy dotychczasowym koderze.
+- NVENC przy szybkości Zrównoważona używa presetu p5: na teście 4K około 40 klatek na sekundę
+  zamiast 20. Jakość i Najmniejszy plik zostają przy p7.
+- Okno eksportu pokazuje szybkość kodera także dla ProRes.
+
+Oś czasu:
+
+- Przełączenie na zakładkę osi innej sekwencji od razu pozwala ją edytować. Wcześniej zakładka
+  reagowała dopiero po drugim kliknięciu.
+- Zoom osi (klawisze, Ctrl i Alt z kółkiem, suwak) trzyma głowicę na środku widoku. Wyłączysz to w
+  Preferencjach.
+- Własne kursory dla każdego narzędzia na osi i pokazywanie, co zrobi kliknięcie. Żyletka rysuje
+  linię cięcia przez wszystkie klipy, które przetnie. Przycinanie, Ripple, Roll i Rate pokazują
+  nawiasy na punkcie edycji i podświetlają krawędzie, które się zmienią. Slip pokazuje, o ile można
+  przesunąć źródło, a Slide krawędzie sąsiadów. Zaznaczanie ścieżki i Tekst pokazują, co obejmą.
+- Markery przeciągasz na linijce (z przyciąganiem, Alt je wyłącza, Esc anuluje). Panel Markery
+  podświetla bieżący marker podczas odtwarzania i przewija do niego.
+- Kliknięcie w pustym miejscu ścieżki i zaznaczanie ramką nie przesuwają już głowicy. Przesuwa ją
+  tylko linijka i linia głowicy.
+- Przeciągany klip przyciąga się także do własnego początku i końca z chwili sprzed przeciągania.
+- Kopiuj i wklej od nowa: schowek pamięta ścieżki, wklejenie niczego nie nadpisuje (całość ląduje
+  na pierwszych wolnych ścieżkach, w razie potrzeby powstają nowe), a Ctrl+Shift+V wkleja z
+  przesunięciem. Wklejone klipy są zaznaczone, a głowica staje na ich końcu.
+- Klawisze zoomu działają na panel pod kursorem albo ostatnio klikany (Effect Controls, monitory),
+  a w pozostałych przypadkach na oś.
+- Drugie kliknięcie w zaznaczoną lukę odznacza ją.
+- Linijka jest wyższa (42 zamiast 28 punktów), z większą głowicą i znacznikami markerów.
+- Lift i Extract działają tylko przy ustawionych In i Out, a przyciski mówią, czego brakuje. Pełny
+  zakres jest mocniej podświetlony na osi, a po wycięciu pojawia się komunikat, ile i z ilu
+  ścieżek wycięto.
+- Alt z przeciąganiem klucza głośności albo krycia: uchwyty Béziera rosną razem z przeciągnięciem,
+  zamiast od razu skakać do 100%.
+
+Projekt:
+
+- Polecenia z menu kontekstowego panelu Projekt działają na całym zaznaczeniu: jedna zmiana w
+  historii, liczba w nazwie polecenia i informacja o pominiętych elementach. Wiersze sekwencji
+  zaznaczasz z Ctrl i Shift.
+- „Pokaż na osi czasu” otwiera wszystkie sekwencje używające zaznaczonego medium. Aktywna zostaje
+  ta z największą liczbą trafień, pozostałe mają jasnozłoty odcień do pierwszego kliknięcia.
+- Nowy panel Kolejka proxy (Okno > Wyjście), otwierany z paska stanu: anulowanie, ponawianie,
+  pokazanie pliku i usuwanie z listy.
+- Pokaż w Eksploratorze zaznacza plik także wtedy, gdy ścieżka ma spację (wcześniej otwierał
+  Dokumenty). Gdy pliku już nie ma, otwiera najbliższy istniejący folder.
+- Interpolacja klatek dla zaznaczenia: w menu klipu, zaraz pod Prędkość / Czas trwania, jedno
+  polecenie dla wszystkich zaznaczonych klipów wideo, ze stanem mieszanym, gdy klipy mają różne
+  tryby.
+
+AI Assets:
+
+- Panel jest prawdziwym generatorem: rodzaj, wieloliniowy opis, karty referencji z miniaturami i
+  wybór modelu. Galeria używa tej samej siatki i listy co panel Projekt (suwak wielkości, Ctrl z
+  kółkiem, kolumny wypełniają szerokość), a kafelki nie skaczą po najechaniu. Podgląd ruchem po
+  najechaniu zostaje.
+
+Efekty, kolor i warstwy web:
+
+- Jedna przeglądarka w panelu Warstwy web: warstwy projektu, wbudowane i biblioteka w jednym
+  widoku, bez zakładek. Wyszukiwanie obejmuje wszystko, po lewej drzewo (Źródło i kategorie z
+  podkategoriami), filtry tagów jako chipy. Widok siatki i listy, suwak wielkości, podgląd ruchem
+  po najechaniu, plakietki (proporcje, alfa, pętla, źródło, problemy), podwójne kliknięcie kładzie
+  na osi, przeciągnięcie upuszcza na oś.
+- Biblioteka komponentów web ma 455 pozycji w 26 kategoriach: nowe wykresy (słupkowe, liniowe,
+  udziałowe, wskaźniki, przepływy i specjalne), mapy, infografiki i komponenty 3D.
+- Rozmycie ruchu zawartości warstw web: przełącznik w Effect Controls rozmywa ruch wewnątrz
+  strony, nie tylko ruch samej warstwy. Zamknięcie migawki (domyślnie 180°) i liczba próbek (domyślnie
+  8) są parametrami z kluczami. Strony, które trzymają stan w czasie (animacje, liczniki), dostają
+  ostrzeżenie zamiast cichego braku efektu.
+- Warstwy web szybciej pokazują klatki: kilka przeglądarek w tle zamiast jednej, a podczas
+  odtwarzania klatki przed głowicą są przygotowywane z wyprzedzeniem. Na teście z sześcioma
+  warstwami 1080p liczba renderów na sekundę wzrosła z 32 do 65.
+- Uchwyty punktów efektów na monitorze Program: środek maski, punkt ostrości Camera Lens Blur,
+  środek okna w korekcji wtórnej i punkt efektu Controls przeciągasz bezpośrednio na obrazie.
+  Przełącznik edycji bezpośredniej jest w pasku monitora, między timecodem a menu skali.
+- Widok grupowy w Effect Controls: przy kilku zaznaczonych klipach z tym samym efektem parametry
+  są pokazane razem (przełącznik „Każdy klip | Wszystkie klipy”), wartości różne między klipami to
+  „mieszane”, a podgląd celu podświetla klipy, które zmieni dane pole. Parametry można łączyć w
+  grupy klipów.
+- Interpolacja RIFE przy 4K na DirectML nie daje już pionowych smug w trybie Pixel Motion. Obraz
+  dużych klatek jest liczony w nakładających się pasach, a źle policzone klatki z cache zostaną
+  przeliczone.
+- Liczby, które po zaokrągleniu są zerem, nie pokazują już minusa (na przykład „-0,00 px/s” pod
+  wykresem klucza).
+
+Czas i pola liczbowe:
+
+- Wszystkie pola czasu to jeden składnik: zatwierdzają się Enterem, Tabem, utratą fokusu i
+  kliknięciem poza polem (Esc anuluje), wolne przeciąganie przesuwa o ułamki klatki, a wyświetlają
+  czas w wybranym trybie (Ctrl z kliknięciem przełącza: timecode, klatki, sekundy). Pole czasu ma
+  teraz także trwanie przejścia, limit długości w AI Wstępny montaż, długość In do Out na monitorze
+  Program i okno eksportu.
+- Długie nazwy presetów eksportu kończą się wielokropkiem, a pełna nazwa jest w dymku.
+
+Dźwięk:
+
+- Monitor Source gra dźwięk: odtwarzanie, J/K/L i tył, pętla In/Out, przewijanie w trakcie gry,
+  jak na monitorze Program. Przeciąganie paska Source i timecodu przewija dźwięk jak taśmę.
+- Fader Master w Audio Mixerze: regulacja od -96 do +15 dB z podwójnym kliknięciem na 0 dB, jeden
+  krok cofania na przeciągnięcie. Obejmuje odtwarzanie, eksport, pomiar głośności i zagnieżdżone
+  sekwencje.
+
+Licencje:
+
+- Licencje przy każdym elemencie (plik, wtyczka, font, warstwa web, komponent, referencja,
+  generator, efekt). Projekt ma typ pracy: prywatny, niekomercyjny, komercyjny (domyślnie), dla
+  klienta albo emisja. Każdy element dostaje werdykt: w porządku, obowiązek, ostrożnie, warunek
+  niespełniony, nieznane albo kolizja. Okno Licencje opisuje każdy typ pracy.
+- Obok wyeksportowanego filmu powstają plik z pełnym zrzutem licencji (`NAZWA.LICENSE.txt`) i lista
+  uznań do opisu albo napisów końcowych (`NAZWA.ATTRIBUTIONS.txt`). Oba można wyłączyć w
+  Preferencjach, a eksport roboczy agenta ich nie tworzy.
+- Tryb ubiegania się o licencję: dla każdego elementu pokazuje, u kogo i o co poprosić. Szkic
+  prośby to tylko plik w folderze projektu, nic nie jest wysyłane.
+- Agent AI nie może zwiększyć użycia elementu zablokowanego (nowy klip, kopia, dłuższy albo
+  szybszy), a eksport końcowy, wysyłka i publikacja są sprawdzane przed pytaniem o zgodę i jeszcze
+  raz po niej. Deklaracje i typ pracy zmieniasz tylko Ty. To pomoc, nie porada prawna: raporty
+  mówią wprost, czego nie obejmują.
+
+Agent AI (MCP):
+
+- Agent pracuje na dowolnym projekcie w tle i nie przełącza okna programu: projekt jest
+  kontekstem sesji agenta, a okno i agenci na tym samym folderze dzielą jedną historię. Projekty w
+  tle mają autozapis i zwalniają się po 30 minutach ciszy.
+- Po przekazaniu do okna (`show_editor`) trwające eksporty dokańczają się w tle i `export_status`
+  dalej o nich mówi. Gdy działają inne zadania (transkrypcja, analiza), okno czeka na nie albo
+  je anuluje na wyraźne polecenie.
+- `export_status` podaje upływ czasu, szacowany koniec i klatki na sekundę, a z `wait` czeka do
+  końca eksportu. Bez zadania wymienia wszystkie eksporty sesji.
+- `normalize_audio` ma limity: największe wzmocnienie, bramkę ciszy i maksymalny szczyt (domyślnie
+  -1 dBTP, mierzony jako true peak). Wynik mówi, które klipy ograniczono i dlaczego.
+- Lokalny Whisper ma limity czasu na klip, a nieudany klip nie zatrzymuje całego zadania. Ciche
+  fragmenty, stopki napisów i typowe zmyślone frazy nad ciszą są usuwane z transkrypcji.
+- `render_frame` czeka do 30 s na warstwy, które się jeszcze ładują, zamiast oddać niepełną
+  klatkę, a przy niepełnej mówi dlaczego.
+- `edit` przyjmuje nazwy ścieżek (`V1`, `A1`) i pliki z poleceniami, zwraca identyfikatory
+  zagnieżdżonych obiektów, a `write_component` akceptuje opcje wyliczeniowe jako zwykłe teksty.
+- Tryb Recenzja: przycisk „Zmień z agentem” na środku dolnego paska. Włączasz go, mówisz i
+  pokazujesz kursorem, co zmienić, a po wyłączeniu program przekazuje to agentowi jako jedną
+  wytyczną. Ramka w oknach programu świeci zgodnie z poziomem mikrofonu.
+
+Instalacja:
+
+- Aktualizacja instalatorem przechodzi także wtedy, gdy jakiś program trzyma pliki HEXART Video
+  Edit, na przykład sesja agenta AI połączona przez MCP z załadowanymi bibliotekami FFmpeg. Zajęte
+  pliki czekają obok nowych i znikają przy następnej instalacji albo starcie programu, gdy nic ich
+  już nie używa.
+- Deinstalator usuwa też bibliotekę komponentów i pobrane aktualizacje.
+
+Okna i układ:
+
+- Okna dialogowe, w tym Preferencje i Licencje, mieszczą się w małych ekranach (1280x720 i mniej)
+  z przyciskami zawsze w zasięgu. Okna mierzą własny pasek tytułu i ramkę, a na środku zostawiają
+  margines u góry i na dole. Otwierają się od razu w dobrym miejscu, bez skoku po pierwszej klatce.
+- Preferencje i ustawienia mają jedne kolumny etykiet i pól w każdej sekcji, a zawinięte chipy
+  („Panele, które się rozszerzają”, „Ustawienia domyślne”) nie zasłaniają sąsiednich pól.
+- Inteligentne poszerzanie paneli czyta zamiar kursora: martwa strefa przy krawędziach, liczy się
+  tylko czas spędzony głęboko i powoli w grupie, kursor wracający do grupy z miejscem niczego nie
+  zabiera, a kliknięcie albo kółko biorą miejsce od razu. Zmiana zakładki w grupie nie składa jej z
+  powrotem. Nowe ustawienia „Opóźnienie przejęcia” i „Martwe pole przy krawędzi” w Preferencjach >
+  Interfejs.
+- Gdy zakładki grupy się nie mieszczą, przycisk „+N” zostaje przypięty z lewej, lista oznacza
+  ukryte zakładki, a krawędzie bledną tam, gdzie coś jest ukryte. Paski przewijania są widoczne,
+  gdy treść wystaje, i jaśnieją po najechaniu.
+
 ## 0.19.0 (2026-10-30)
 
 Poprawki po drugim teście z montażystą i nowe uwagi do interfejsu.

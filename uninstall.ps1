@@ -94,7 +94,7 @@ function Ask {
 
 function Get-Procs {
     param([string]$Dir)
-    $names = @('hexart-video-edit', 'hve', 'hve-vfi', 'hve-braw', 'hve-r3d', 'ffmpeg', 'ffprobe')
+    $names = @('hexart-video-edit', 'hve', 'hve-vfi', 'hve-braw', 'hve-decklink', 'hve-r3d', 'ffmpeg', 'ffprobe')
     $prefix = $Dir.TrimEnd('\') + '\'
     $found = @()
     foreach ($p in @(Get-Process -Name $names -ErrorAction SilentlyContinue)) {
@@ -150,10 +150,10 @@ function Stop-Hve {
         }
     }
 
-    if (-not (Wait-Gone $Dir @('hve-vfi', 'hve-braw', 'hve-r3d', 'ffmpeg', 'ffprobe') 20)) {
+    if (-not (Wait-Gone $Dir @('hve-vfi', 'hve-braw', 'hve-decklink', 'hve-r3d', 'ffmpeg', 'ffprobe') 20)) {
         $kill = $Force -or (Ask 'Procesy pomocnicze (FFmpeg, dekodery) jeszcze pracuj\u0105. Zako\u0144czy\u0107 je?' 'Helper processes (FFmpeg, decoders) are still running. End them?' $true)
         if (-not $kill) { Fail 'Poczekaj na koniec zada\u0144 i uruchom skrypt ponownie.' 'Wait for the jobs to finish and run the script again.' }
-        foreach ($p in @(Get-Procs $Dir | Where-Object { @('hve-vfi', 'hve-braw', 'hve-r3d', 'ffmpeg', 'ffprobe') -contains $_.Name })) { try { $p.Kill() } catch { } }
+        foreach ($p in @(Get-Procs $Dir | Where-Object { @('hve-vfi', 'hve-braw', 'hve-decklink', 'hve-r3d', 'ffmpeg', 'ffprobe') -contains $_.Name })) { try { $p.Kill() } catch { } }
     }
     # hve.exe (the MCP relay of a Claude Code session) may still run; its file is renamed
     # below like in the installer, and the session ends with Claude Code.
@@ -277,7 +277,7 @@ function Main {
 
     # ---- program files: only what the installer put there ------------------------------------
     if (Test-Path -LiteralPath $InstallDir) {
-        $files = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt', 'install.ps1', 'uninstall.ps1', $InstallMarker)
+        $files = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'hve-decklink.exe', 'LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt', 'install.ps1', 'uninstall.ps1', $InstallMarker)
         foreach ($f in $files) {
             foreach ($suffix in @('', '.old')) {
                 $p = Join-Path $InstallDir ($f + $suffix)
@@ -295,6 +295,13 @@ function Main {
         }
         Remove-Tree (Join-Path $InstallDir 'ffmpeg')
         Remove-Tree (Join-Path $InstallDir 'licenses')
+        # The web component library and the automatic update's downloads.
+        Remove-Tree (Join-Path $InstallDir 'library')
+        Remove-Tree (Join-Path $InstallDir 'update')
+        # Folders the installer moved aside while a process held their files.
+        foreach ($stale in @(Get-ChildItem -LiteralPath $InstallDir -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^(ffmpeg|library)\.old(\.[0-9a-f]{6})?$' })) {
+            Remove-Tree $stale.FullName
+        }
         $left = @(Get-ChildItem -LiteralPath $InstallDir -Force -ErrorAction SilentlyContinue)
         if ($left.Count -eq 0) {
             Remove-Item -LiteralPath $InstallDir -Force -ErrorAction SilentlyContinue

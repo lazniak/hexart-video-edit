@@ -83,6 +83,9 @@ $McpName = 'hexart-video-edit'
 $InstallMarker = '.hve-install'              # marks a folder as an installation
 $UrlScheme = 'hve'                          # the same values the app writes at start
 $UrlSchemeName = 'URL:HEXART Video Edit'
+# What Move-Aside renames to <name>.old[.<6 hex>]; the app's own cleanup at start knows the
+# same names.
+$AsideNames = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'hve-decklink.exe', 'hve-r3d.exe', 'ffmpeg', 'library')
 
 # Messages carry \uXXXX escapes instead of Polish letters: this file is plain ASCII, so Windows
 # PowerShell 5.1 reads it the same from a file, from irm | iex, with or without a BOM.
@@ -127,7 +130,7 @@ function Ask {
 
 function Get-Procs {
     param([string]$Dir)
-    $names = @('hexart-video-edit', 'hve', 'hve-vfi', 'hve-braw', 'hve-r3d', 'ffmpeg', 'ffprobe')
+    $names = @('hexart-video-edit', 'hve', 'hve-vfi', 'hve-braw', 'hve-decklink', 'hve-r3d', 'ffmpeg', 'ffprobe')
     $prefix = $Dir.TrimEnd('\') + '\'
     $found = @()
     foreach ($p in @(Get-Process -Name $names -ErrorAction SilentlyContinue)) {
@@ -186,13 +189,102 @@ function Stop-Hve {
     }
 
     # Helpers (Pixel Motion, RAW decoders, FFmpeg) end with their job.
-    if (-not (Wait-Gone $Dir @('hve-vfi', 'hve-braw', 'hve-r3d', 'ffmpeg', 'ffprobe') 20)) {
+    if (-not (Wait-Gone $Dir @('hve-vfi', 'hve-braw', 'hve-decklink', 'hve-r3d', 'ffmpeg', 'ffprobe') 20)) {
         $kill = $Force -or (Ask 'Procesy pomocnicze (FFmpeg, dekodery) jeszcze pracuj\u0105. Zako\u0144czy\u0107 je?' 'Helper processes (FFmpeg, decoders) are still running. End them?' $true)
         if (-not $kill) { Fail 'Poczekaj na koniec zada\u0144 i uruchom instalator ponownie.' 'Wait for the jobs to finish and run the installer again.' }
-        foreach ($p in @(Get-Procs $Dir | Where-Object { @('hve-vfi', 'hve-braw', 'hve-r3d', 'ffmpeg', 'ffprobe') -contains $_.Name })) { try { $p.Kill() } catch { } }
+        # A killed process holds its exe and DLLs until it is really gone.
+        foreach ($p in @(Get-Procs $Dir | Where-Object { @('hve-vfi', 'hve-braw', 'hve-decklink', 'hve-r3d', 'ffmpeg', 'ffprobe') -contains $_.Name })) { try { $p.Kill(); [void]$p.WaitForExit(10000) } catch { } }
     }
-    # hve.exe may stay: it is the MCP relay of a Claude Code session. Windows lets us rename a
-    # running exe, and that is how it is replaced below. That session needs a restart afterwards.
+    # hve.exe may stay: it is the MCP relay of a Claude Code session. Its exe, and whatever
+    # else a process still holds, is moved aside below (Move-Aside). That session needs a
+    # restart afterwards.
+}
+
+# Deletes a file or folder as far as Windows lets; $true when it is gone.
+function Remove-Entry {
+    param([string]$Path)
+    Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction SilentlyContinue
+    return -not (Test-Path -LiteralPath $Path)
+}
+
+# Moves every file under folder $From to the same place under $To.
+function Move-Files {
+    param([string]$From, [string]$To)
+    $From = $From.TrimEnd('\')
+    foreach ($f in [IO.Directory]::GetFiles($From, '*', [IO.SearchOption]::AllDirectories)) {
+        $dst = Join-Path $To $f.Substring($From.Length + 1)
+        New-Item -ItemType Directory -Force -Path (Split-Path $dst -Parent) | Out-Null
+        Move-Item -LiteralPath $f -Destination $dst -Force
+    }
+}
+
+# Windows does not delete a file a running process has loaded (a running exe, the DLLs of
+# a running FFmpeg, whichever process loaded them), but it lets the file and its folder be
+# renamed. So nothing is deleted in place: an entry to replace goes aside to <name>.old
+# (<name>.old.<6 hex> while that is taken) and Remove-Leftovers deletes it once nothing
+# holds it. A folder some process works in (its current folder) cannot be renamed: its
+# files go aside one by one and the emptied folder takes the new ones. A file open without
+# delete sharing cannot even be renamed: then the install stops and puts everything back.
+function Move-Aside {
+    param([string]$Path)
+    $old = "$Path.old"
+    if (Test-Path -LiteralPath $old) { [void](Remove-Entry $old) }
+    while (Test-Path -LiteralPath $old) { $old = "$Path.old." + [guid]::NewGuid().ToString('N').Substring(0, 6) }
+    $aside = [pscustomobject]@{ Target = $Path; Old = $old }
+    try {
+        Move-Item -LiteralPath $Path -Destination $old
+        return $aside
+    } catch {
+        if (-not (Test-Path -LiteralPath $Path -PathType Container)) { throw }
+    }
+    try {
+        Move-Files $Path $old
+    } catch {
+        $reason = $_.Exception.Message
+        try { Move-Files $old $Path } catch { }
+        Remove-Item -LiteralPath $old -Recurse -Force -ErrorAction SilentlyContinue
+        Fail "Plik w $Path jest otwarty w innym programie, kt\u00f3ry nie pozwala zmieni\u0107 jego nazwy. Zamknij ten program i uruchom instalator ponownie. ($reason)" "A file in $Path is open in another program that does not let it be renamed. Close that program and run the installer again."
+    }
+    return $aside
+}
+
+# Puts an entry moved aside back (the install failed): the new copy goes, the old one
+# takes its name again (into the same folder, when that folder could not move).
+function Restore-Aside {
+    param($Aside)
+    Remove-Item -LiteralPath $Aside.Target -Recurse -Force -ErrorAction SilentlyContinue
+    if ((Test-Path -LiteralPath $Aside.Target -PathType Container) -and (Test-Path -LiteralPath $Aside.Old -PathType Container)) {
+        Move-Files $Aside.Old $Aside.Target
+        Remove-Item -LiteralPath $Aside.Old -Recurse -Force -ErrorAction SilentlyContinue
+    } else {
+        Move-Item -LiteralPath $Aside.Old -Destination $Aside.Target -Force
+    }
+}
+
+# Copies the content of folder $From into folder $To (made when missing).
+function Copy-Tree {
+    param([string]$From, [string]$To)
+    New-Item -ItemType Directory -Force -Path $To | Out-Null
+    foreach ($c in @(Get-ChildItem -LiteralPath $From -Force)) { Copy-Item -LiteralPath $c.FullName -Destination $To -Recurse -Force }
+}
+
+# Removes what earlier installs and updates moved aside: <name>.old and <name>.old.<6 hex>
+# (Move-Aside) and <name>.old-<x.y.z>[-n] (the app's automatic update), once <name> is in
+# place again. What a process still holds stays; their names come back.
+function Remove-Leftovers {
+    param([string]$Dir)
+    $busy = @()
+    foreach ($e in @(Get-ChildItem -LiteralPath $Dir -Force -ErrorAction SilentlyContinue)) {
+        $base = $null
+        if ($e.Name -match '^(.+)\.old(\.[0-9a-f]{6})?$') {
+            if ($AsideNames -contains $Matches[1]) { $base = $Matches[1] }
+        } elseif ($e.Name -match '^(.+)\.old-[0-9]+\.[0-9]+\.[0-9]+(-[0-9]+)?$') {
+            $base = $Matches[1]
+        }
+        if (-not $base -or -not (Test-Path -LiteralPath (Join-Path $Dir $base))) { continue }
+        if (-not (Remove-Entry $e.FullName)) { $busy += $e.Name }
+    }
+    return $busy
 }
 
 function New-Shortcut {
@@ -321,28 +413,17 @@ function Main {
         try {
             foreach ($f in @(Get-ChildItem -LiteralPath $src -File -Filter '*.exe')) {
                 $target = Join-Path $InstallDir $f.Name
-                $old = "$target.old"
-                if (Test-Path -LiteralPath $target) {
-                    if (Test-Path -LiteralPath $old) { Remove-Item -LiteralPath $old -Force -ErrorAction SilentlyContinue }
-                    if (Test-Path -LiteralPath $old) { $old = "$target.old." + [guid]::NewGuid().ToString('N').Substring(0, 6) }
-                    Move-Item -LiteralPath $target -Destination $old -Force
-                    $moved += [pscustomobject]@{ Target = $target; Old = $old }
-                }
+                if (Test-Path -LiteralPath $target) { $moved += Move-Aside $target }
                 Copy-Item -LiteralPath $f.FullName -Destination $target -Force
             }
-            # Bundled FFmpeg: the whole folder is replaced (its DLLs belong together).
-            $ffSrc = Join-Path $src 'ffmpeg'
-            if (Test-Path -LiteralPath $ffSrc) {
-                $ffDst = Join-Path $InstallDir 'ffmpeg'
-                if (Test-Path -LiteralPath $ffDst) { Remove-Item -LiteralPath $ffDst -Recurse -Force }
-                Copy-Item -LiteralPath $ffSrc -Destination $ffDst -Recurse -Force
-            }
-            # Web component library (read only, D58): replaced whole, like FFmpeg.
-            $libSrc = Join-Path $src 'library'
-            if (Test-Path -LiteralPath $libSrc) {
-                $libDst = Join-Path $InstallDir 'library'
-                if (Test-Path -LiteralPath $libDst) { Remove-Item -LiteralPath $libDst -Recurse -Force }
-                Copy-Item -LiteralPath $libSrc -Destination $libDst -Recurse -Force
+            # Bundled FFmpeg (its DLLs belong together) and the web component library (read
+            # only, D58): each folder is replaced whole.
+            foreach ($name in @('ffmpeg', 'library')) {
+                $dirSrc = Join-Path $src $name
+                if (-not (Test-Path -LiteralPath $dirSrc)) { continue }
+                $dirDst = Join-Path $InstallDir $name
+                if (Test-Path -LiteralPath $dirDst) { $moved += Move-Aside $dirDst }
+                Copy-Tree $dirSrc $dirDst
             }
             foreach ($name in @('LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt', 'install.ps1', 'uninstall.ps1')) {
                 $p = Join-Path $src $name
@@ -352,12 +433,8 @@ function Main {
             if (Test-Path -LiteralPath $licSrc) { Copy-Item -LiteralPath $licSrc -Destination $InstallDir -Recurse -Force }
         } catch {
             Say 'Instalacja nie powiod\u0142a si\u0119, przywracam poprzednie pliki.' 'Install failed, restoring the previous files.' 'err'
-            foreach ($m in $moved) {
-                try {
-                    if (Test-Path -LiteralPath $m.Target) { Remove-Item -LiteralPath $m.Target -Force }
-                    Move-Item -LiteralPath $m.Old -Destination $m.Target -Force
-                } catch { }
-            }
+            [array]::Reverse($moved)
+            foreach ($m in $moved) { try { Restore-Aside $m } catch { } }
             throw
         }
         # A staged automatic update and the record of the last one describe the files just
@@ -366,6 +443,13 @@ function Main {
         if (Test-Path -LiteralPath $upd) { Remove-Item -LiteralPath $upd -Recurse -Force -ErrorAction SilentlyContinue }
         # Marks the folder as an installation (its install.ps1 and uninstall.ps1 then work on it).
         Set-Content -LiteralPath (Join-Path $InstallDir $InstallMarker) -Value 'HEXART Video Edit installation' -Encoding ASCII
+        # The old files go now, this install's and earlier ones'; what a process still holds
+        # (an agent session's hve.exe, the DLLs it has loaded) waits for a later install or
+        # the next start of the app.
+        $busy = @(Remove-Leftovers $InstallDir)
+        if ($busy.Count -gt 0) {
+            Say "Stare pliki wci\u0105\u017c w u\u017cyciu (np. przez sesj\u0119 agenta AI) czekaj\u0105 obok: $($busy -join ', '). Usunie je p\u00f3\u017aniejsza instalacja albo start programu, gdy nic ich ju\u017c nie u\u017cywa." "Old files still in use (e.g. by an AI agent session) wait next to the new ones: $($busy -join ', '). A later install or the next start of the app removes them once nothing uses them."
+        }
         Get-ChildItem -LiteralPath $InstallDir -Recurse -File -ErrorAction SilentlyContinue | Unblock-File -ErrorAction SilentlyContinue
 
         $appExe = Join-Path $InstallDir 'hexart-video-edit.exe'
