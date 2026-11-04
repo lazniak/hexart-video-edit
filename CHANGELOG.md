@@ -2,6 +2,36 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.9 (2026-11-04)
+
+- Source: kliknięcie albo przeciągnięcie paska pod obrazem skacze od razu w to miejsce, także
+  na końcu bardzo długiego klipu. Przewijanie z dźwiękiem jak taśma jest teraz pod Ctrl.
+- Project: Del usuwa zaznaczone klipy, sekwencje i folder (pyta najpierw, z polem „Pytaj
+  następnym razem”), F2 zmienia nazwę.
+- Project: foldery i sekwencje wyglądają jak klipy, w tej samej liście i tej samej siatce.
+  Folder otwiera się dwuklikiem.
+- „Pokaż w projekcie” z osi czasu otwiera folder z klipem i zaznacza go.
+- Układ okien: panel upuszczony na przycisku przy krawędzi doku staje obok całego układu.
+  Chwytak na prawym końcu paska zakładek przenosi całą grupę naraz.
+- „Pokaż na osi czasu” nie otwiera drugiej zakładki dla sekwencji, z której główna oś weszła
+  do zagnieżdżenia: główna zakładka wraca do niej w górę.
+- Project: „Zastąp materiał…” podmienia plik klipu wszędzie, gdzie jest użyty (ten sam klip,
+  nowe źródło, jedno Ctrl+Z).
+- Project: F2 zmienia nazwę w miejscu, na samej nazwie, bez okna. Enter albo kliknięcie obok
+  zapisuje, Esc zostawia starą.
+- Maski jak w After Effects: wiele masek na klipie z nazwą, kolorem i kolejnością, tryby
+  Brak, Dodaj, Odejmij, Część wspólna, Rozjaśnij, Przyciemnij, Różnica, przełącznik
+  Odwrócona, a do tego ścieżka, wtapianie (X i Y), krycie i rozszerzenie z klatkami kluczowymi.
+- Maski rysuje się na monitorze Program: prostokąt, zaokrąglony prostokąt, elipsa, wielokąt
+  i gwiazda (Q), pióro z dodawaniem, usuwaniem i zamianą wierzchołków oraz zmiennym
+  wtapianiem (G), swobodne przekształcenie (Ctrl+T). Skróty jak w After Effects: M, MM, F,
+  TT, Ctrl+Shift+N, Ctrl+Shift+I, Ctrl+Shift+M, Ctrl+Shift+F, Ctrl+Shift+H.
+- Wtapianie maski z gładkim albo liniowym spadkiem i rozmycie ruchu maski. Podgląd i eksport
+  wyglądają tak samo.
+- Agent AI dodaje i zmienia maski przez MCP (add_mask, set_mask, move_mask, remove_mask).
+- Klip połączony przesuwany razem z rodzicem albo podpinany do innego klipu zabiera ze sobą
+  swój dźwięk i resztę połączonych części.
+
 ## 0.19.5 (2026-11-03)
 
 Szybszy eksport, licencje przy każdym elemencie filmu, nowa przeglądarka warstw web i agent AI
