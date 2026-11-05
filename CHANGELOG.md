@@ -2,6 +2,123 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.18 (2026-11-05)
+
+- Layouty pracy: oprócz dotychczasowego układu wybierasz w Preferencjach (i przełączasz w
+  locie) układ z klawiszami, gestami i panelami znanymi z innych programów: Premier (Premiere
+  Pro), Leonardo (strona Edit w DaVinci Resolve, ze stronami Media i Edit), LasVegas (VEGAS
+  Pro), Edison (EDIUS), Mozart (Media Composer), Cupertino (Final Cut Pro) i Studio (Pro
+  Tools). Każdy layout ma własną mapę klawiszy do edycji w edytorze skrótów, własne narzędzia
+  i przestrzenie robocze, a projekt zostaje ten sam: zmiana layoutu nie zmienia osi czasu.
+- Zmienne wtapianie maski jak w After Effects: narzędzie Wtapianie maski pod G na
+  monitorze Program dodaje punkt kliknięciem w ścieżkę i od razu ustawia jego promień na
+  zewnątrz albo do środka (jeden krok cofania), Shift trzyma punkt w miejscu, Alt i
+  przeciągnięcie w bok zmienia napięcie, Ctrl i klik albo Delete usuwa punkt. Granica
+  wtapiania jest przerywaną linią, przy przeciąganym punkcie widać promień. Punkt na
+  środku prostego boku działa teraz dokładnie tam, granice wewnętrzna i zewnętrzna
+  przechodzą płynnie przez ścieżkę, punkt przeciągnięty na ścieżkę ściąga do niej
+  wtapianie (punkt o promieniu 0 z kliknięcia bez przeciągania nadal nic nie zmienia, więc
+  starsze projekty wyglądają tak samo), Hold, kąt narożnika i takie ściągnięcie wychodzą
+  w renderze ostro, a nowe i usuwane punkty trafiają do wszystkich klatek ścieżki, także
+  o innej liczbie wierzchołków, w tym samym miejscu na ścieżce. Effect Controls pokazuje liczbę
+  punktów z resetem, MCP `add_mask` i `set_mask` przyjmują `feather_points`. W layoutach,
+  w których G, Q albo V znaczą coś innego (Mozart, Edison, LasVegas, Studio, Leonardo,
+  Cupertino), litera zostaje przy layoucie, dopóki nie wybierzesz narzędzia maski.
+- Shuttle monitorów: szare etykiety na końcach paska pokazują zakres (−8.00× i +8.00×), a rolka
+  nad paskiem zmienia go co 0.1× (z Shift co 1×) od 1.00× do 50.00×. Kreski idą za zakresem.
+  Rolka działa także w trakcie trzymania gałki, gdziekolwiek jest kursor, a prędkość od razu
+  idzie za gałką w nowym zakresie. Zakres zostaje w preferencjach użytkownika, nie w projekcie,
+  i jest ten sam we wszystkich layoutach. Na wąskim monitorze etykiety się skracają albo
+  chowają, pełny zakres jest w podpowiedzi. Ctrl z rolką dalej powiększa. Powyżej 20× obraz
+  idzie w pełnej prędkości, a dźwięk taśmy płynnie cichnie i wraca poniżej 20×. J i L nie
+  zwalniają już szybszego przewijania z paska.
+- Effect Controls: widoczny nagłówek kolumn Właściwość i Wartość z dzielnikiem, który
+  się przeciąga, a wartości wszystkich wierszy (liczby, pary X i Y, kolory, listy, pola wyboru,
+  kąty, tekst) zaczynają się na dzielniku z jednostką zaraz za liczbą. Efekty, grupy parametrów
+  i wartości zaznacza się kliknięciem, Ctrl, Shift albo prostokątem, kopiuje Ctrl+C, wkleja
+  Ctrl+V (także na kilka zaznaczonych klipów naraz, z kluczami w tym samym czasie od początku
+  klipu) i usuwa Delete, także z menu kontekstowego.
+- Podgląd szybciej: przełącznik „Bez interpolacji klatek w podglądzie” w pasku Programu i
+  w menu Widok. Program, przewijanie i odtwarzanie pokazują wtedy klatkę źródła bez mieszania
+  i Pixel Motion, a eksport i klatki dla agentów zostają jak w projekcie. Na Programie widać
+  odznakę.
+- Render podglądu In do Out (menu Sekwencja; Premier `Enter`, Cupertino, Leonardo i Mozart
+  `Ctrl+Alt+R`, LasVegas `Shift+M`, Edison `Alt+Shift+Q`, Studio `Alt+Shift+R`): klatki
+  zakresu liczą się w tle jak w eksporcie i potem grają płynnie, także z Pixel Motion i Time
+  Remap. Pasek renderu na osi pokazuje je na zielono, a pamięć ma limit RAM i dysku, wiek i
+  przycisk Wyczyść w Preferencjach.
+- Praca w tle w pasku stanu: wskaźnik z listą zadań, postępem, anulowaniem i licznikami Pixel
+  Motion.
+- Materiał 10-bitowy SDR (DJI, iPhone HEVC) bez efektów koloru dekoduje się przy odtwarzaniu
+  lżej; ze scopes, podziałem przed i po, LUT albo korekcją koloru zostaje pełna głębia, eksport
+  bez zmian.
+- Eksport nie zapisuje już czarnej klatki, gdy dekoder nie zdąży: klatka, która się spóźnia,
+  dostaje nowy dekoder na procesorze i więcej czasu, a jeśli i tak nie przyjdzie, eksport staje
+  z komunikatem, który plik i która klatka zawiodły. Tak samo warstwa web, która się nie
+  renderuje, i media offline. Eksport 4K HEVC 10-bit nie dekoduje już dalej, niż mieści
+  pamięć klatek (wcześniej przepychał potrzebne klatki z pamięci i szukał ich od nowa), a
+  klatki robione przez Pixel Motion nie są dekodowane drugi raz w rozmiarze warstwy. Na czas
+  eksportu prerender Pixel Motion w edytorze czeka, żeby nie zabierał GPU eksportowi.
+  Eksport ma własne dekodery, których podgląd nie zabiera, a po eksporcie się zamykają;
+  anulowanie działa od razu także wtedy, gdy eksport czeka na spóźnioną klatkę.
+- Layout Studio dla pracy jak w Pro Tools: tryby edycji Shuffle, Slip, Spot i Grid (F1 do F4),
+  narzędzia Grabber, Trim, Selector i Pencil, nudge, presety zoomu i Commands Focus. Ścieżka
+  audio pokazuje klipy, pas automatyki głośności albo panoramy lub pasy ujęć, w których
+  kliknięcie gra ujęcie, a przeciągnięcie kompuje fragment. Tryby automatyki Touch, Latch,
+  Write i Trim zapisują ruch tłumika jako jeden krok cofania. Mikser dostał w Studio wysyłki,
+  VCA, panner obiektu i odsłuch binauralny. Nowe panele ADR (cue ze znaczników, trzy beepy,
+  streamer na obrazie, nagrywanie cue w pętli z ocenianymi ujęciami) i Foley (arkusz cue,
+  ścieżki na kategorie, nagrywanie przebiegów).
+- Dwuklik na sekwencji w panelu Projekt otwiera jej oś czasu we wszystkich layoutach: zakładka,
+  która ją pokazuje, wychodzi na wierzch (także z innego okna), a gdy jej nie ma, nowa staje
+  obok pozostałych zakładek osi czasu. Dwuklik na neście otwiera go tak samo w zakładce osi
+  czasu, Alt+dwuklik wchodzi w niego w miejscu jak dotąd. Dwuklik w środek klipu otwiera go
+  także wtedy, gdy trafia w linię krycia albo przychodzi zaraz po kliknięciu, które klip
+  zaznaczyło.
+- Wymiana z programami audio: import i eksport AAF dla Pro Tools (klipy z zapasem, gain
+  klipu, zanikania i przenikania, automatyka głośności i panoramy ścieżek, markery), projektów
+  REAPER `.rpp` (ścieżki, elementy, zanikania, obwiednie głośności i panoramy, markery i
+  regiony, tempo i metrum, elementy MIDI) oraz plików MIDI `.mid` jako sekwencji ze ścieżkami
+  MIDI i mapą tempa. Każdy import cofa jedno Ctrl+Z.
+- Czas muzyczny na osi: przełącznik Takty zamienia linijkę na takty i miary, pokazuje pas
+  tempa z punktami, rampami i zmianami metrum oraz siatkę, do której przyciągają gesty (takty,
+  miary, podziały do 1/32 i triole). Każda zmiana tempa to jedno Ctrl+Z. Ścieżka audio może
+  podążać za tempem i zachować wysokość dźwięku: klipy rozciąga Signalsmith Stretch, a eksport
+  brzmi tak samo jak odtwarzanie. Klip MIDI albo audio można powtórzyć jako pattern na taktach.
+- Nagrywanie wielościeżkowe: nowy panel Nagrywanie. Uzbrajasz dowolnie wiele ścieżek audio,
+  każdą z jej wejściem (kanał albo para) z jednego lub kilku urządzeń WASAPI, i nagrywasz je
+  naraz. Punch-in i punch-out między punktami In i Out z rozbiegiem, nagrywanie w pętli, w
+  którym każde okrążenie jest ujęciem tego samego klipu do przełączania w panelu, odsłuch
+  wejścia przez mikser ścieżki z jej efektami. Nagranie trafia na próbkę, na której zostało
+  zagrane: opóźnienia mierzone przez sterownik, deklarowane i ręczne przesunięcie w
+  Preferencjach. Cały przebieg to jedno Ctrl+Z. ASIO czeka na umowę licencyjną ze Steinbergiem.
+- MIDI: ścieżki MIDI grają przez instrumenty VST3 i CLAP co do próbki, a eksport brzmi tak
+  samo jak odtwarzanie. Nowy panel Edytor MIDI z piano roll (rysowanie, przesuwanie, długość,
+  dynamika, kwantyzacja z siłą i swingiem) i edytorem krokowym perkusji; każdy gest to jedno
+  Ctrl+Z. Pliki MIDI (format 0 i 1) z mapą tempa, wejścia urządzeń MIDI i wejście sidechain
+  dla wtyczek.
+- Miks obiektowy: ścieżka audio może być obiektem z pozycją w pokoju albo azymutem, elewacją
+  i odległością, z automatyką. Mikser renderuje obiekty metodą ITU-R BS.2127 do stereo, 5.1,
+  7.1, 7.1.2, 7.1.4 i 9.1.6, a odtwarzanie brzmi tak samo jak eksport.
+- Odsłuch słuchawkowy: szersza sekwencja może grać binauralnie na wyjściu stereo (model głowy,
+  bez zewnętrznych danych HRTF).
+- ADM BWF: zapis i odczyt plików BW64 z metadanymi ADM (bed i obiekty z ruchem), formatu,
+  który przyjmuje Dolby Atmos Renderer, Pro Tools i Resolve Fairlight. Import rozpoznaje
+  kanały bedu po głośnikach, więc bed w kolejności BS.2051 i na dowolnych torach trafia na
+  właściwe kanały. Na razie z poziomu biblioteki, polecenia w menu przyjdą osobno.
+- Głośność do emisji: presety ATSC A/85 (-24 LKFS, -2 dBTP) i Netflix (-27 LKFS mierzone na
+  samym dialogu, -2 dBTP) obok EBU R128 i platform. Pomiar w mikserze pokazuje głośność
+  dialogu i jego udział w programie oraz werdykt, czy mix spełnia wybraną normę. Dialog
+  wykrywa lokalny detektor mowy, więc wynik jest zgodny z metodą, nie certyfikowany.
+- Mikser gra wysyłki do szyn aux (przed i za tłumikiem, z poziomem i panoramą w automatyce),
+  tłumiki VCA i sidechain: kompresor na muzyce może ściszać ją pod dialogiem. Każda gałąź
+  trzyma opóźnienie wtyczek co do próbki, a odtwarzanie brzmi tak samo jak eksport.
+- Automatyka tłumika w trybach Touch, Latch, Write i Trim: cały przejazd to jedna zmiana w
+  historii, którą cofa jedno Ctrl+Z.
+- Bounce ścieżki do pliku WAV i zamrażanie ścieżki: zamrożona ścieżka gra z pliku, póki się nie
+  zmieni.
+- Szyny do 16 kanałów: 7.1.2, 7.1.4 i 9.1.6 grają pełne, z downmixem do 7.1, 5.1 i stereo.
+
 ## 0.19.9 (2026-11-04)
 
 - Source: kliknięcie albo przeciągnięcie paska pod obrazem skacze od razu w to miejsce, także
