@@ -2,6 +2,15 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.19 (2026-11-05)
+
+- Odtwarzanie z przewidywaniem klatek: Program liczy z wyprzedzeniem, które klatki
+  źródła pokaże w najbliższych sekundach (Time Remap, rewers, nesty, interpolacja, J/K/L i
+  shuttle do 50x) i dekoduje je według GOP, kilkoma dekoderami naraz (także na drugiej
+  karcie graficznej), każdą na swój czas.
+  Obraz idzie za dźwiękiem: spóźniona klatka nie zatrzymuje go na długo, a szybki shuttle
+  pokazuje klatki kluczowe. `hve play --rate` mierzy dowolną prędkość, `--legacy` starą drogę.
+
 ## 0.19.18 (2026-11-05)
 
 - Layouty pracy: oprócz dotychczasowego układu wybierasz w Preferencjach (i przełączasz w
