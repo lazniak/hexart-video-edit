@@ -2,6 +2,32 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.21 (2026-11-06)
+
+- Efekt NTSC i VHS (`hve.ntsc`, D106): port zhuker/ntsc na GPU, prawdziwa deformacja sygnału
+  (kodowanie i dekodowanie kompozytowe, dzwonienie, szum, filtry taśmy VHS), nie nakładka.
+  Najlepiej na warstwie korekcyjnej nad całym montażem. Presety `broadcast`, `vhs` i `vhs_lp`,
+  szum losowany z ziarna i numeru klatki, więc podgląd i eksport wyglądają tak samo.
+- Szybszy eksport bez zmiany ani jednej próbki: klip bez efektów, który ma już układ
+  pikseli pliku wyjściowego (to samo podpróbkowanie, ta sama głębia, macierz i zakres, ten sam
+  rozmiar), idzie z dekodera prosto do enkodera w Y'CbCr, więc render jest identyczny ze
+  źródłem co do bitu (wcześniej przechodził przez RGB i z powrotem). Warstwy całkiem zakryte
+  nieprzezroczystym klipem, który wystaje poza kadr, nie są w eksporcie dekodowane ani
+  liczone (wynik ten sam co do bitu, a projekt z czterema ścieżkami 4K renderuje się kilka do
+  kilkunastu razy szybciej). Wideo 10-bit idzie z dekodera do karty graficznej w połowie
+  bajtów, kopie do i z GPU są równoległe, a potok do enkodera ma większy bufor. Wszystko to
+  sprawdza porównanie klatek przed enkoderem ze starą drogą i ze źródłem (różnica 0).
+  `hve render --stages` pokazuje czasy etapów, `--spec` przyjmuje dowolne ustawienia eksportu.
+- Przejścia: przejście widać na całej wysokości klipu, z narysowaną krzywą.
+  Przeciąganie w górę i w dół pod paskiem przejścia zmienia krzywą (w górę szybciej na
+  początku, w dół wolniej), dla obrazu i dźwięku, w podglądzie i w eksporcie; wartość jest też
+  w Effect Controls i w MCP (`bend`). Shift przy przeciąganiu krawędzi przejścia przenosi ruch
+  na drugą krawędź od chwili wciśnięcia, a puszczony zostawia ją tam, gdzie doszła.
+- Podgląd trymowania: przy trymowaniu, ripple, roll, slip, slide i krawędziach przejść
+  Program pokazuje klatkę w punkcie przeciąganego uchwytu, przy roll, slip, slide i
+  przejściach dwa obrazy obok siebie. Po puszczeniu wraca do głowicy. Oba przełączniki są w
+  menu Widok.
+
 ## 0.19.19 (2026-11-05)
 
 - Odtwarzanie z przewidywaniem klatek: Program liczy z wyprzedzeniem, które klatki
