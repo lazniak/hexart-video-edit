@@ -2,6 +2,105 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.23 (2026-11-07)
+
+- Nowy efekt ASCII (D112, Stylizacja): obraz rysowany znakami dowolnej czcionki zainstalowanej
+  w systemie, pobranej z Google Fonts albo leżącej w folderze `fonts` projektu (najlepiej o stałej
+  szerokości; brakująca czcionka zastępowana wbudowaną Hack z ostrzeżeniem). Czcionka dodana do
+  folderu `fonts` w trakcie pracy pojawia się sama, a plik czcionki wybrany z dysku jest kopiowany
+  do tego folderu, więc projekt działa też na innym komputerze. 60 parametrów:
+  wielkość i proporcje komórek albo liczba kolumn, odstępy, skala glifu, obrót i przesunięcie
+  siatki, 15 zestawów znaków i własny, wybór znaku po jasności, po krawędziach i ich kierunku
+  albo po obu, dithering, jasność, kontrast i gamma przed mapowaniem, kolor jeden, ze źródła, z
+  gradientu, z palety (ANSI, CGA, Game Boy, C64, PICO-8 i inne) albo kwantyzowany, tło, oryginał
+  pod znakami, tryby mieszania, grubość i kontur znaków, stabilność w czasie oraz animacje deszczu
+  i mieszania znaków z ziarnem. 34 gotowe presety, od zielonego terminala i deszczu Matrix po
+  gazetę, Game Boya i mozaikę. Działa w czasie rzeczywistym na GPU, eksport jest taki sam jak
+  podgląd; agent widzi efekt i presety przez MCP.
+- Okna ustawień wbudowanych efektów audio: każdy wbudowany efekt audio otwiera się w
+  osobnym oknie, przyciskiem w nagłówku efektu w Effect Controls, podwójnym kliknięciem slotu
+  w mikserze (ścieżka i master) albo z menu slotu. Okno ma wykres na żywo dla swojego efektu:
+  krzywą EQ na widmie przed i po z pasmami do przeciągania i solo pasma, krzywą przenoszenia
+  kompresorów, limiterów i bramek z GR i jego historią, zanik pogłosu, echa opóźnienia, LFO,
+  profil szumu z przyciskiem „Przechwyć profil”, krzywą przesteru i saturacji, głośność i
+  szczyt rzeczywisty masteringu, goniometr. Każdą wartość można wpisać z jednostką, Shift
+  zmienia dokładnie, podwójne kliknięcie przywraca domyślną, a cały gest cofa jedno Ctrl+Z.
+  Do tego A/B, bypass bez trzasku, wejście, miks i wyjście oraz odsłuch side chain, pasma i
+  tego, co efekt zabiera.
+- Presety efektów audio: 499 presetów fabrycznych (od 8 do 15 na efekt) w kategoriach
+  dialog, lektor, podcast, muzyka, emisja, Foley, ADR, czyszczenie, mastering i sound design,
+  w przeglądarce z wyszukiwaniem, kategoriami i ulubionymi. Własne presety: zapis, zmiana
+  nazwy, nadpisanie, usuwanie, import i eksport; agent ma je też przez MCP
+  (`list_effect_presets`, `save_effect_preset`, `delete_effect_preset`, `user:<nazwa>` w
+  `apply_effect_preset`). Preset nie kasuje przechwyconego profilu szumu odszumiania, a
+  „Zapisz jako” go nie zabiera. Gdy pliku własnych presetów nie da się odczytać, HVE go nie
+  nadpisuje i mówi, że zapis się nie udał.
+- Nowe efekty audio: ekspander, kształtowanie transjentów, ducker, de-plosive, leveler
+  głośności (cel w LUFS), declipper, tremolo i auto-pan, pitch shifter, filtr DC, utility
+  (biegunowość, M/S, szerokość, mono, panorama), saturacja i de-reverb.
+- Poprawki efektów audio: bez trzasków przy zmianach parametrów i przełączaniu
+  (nachylenie filtrów, typy pasm, sekcje, bypass), włączony ponownie delay ani pogłos nie
+  odtwarza starych próbek, pogłos surround nie przycina odtwarzania i ma poprawne mapy
+  kanałów, chorus, flanger i phaser brzmią w podglądzie od środka klipu tak jak w eksporcie,
+  odszumianie pamięta przechwycony profil po przewinięciu, declicker działa tak samo przy
+  44,1, 48 i 96 kHz, głośność kanałów zna układy quad, 5.0 i 6.1. Ustawienia domyślne brzmią
+  dokładnie jak wcześniej na ścieżkach mono i stereo. Inaczej mogą zabrzmieć stare projekty,
+  w których jest: pasmo cięcia PEQ z Q powyżej 1,93 (teraz najwyżej 1,93, rezonans do +6 dB),
+  własny plik IR w innej częstotliwości próbkowania albo dłuższy niż 10 s (przepróbkowanie
+  filtrem sinc zamiast liniowego, 50 ms wyciszenia przy cięciu), declicker przy 44,1 albo
+  96 kHz (okna według częstotliwości), głośność kanałów albo pogłos surround w układach quad,
+  5.0 i 6.1 (poprawne mapy kanałów), chorus, flanger i phaser na ścieżce z kanałem LFE (LFE
+  już nie jest modulowany) oraz odtwarzanie tych trzech efektów od środka klipu (faza LFO z
+  czasu elementu, jak w eksporcie).
+- Kontrolki wyrażeń: efekt Kontrolki wyrażeń ma teraz osiemnaście typów kontrolek z
+  własnymi nazwami: suwak (z zakresem i jednostką), procent, liczba całkowita, kąt pokazany
+  jak w After Effects jako obroty i stopnie (`2x +45°`), orientacja 3D, pole wyboru, kolor z
+  pipetą z monitora Program, punkt z uchwytem na monitorze, punkt 3D, wektor 2D i 3D, lista
+  rozwijana z nazwanymi pozycjami, warstwa (wybór klipu), zakres, czas, tekst, ziarno
+  losowania z przyciskiem nowego ziarna i krzywa. Kontrolkę dodajesz przyciskiem „+ Kontrolka”
+  pod efektem albo z menu efektów (Kontrolki wyrażeń, potem typ); menu kontekstowe wiersza
+  otwiera ustawienia (nazwa, typ, granice, zakres suwaka, krok, jednostka, pozycje listy,
+  podpowiedź), powiela, przesuwa i usuwa kontrolkę, a każda zmiana to jeden krok cofania.
+  Wyrażenia czytają kontrolki po nazwie: `ctrl("Prędkość") * time`, `ctrl("Obrót").revolutions`,
+  `ctrl("Tryb").item`, `ctrl("Cel").value.position`, `ctrl("Okno").lerp(0.5)`,
+  `ctrl("Krzywa").at(time / 4)`, a zapis z After Effects `effect("Speed")("Slider")` też
+  działa. Kopiowanie i wklejanie wartości kontrolki na inny klip tworzy tam brakującą
+  kontrolkę. Starsze projekty z pięcioma dawnymi kontrolkami otwierają się bez zmian. Agenci
+  dostali narzędzia MCP `list_controls`, `set_control` i `remove_control`.
+- Wtyczki VST: nowe okno z katalogiem vst.hexart.io (ponad 1100 opisanych wtyczek, z
+  recenzjami, licencjami i linkami), z wyszukiwarką i filtrami, także bez sieci. Darmowe
+  wtyczki VST3 i CLAP HVE instaluje jednym kliknięciem po potwierdzeniu: pobiera plik prosto
+  od producenta, sprawdza SHA-256 i kopiuje do folderów użytkownika, bez uprawnień
+  administratora; potem są od razu w przeglądarce efektów. Aktualizacja i odinstalowanie w tym
+  samym oknie. Płatne i z kontem otwierają stronę producenta. Agent przez MCP szuka w katalogu
+  i prosi o instalację, która zawsze czeka na Twoją zgodę.
+- Kolor źródła bez zmian: pliki dronów DJI i telefonów, które w materiale HD zapisują
+  stary tag transferu z czasów SD (`bt470m`), HVE czyta jak BT.709, tak jak Premiere i
+  Resolve, więc render takich ujęć ma dokładnie kolor źródła i może iść prosto do enkodera.
+  Zmiana widoczna w starych projektach: render tych plików (do tej pory przeliczany z gammy
+  2,2, jaśniejszy w cieniach) zmienia się na zgodny ze źródłem. Dawne odczytanie zostaje w
+  menu materiału w panelu Projekt: Interpretacja koloru, Tagi jak zapisane (do wyboru także
+  Rec.709 wymuszone i krzywe log, PQ, HLG; w MCP `update_media` z `color`, pisownia
+  dowolna, np. „BT.709” albo „S-Log3”). Wybrane ręcznie PQ i HLG działają jak tagi HDR:
+  plakietka HDR i podgląd SDR.
+- Ujęcie narysowane 1:1 (bez skali, obrotu i efektów) wychodzi z renderu z próbkami źródła
+  także wtedy, gdy klatka idzie przez kartę graficzną (tytuł nad ujęciem, przejście, inna
+  głębia albo podpróbkowanie pliku wyjściowego): karta sama przelicza płaszczyzny Y'CbCr
+  źródła, bez przycinania kolorów spoza RGB. Różnica wobec źródła spada z do 50 wartości kodu
+  w ponad jednej trzeciej próbek do najwyżej 1 przy tej samej głębi i podpróbkowaniu (0 poza
+  tytułem i w H.264). Materiał 4:4:4 tak samo, do każdego wyjścia: do 4:4:4 z do 54 wartości
+  w 24 % próbek na najwyżej 1, do 4:2:0 i 4:2:2 tak samo luminancja. Takie ujęcie 4K
+  renderuje się też o około 20 % szybciej, bo dekoder nie przelicza go na RGB. Bez zmian
+  zostają: ujęcie 4:2:0 albo 4:2:2 w eksporcie z drobniejszą chrominancją (4:4:4, RGB), które
+  bierze chrominancję interpolowaną jak dotąd, i ujęcie przesunięte o nieparzystą liczbę
+  pikseli w poziomie (przy 4:2:0 także wierszy), które idzie dawną drogą.
+- Warstwa położona 1:1 w całych pikselach (ujęcie, tytuł, plansza) kopiuje się piksel w
+  piksel zamiast przez filtr, w podglądzie i w każdym eksporcie. Dawny filtr wpuszczał w górny
+  wiersz i lewą kolumnę klatki ślad tła, a przy ostrych krawędziach odrobinę sąsiednich
+  pikseli. Zmienia się od 0,014 do 0,038 % próbek, w 95 do 99 % z nich o 1 wartość kodu,
+  najwyżej o 10 (eksport 4:4:4 10-bit), a średni błąd wobec źródła w tych pikselach spada z
+  0,95 do 0,34 wartości kodu.
+
 ## 0.19.22 (2026-11-07)
 
 - Zrzut klipu z obrazem i dźwiękiem na oś: część pod kursorem trafia na wskazaną
