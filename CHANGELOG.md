@@ -2,6 +2,38 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.22 (2026-11-07)
+
+- Zrzut klipu z obrazem i dźwiękiem na oś: część pod kursorem trafia na wskazaną
+  ścieżkę, druga na ścieżkę obok, która jest wolna (sparowaną, najbliższą wolną albo nową),
+  więc niczego nie nadpisuje. Nowa ścieżka pokazuje się w trakcie przeciągania jako zarys pod
+  ścieżkami, dochodzi po puszczeniu, a całość cofa jedno Ctrl+Z. Tak samo przy przyciskach
+  Wstaw i Nadpisz monitora Source. Wstawienie z Ctrl nie rozsynchronizowuje już obrazu z
+  dźwiękiem.
+- Delete i Backspace przy zaznaczonej jednej części zlinkowanego klipu (Alt+klik) usuwają tylko
+  ją, we wszystkich layoutach. Ctrl+C i Ctrl+X biorą tak samo tylko ją, więc wklejenie nie
+  dubluje części, która została.
+- Klik na końcówce klipu zaznacza punkt edycji z jego stroną każdym narzędziem do trymowania i w
+  każdym layoutzie, także wolny koniec klipu; Roll zaznacza obie strony.
+- Dwuklik na klip na osi otwiera go w Source każdym narzędziem i w każdym layoutzie.
+- Start bez mrugania: okno edytora pojawia się raz, od razu w zapisanym miejscu i
+  rozmiarze, z ciemnym paskiem tytułu. Nie ma już białego okna w rogu ekranu ani skoku przy
+  maksymalizacji, a okna wypięte pokazują się dopiero na swoim miejscu.
+- Ekran startowy: znak programu z animacją, numer wersji i postęp startu (grafika,
+  ustawienia, usługi, układ, serwer agenta, projekt) na monitorze, na którym otworzy się
+  okno. Gaśnie nad gotowym edytorem. Wyłączysz go w Preferencjach > Ogólne > Ekran startowy.
+- Gdy okno edytora nie może się otworzyć (na przykład bez sterownika grafiki), program mówi to
+  w oknie komunikatu z błędem i folderem dziennika, zamiast zamknąć się bez słowa.
+- Kolejka renderu od nowa: każdy render to pasek, a oczekujące przeciągasz za uchwyt
+  w kolejności, w jakiej mają się renderować (renderują się po kolei). W pasku widać klatkę,
+  którą FFmpeg właśnie koduje, nazwę pliku (pełna ścieżka w podpowiedzi, klik pokazuje plik w
+  folderze), procent z dwoma miejscami po przecinku, timecode i czas do końca.
+  Transfer jednym przyciskiem: w trakcie renderu pole „Transfer po renderze”, potem przycisk,
+  a po wysłaniu „Link”, który kopiuje link do schowka, aż link wygaśnie. WhatsApp tak samo, z
+  wyborem odbiorców i jedną zgodą przed wysłaniem, gdy działa whatsapp-scrap; plik większy niż
+  16 MB HVE najpierw zmniejsza w tle do kopii tymczasowej. Kolejka zapisuje się w projekcie i
+  wraca po restarcie (przerwany render z przyciskiem „Renderuj ponownie”).
+
 ## 0.19.21 (2026-11-06)
 
 - Efekt NTSC i VHS (`hve.ntsc`, D106): port zhuker/ntsc na GPU, prawdziwa deformacja sygnału
