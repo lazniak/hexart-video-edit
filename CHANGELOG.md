@@ -2,6 +2,129 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.24 (2026-11-08)
+
+- Agent (poprawki API z raportów stillomatic): `clear_markers` bez `kind` czyści znaczniki
+  wszystkich rodzajów jedną rewizją, `place` warstwy web przyjmuje zwykłe wartości parametrów,
+  `render_frame` przyjmuje `time` zamiast `at`, nowe narzędzie `reset_web_params` przywraca
+  parametrom komponentu wartości domyślne, a `preview_component` składa do 36 klatek w jedną
+  stykówkę WebP z czasem i parametrami każdej klatki.
+- Poprawka: komponent web, który uruchamia Web Workera, nie zawiesza już serwera stron edytora.
+- Stabilizator obrazu w edytorze (D122, ST2): efekt Stabilizacja w grupie Przekształcenia. Po
+  dodaniu do klipu wideo sam ustawia analizę w kolejce (klip pod głowicą i to, na co czeka
+  eksport, najpierw; jedna analiza naraz, w tle, z częścią mocy karty graficznej), a monitor od
+  pierwszych przeanalizowanych fragmentów pokazuje obraz już stabilizowany. Prosty widok: Rezultat
+  (Gładki ruch, Kinowy, Statyw, Z ręki, Tylko rolling shutter), Gładkość, Metoda, Kadr „Przytnij i
+  powiększ” do 115 % i wiersz Analiza z przyciskiem Analizuj. Zmiana szybkości, Time Remap albo
+  przycięcia klipu nie wymaga nowej analizy, ścieżka liczy się od nowa w milisekundach. Obraz
+  próbkowany jest raz (Lanczos 3), a klatka, której nie trzeba korygować, przechodzi do pliku bez
+  zmian, co do bitu. Eksport czeka na analizę; okno eksportu mówi, ile klipów na nią czeka.
+- Stabilizator obrazu, krok drugi (D122, ST1): analiza ruchu kamery z prawdziwego materiału.
+  Punkty śledzone na GPU, obrót kamery z każdej pary klatek, samokalibracja ogniskowej (z
+  zabezpieczeniem przed paralaksą drona i spaceru), czas odczytu rolling shuttera, cięcia,
+  powtórzone klatki i ujęcia płaskie. Analiza idzie fragmentami w czasie źródła, zapisuje się w
+  folderze projektu i po przerwaniu rusza od miejsca, w którym stanęła. Pomiar:
+  `hve stab analyze` z czasem każdego etapu i wynikiem każdego fragmentu.
+- Wtyczki VST3 i CLAP włączają się pierwszym kliknięciem: przy odtwarzaniu wyłączona
+  wtyczka ma już wczytaną instancję, więc po włączeniu od razu słychać przetworzony dźwięk.
+- Licencje nie przeszkadzają w pracy: sprawdzanie licencji w trakcie pracy (znacznik na
+  pasku, pytania przy eksporcie, odmowy dla agenta) jest domyślnie wyłączone i włącza się w
+  Preferencjach > Licencje. Raport jest zawsze na żądanie (Pomoc > Licencje i komponenty).
+  Przycisk „Wpisz licencje” zapisuje w folderze projektu `licenses/` skąd pochodzi każdy plik i
+  na jakiej jest licencji, a przy każdym elemencie można zaznaczyć, że wolno go pokazać
+  publicznie (lista w `public.txt`).
+- Okno pewniej przejmuje serwer agenta z tła: zajęty serwer jest pytany ponownie, okno
+  nie otwiera drugi raz projektu, który trzyma proces w tle, próbuje znowu co 10 s, a znacznik
+  „AGENT: BRAK POŁĄCZENIA” znika sam, gdy połączenie wróci. `show_editor` z tła otwiera jedno
+  okno. „Zmień z agentem” pyta przed włączeniem nagrywania mikrofonu i kursora.
+- Zgłoszenia błędów są domyślnie prywatne: trafiają tylko do HEXART, bez publicznego
+  zgłoszenia na GitHubie, z opcją dołączenia projektu bez mediów (bez folderów, nazw bibliotek i
+  nazwy projektu; „Pokaż, co zostanie wysłane” pokazuje dokładny tekst). Za duże zgłoszenie traci
+  najpierw projekt, potem zrzut ekranu, i okno mówi, co pominięto. Publiczne zgłoszenie to osobny
+  wybór ze zgodą. Polityka prywatności i regulamin w wersji 1.1.
+- Lektor ElevenLabs domyślnie na najnowszym modelu `eleven_v4_turbo`.
+- Effect Controls: kopiowanie efektów i wartości także w widoku grupy, „Wklej ze
+  skalowaniem czasu kluczy” (klucze dopasowane do długości klipu docelowego, jak Paste Attributes w
+  Premiere), Ctrl+V w panelu wkleja efekty klipu skopiowanego na osi, a agent ma narzędzia
+  `copy_effects` i `paste_effects` (wklejanie jedną rewizją, ten sam schowek co panel).
+- Oś czasu: Shift+klik na cięciu innej ścieżki dodaje punkt edycji (HVE i Premier), każdy
+  punkt ma swój znak, a Trim Backward i Forward przesuwają wszystkie naraz jedną rewizją.
+- Asysta zrzutu wszędzie: edycje źródła wszystkich layoutów (Leonardo, Mozart, Cupertino,
+  Edison, LasVegas) nie nadpisują już dźwięku pod spodem, dźwięk idzie na wolną albo nową
+  ścieżkę; narzędzia MCP `place_clip`, `insert_clip` i `overwrite_clip` mają opcję `assist`, a
+  wynik podaje ścieżki.
+- Zaznaczanie do przodu i do tyłu w każdym layoutcie: Edycja, Zaznacz klipy do przodu i do
+  tyłu, na wszystkich ścieżkach albo na tej ścieżce, od głowicy; w LasVegas „Zaznacz zdarzenia do
+  końca”, w Mozart Select Right i Select Left.
+- Ripple zablokowany przez muzykę z blokadą synchronizacji: komunikat mówi, która ścieżka
+  blokuje, a przycisk obok zamyka lukę bez niej jedną rewizją.
+- Menu Okno: Resetuj układ (panele z osobnych okien wracają) i najczęstsze panele na górze,
+  z Ustawieniami efektów, w każdym layoutcie.
+- Zakładki osi wracają po ponownym otwarciu projektu, każda raz.
+- Nadpisanie zastępuje klip w całości (D121, TA9): edycja źródła albo zrzut z asystą nad klipem z
+  obrazem i dźwiękiem zdejmuje w nadpisanym zakresie także jego własny dźwięk (częściowe nakrycie
+  tnie go na krawędzi), a nowy dźwięk ląduje na jego miejscu. Muzyka, lektor i efekty pod spodem
+  zostają nietknięte.
+- Katalog wtyczek: wtyczka wstawiona innym instalatorem do folderów użytkownika jest
+  pokazana jako znaleziona, bez instalacji; znaleziona w innym folderze ma przycisk „Zainstaluj drugą
+  kopię” z ostrzeżeniem.
+- Poprawki: wtyczki VST3 kompilują się na Linuksie, losowo padający test zaproszeń w pracy
+  zespołowej naprawiony.
+- Stabilizator obrazu, krok pierwszy (D122, ST0): nowy moduł obliczeń stabilizacji. Zapisuje
+  analizę ruchu kamery w folderze projektu (pliki fragmentów sprawdzane sumą kontrolną, zapis bez
+  ryzyka uszkodzenia), wygładza ścieżkę kamery w milisekundach (Gładki ruch, Kinowy, Statyw, Z ręki,
+  horyzont, kadr z automatycznym powiększeniem do 115 %) i liczy siatkę warpu z błędem poniżej
+  1/64 piksela. Pomiar: `hve stab bench`. Efektu w edytorze jeszcze nie ma.
+- Studio: ruch tłumika, panoramy i gałek wtyczek w trybie zapisu automatyki słychać od
+  razu, a nie dopiero po zatrzymaniu; gałki wtyczek z okna edytora wtyczki zapisują się w tym
+  samym przebiegu. Komping zakresu ujęcia nie tnie już klipu: klip zostaje w całości, gra
+  odcinki wybranych ujęć z krótkim przenikaniem, a połączony obraz się nie zmienia. Ocena ujęć
+  jest polem ujęcia (stare projekty przenoszą ją same przy otwarciu). Pętla ADR i Foley wraca do
+  pre-rollu, więc beepy i streamer są w każdym okrążeniu; streamer może być też na monitorze
+  Source. Listę cue ADR i Foley można zapisać do CSV i PDF (z polskimi literami) i wczytać z CSV
+  (przecinek albo średnik, także zapis polskiego Excela, kolumny po polsku albo angielsku, bez
+  dubli). Nowe: Scrubber (F9,
+  przeciągnięcie po ścieżkach przewija dźwięk), Consolidate (Alt+Shift+3, klipy w zakresie w
+  jeden plik) i Tab to Transient (Ctrl+Alt+T, Tab skacze po uderzeniach w dźwięku).
+- Eksport 4K szybciej: ujęcie 4K HEVC z drona albo aparatu dekoduje się w eksporcie
+  dwoma procesami naraz, a płaszczyzny obrazu przychodzą z karty graficznej bez przeliczania,
+  więc etap źródła jest krótszy (pomiar w D119). Obraz w pliku jest identyczny jak dotąd, co do
+  bitu.
+- Eksport przy pełnej maszynie nie przełącza już po 20 s dekodera na procesor, gdy dekoder
+  karty graficznej jest wolny, ale wciąż dostarcza klatki: czeka na niego dalej (do 5 minut
+  ponad limit). Zawieszony dekoder jest wymieniany jak dotąd.
+- Procesy FFmpeg (dekodery, enkodery, proxy) kończą się zawsze razem z edytorem albo komendą
+  `hve`, także po awarii albo zamknięciu z Menedżera zadań. Skrypt, który czytał wyjście
+  `hve play`, nie czeka już na dekodery, które przeżyły komendę.
+- Maski z długą ścieżką (gwiazdy, kształty z tysiącami punktów) renderują się kilka razy
+  szybciej: na klatce 4K gwiazda z 2016 punktami ścieżki kosztuje około 21 ms zamiast
+  103 ms. Obraz jest identyczny jak dotąd, bajt w bajt.
+- Panel Kolor nie zatrzymuje już edytora przy dopasowaniu koloru: kadr wzorcowy i
+  klatka dopasowania dekodują się w tle, a przycisk czeka z kółkiem postępu.
+- Test enkoderów sprzętowych (NVENC, QSV, AMF) rusza w tle kilka sekund po starcie programu, więc okno eksportu i pierwszy eksport nie czekają na niego, także przy zajętym GPU.
+- Kolejka renderu: kopia dla WhatsApp z materiału HDR (PQ, HLG) ma mapowanie tonów do
+  SDR i nie wygląda już blado; przy wysyłce WhatsApp z paska można dopisać podpis, widoczny w
+  oknie zgody; eksporty agenta, które proces w tle kończy po otwarciu okna, pojawiają się w
+  kolejce jako paski z postępem i oznaczeniem „W tle”.
+- Pixel Motion z RIFE: kopia modelu w połowie precyzji (fp16) powstaje na tym komputerze
+  przy instalacji modelu albo przy pierwszym włączeniu fp16 w Preferencjach. Do Full HD liczy
+  około trzy razy szybciej niż fp32, przy 4K wolniej, więc domyślnie zostaje fp32. Preferencje
+  ostrzegają, gdy najdłuższy bok klatki 3840 px i więcej wydłuży eksport zwolnionego tempa.
+- Pixel Motion przy odtwarzaniu według terminów: klatki pośrednie liczą się w kolejności,
+  w jakiej monitor je pokaże, od głowicy w kierunku i z prędkością odtwarzania (także w pętli In
+  do Out). Klatka, której silnik nie zdąży zrobić na czas, wypada z kolejki i zamiast niej gra
+  Frame Mix, więc silnik nie traci czasu na klatki spóźnione i robi te, które jeszcze zdąży.
+  Render w bezczynności Pixel Motion idzie od głowicy w kierunku ostatniego odtwarzania.
+- Render w tle po bezczynności (D118, Preferencje > Render podglądu, domyślnie wyłączony): gdy
+  przez chwilę nic nie robisz, edytor sam renderuje podgląd od In do Out (bez nich okolice
+  głowicy), z limitem GPU w procentach czasu. Klawisz, kliknięcie, odtwarzanie, eksport albo
+  edycja go zatrzymuje; postęp i zajęcie GPU widać na liście pracy w tle w pasku stanu.
+- Render Source od In do Out (D118, menu Sekwencja, albo Render In do Out przy monitorze Source
+  w fokusie): zdekodowane klatki klipu między znacznikami trafiają do pamięci renderu i monitor
+  Source gra je stamtąd (odznaka WYRENDEROWANE), bez dekodera.
+- Monitor Source odtwarza z przewidywaniem klatek jak Program: klatki najbliższych sekund
+  dekodują się według terminów, także wstecz i w pętli między znacznikami.
+
 ## 0.19.23 (2026-11-07)
 
 - Nowy efekt ASCII (D112, Stylizacja): obraz rysowany znakami dowolnej czcionki zainstalowanej
