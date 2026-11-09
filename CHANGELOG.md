@@ -2,6 +2,14 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.27 (2026-11-09)
+
+- Dźwięk komponentów web: komponent z `audio` w `layer.json` liczy dźwięk offline z tego
+  samego czasu, parametrów i kluczy co obraz (`hve.onAudio` blok po bloku albo
+  `hve.renderAudio`). Na osi to para obraz i dźwięk zlinkowana jak klip z dźwiękiem, render idzie
+  w tle z cache na dysku i w pamięci, eksport na niego czeka. Agent: `add_web_layer` kładzie parę,
+  `preview_component_audio` zapisuje WAV z poziomem i obwiednią.
+
 ## 0.19.26 (2026-11-09)
 
 - Sekwencje obrazów: ponumerowane klatki PNG, EXR, DPX, TIFF, JPEG i WebP wchodzą jako
