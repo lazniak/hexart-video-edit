@@ -2,6 +2,97 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.25 (2026-11-09)
+
+- Import FCPXML z Final Cut Pro: pliki `.fcpxml` i paczki `.fcpxmld`, także z ZIP-a z
+  Maca (nazwy w NFD). Oś główna, ścieżki połączone, conform 24p do projektu 50p (25 kl./s),
+  retime z krzywą prędkości jako Time Remap, przenikania, krycie, transformacja, głośność i
+  znaczniki. Przejścia i efekty bez odpowiednika w HVE (Simple Camera Slide, mLut, Match Color,
+  krzywe) dostają znacznik do przeglądu i wpis w raporcie wierności. Cięcia J i L, wyłączony
+  dźwięk kamery w klipach synchronizowanych i wyłączone kanały przechodzą jak w FCP; pliku na
+  udziale sieciowym import nie dotyka bez zgody.
+- Ostatnia klatka źródła nie ginie już przy prędkości równej długości źródła przez długość
+  klipu.
+- MCP: `render_frame` zapisuje kopię klatki w projekcie (`out_path`) i pomija wybrane ścieżki
+  (`exclude_tracks`); `match_color` porównuje klatki w jednym czasie sekwencji (`at`); `trim`
+  przesuwa klucze efektów z krawędzią na życzenie (`keys: "edge"`) i ostrzega o kluczach poza
+  klipem; `edit` zachowuje aktywną sekwencję przy przebudowie i zgłasza jej zmianę; opis `edit`
+  ma ściągę nazw pól; `get_timeline` pokazuje Time Remap klipu i liczy z niego początek i koniec
+  w źródle.
+- Agent zapisuje swoje sugestie i zgłoszenia błędów w lokalnym pliku (D128, `feedback_note`), a
+  `feedback_send` otwiera je w oknie zgłoszenia, tylko prywatnie do HEXART; wysyła użytkownik.
+- Akcje edytora z zewnątrz, na przykład ze Stream Decka: `hve action <id>`, HTTP
+  `/admin/action`, lista akcji `hve action --list`; opis w `docs/stream-deck.md`. Działają jak
+  skrót (nie przy otwartym oknie dialogowym, menu ani polu tekstowym), odpowiedź mówi, czy akcja
+  się wykonała, a ich zmiany mają w Historii własnego autora. Cofnij, ponów, nagrywanie
+  mikrofonu i zastąpienie otwartego projektu nigdy z zewnątrz.
+- Agent mierzy kolor ujęć liczbami (D129, `color_stats`): luma, średnie RGB, ciepło i odcień
+  półtonów, chroma i przepalenia każdego ujęcia oraz skoki między sąsiednimi ujęciami, bez
+  oglądania obrazu każdego z nich. Klatki z wnętrza ujęcia, poza przejściami, renderowane w
+  pamięci, z limitem czasu.
+- Efekty od pierwszego upuszczenia: NTSC z listy startuje od wyglądu VHS, a gdy Ustawienia
+  efektów nie są na wierzchu, komunikat mówi, gdzie są, i otwiera je kliknięciem. Pasy kinowe mają
+  presety z proporcjami kina (2,39:1, 1,85:1, 2:1, 4:3, 1:1).
+- Przejścia wideo są w Efektach zaraz pod efektami wideo, każde z opisem w podpowiedzi
+  (przybliżenie, wypchnięcie, wsunięcie i inne).
+- Ścieżka audio dodaje efekt albo wtyczkę VST z własnego menu, nie tylko w mikserze.
+- Nagrania: ujęcie z przypadkowego nagrania usuwa się w panelu Nagrywanie jedną rewizją, a
+  nagrania, których projekt już nie ma, przycisk przy komunikacie albo w panelu przenosi do kosza
+  projektu (sprawdzając w chwili kliknięcia, czego projekt używa), a komunikat po wszystkim ma
+  przycisk Przywróć.
+- Monitor Program: środek warstwy ją przesuwa (punkt zakotwiczenia z Altem), uchwyty małej
+  warstwy maleją, a nacisk przesunięty o włos niczego nie zmienia. Przeciągnięcie warstwy przy
+  wyłączonej edycji podpowiada, gdzie ją włączyć.
+- Wygaszanie Ctrl+D na wolnym brzegu klipu gaśnie równo w jasności (D125, także w starych
+  projektach), a pas między ścieżkami wideo i audio jest szerszy: klip przeciągnięty w dół zostaje
+  na V1.
+- Stabilizator obrazu, żyroskop z pliku (D122, ST6): analiza czyta żyroskop i akcelerometr
+  zapisane przez kamerę (DJI, GoPro, Sony, Insta360, Blackmagic, RED, aplikacje iPhone, logi
+  Gyroflow `.gcsv` obok pliku), sama dopasowuje czas i ułożenie czujnika do obrazu na trzech
+  krótkich odcinkach i liczy resztę ujęcia z żyroskopu bez dekodowania klatek. Horyzont trzyma
+  się grawitacji. Profile obiektywów: ten zapisany w pliku przez kamerę albo baza Gyroflow
+  (domena publiczna, pobierana na żądanie: `hve stab lens-db --download`), z ogniskową i
+  dystorsją z profilu zamiast szacowania. `hve stab analyze` ma `--source auto|optical|gyro`,
+  `--gyro-offset-ms`, `--lens` i `--lens-profile`. Uszkodzony plik z kamery nie zamyka programu
+  (odczyt w osobnym procesie z limitem pamięci), log, który zaczął się sam, znajduje się w
+  całości (także przy chodzie), a profil GoPro pasuje do trybu obiektywu z pliku (Wide,
+  Linear, SuperView), także gdy baza ma kilka ustawień tego trybu. Długi odczyt z dysku
+  sieciowego trwa, dopóki idzie, a gdy się nie uda (także plik zablokowany albo dysk, który
+  zniknął), powód widać w wyniku analizy, a następne analizy próbują znowu, najwyżej trzy razy.
+  Efekt Stabilizacja w edytorze analizuje już z żyroskopem, gdy plik go ma i zgadza się z
+  obrazem, i z ogniskową z profilu obiektywu prostoliniowego (z pliku albo z bazy
+  zainstalowanej przez `hve stab lens-db --download`); profilu rybiego oka, poziomowania do
+  grawitacji, dystorsji w renderze i wyboru źródła oraz obiektywu w efekcie jeszcze nie ma.
+  Po aktualizacji każdy klip z efektem Stabilizacja raz analizuje się od nowa (silnik analizy
+  w wersji 2).
+- Jeden stan połączenia agenta: okno Agent, jego pasek i Preferencje mówią to samo, także
+  gdy klient ze starym kluczem albo klient innej kopii programu puka na port. Taki klient dostaje
+  wiadomość, jak połączyć się ponownie (odpowiedź 401 zaczyna się od „unauthorized: ” z radą, a
+  nie jest samym „unauthorized”), serwer liczy odrzucone próby z kluczem zamiast zapisywać każdą
+  do logu, a `hve mcp --connect` po zmianie klucza czyta go ponownie i działa dalej.
+- Okno Agent zaczyna się od zwięzłego podsumowania: jedna linia na zmianę albo krok
+  agenta, powtórzenia zliczone; połączenie, sesje, wywołania i wiadomości są pod „Szczegóły”.
+- Co wyłączone, tego nie ma: bez serwera agenta znika przycisk „Zmień z agentem” i lista
+  wytycznych dla agenta.
+- Warstwy web z WebGL, także mapy MapLibre GL i Mapbox GL: każda klatka pokazuje stan
+  ustawiony dla jej czasu (dotąd mapa sterowana z `hve.onFrame` pokazywała kamerę z poprzedniej
+  klatki, a zatrzymana głowica zostawała z kadrem sprzed ruchu). Mapa czeka na swój styl i
+  kafle, więc `hve.ready(map.once('load'))` nie wisi już 15 s na klatce. Eksport renderuje
+  następne klatki takich warstw na wszystkich wątkach przeglądarek naraz. Przeglądarka wybiera
+  wydajną kartę graficzną, a gdy WebGL rysuje procesor (SwiftShader, WARP), monitor Program
+  pokazuje odznakę „WebGL bez GPU”, a `debug_web` to zgłasza.
+- Parametry komponentów web w Ustawieniach efektów: podpowiedź nazwy mówi, co parametr
+  robi, w jakim zakresie i jednostce i jaka jest wartość domyślna; grupy z manifestu są razem
+  pod swoją nazwą i można je zwinąć strzałką, a ustawienia zaawansowane są w zwiniętej grupie
+  na końcu. Agenci dostają przewodnik `hve://docs/web-components` i podpowiedzi `advice` przy
+  zapisie komponentu. Stare manifesty działają bez zmian.
+  Wartości warstwy spoza manifestu (ustawione przez agenta) mają teraz własne kontrolki w
+  grupie „Spoza manifestu”, zamiast być tylko w JSON projektu.
+- Pasek pamięci w monitorze Program: cienki pasek pod tytułem pokazuje, co z sekund
+  wokół głowicy jest gotowe do odtworzenia od razu (złote w pamięci, zielone wyrenderowane,
+  niebieskie wczytuje się, ciemne jeszcze nie wczytane); podpowiedź podaje, ile sekund przed
+  głowicą jest gotowe.
+
 ## 0.19.24 (2026-11-08)
 
 - Agent (poprawki API z raportów stillomatic): `clear_markers` bez `kind` czyści znaczniki
