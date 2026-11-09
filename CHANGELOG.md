@@ -2,6 +2,22 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.26 (2026-11-09)
+
+- Sekwencje obrazów: ponumerowane klatki PNG, EXR, DPX, TIFF, JPEG i WebP wchodzą jako
+  jeden klip z klatkażem do wyboru w oknie importu (domyślnie klatkaż aktywnej sekwencji), także
+  przy przeciąganiu na oś. Klatkaż zmienia się później w menu klipu (Interpret Footage), z
+  ostrzeżeniem, gdy klipy sięgną poza koniec sekwencji. Brakująca klatka pokazuje klatkę sprzed
+  luki, nigdy czarną, a okno importu, panel Info i MCP mówią, ilu klatek brakuje. Cała sekwencja
+  to jeden dekoder, także gdy klatki są co drugą. MCP: `import_media` z wzorcem (`%04d`, `####`)
+  albo `sequence: true`, `media_info` z numerami i lukami, `update_media` z `rate`.
+
+- Plik offline: klip, którego pliku nie ma, pokazuje w monitorach Program i Źródło planszę
+  „Plik offline” z nazwą pliku zamiast czerni. Eksport wypisuje brakujące pliki przed startem i
+  rusza dopiero po zgodzie na te pliki (wtedy z planszą; plik, który zniknie później, nadal go
+  zatrzymuje). Agent dostaje listę w `render_frame` i `export`, a zgodę daje użytkownik w oknie
+  edytora.
+
 ## 0.19.25 (2026-11-09)
 
 - Import FCPXML z Final Cut Pro: pliki `.fcpxml` i paczki `.fcpxmld`, także z ZIP-a z
