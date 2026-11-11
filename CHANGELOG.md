@@ -2,6 +2,23 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.29 (2026-11-11)
+
+- Dokumenty przez konwersję (D136, część trzecia): HTML, pliki biurowe (DOC, DOCX, ODT, RTF,
+  PPT, PPTX, ODP, XLS) i EPS wchodzą do projektu jako obraz ze stronami, jak PDF. HTML drukuje
+  Chrome albo Edge na stronie 16:9: strona dostaje pliki ze swojego folderu, bez sieci i bez
+  innych plików komputera, a zmiana pliku obok niej (arkusz stylów, obraz) daje nowy obraz.
+  Pliki biurowe konwertuje LibreOffice:
+  Twój albo zainstalowany jednym przyciskiem w Preferencjach, sekcja Dokumenty (373 MB, do
+  folderu narzędzi edytora, bez instalacji w systemie). EPS konwertuje Ghostscript, jeśli go
+  masz w wersji 10.03.1 albo nowszej (starsza ma znane luki i nie jest uruchamiana, tak samo
+  program, który nie podaje swojej wersji). Każdy z
+  nich działa jako osobny program, a wynik leży w cache i liczy się do jego limitu. Konwersję
+  zatrzymuje Anuluj importu, eksportu albo innego zadania w tle (render podglądu, zapis klatki) i
+  zamknięcie edytora, a program kończy się razem ze wszystkim, co
+  uruchomił. Gdy programu nie ma albo konwersja się nie uda, import mówi, co się stało; eksport
+  z takim dokumentem zatrzymuje się z tym samym komunikatem.
+
 ## 0.19.28 (2026-11-11)
 
 - Match Color: nowy efekt dopasowuje kolor całego klipu do wybranych klatek odniesienia
