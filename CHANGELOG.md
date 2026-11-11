@@ -2,6 +2,134 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.28 (2026-11-11)
+
+- Match Color: nowy efekt dopasowuje kolor całego klipu do wybranych klatek odniesienia
+  (klip z osi i klatka w nim, do 16). W Effect Controls lista referencji z miniaturą i timecode,
+  „Dodaj referencję” kliknięciem w klip na osi, „Klip pod wskaźnikiem”, a parametr „Referencja” ma
+  klatki kluczowe (liniowe mieszają odniesienia, Hold przełącza). Siła, osobno jasność i kolor,
+  ochrona neutralnych. Analiza w tle z postępem i pamięcią na dysku, to samo w podglądzie i
+  eksporcie. Agent: `match_color` z `mode: effect` i `match_color_status`. Klip ze stabilizacją
+  jest mierzony po jej analizie, drugi Match Color na klipie po pierwszym, usunięcie referencji
+  przenumerowuje klucze, a zagnieżdżony klip referencji nadal działa. Kopia sekwencji,
+  „Uczyń unikalnym”, wklejanie i kopia przez Alt razem z klipem referencji dopasowują do kopii
+  klipów, a warstwa korekcyjna nie może być referencją. Referencja na elemencie sekwencji z
+  prędkością albo wstecz wskazuje tę samą klatkę.
+- Dokumenty jako strony (D136, część druga): pliki tekstowe (TXT, LOG, INI, TOML, YAML),
+  Markdown, JSON, XML, CSV i TSV oraz arkusze (XLSX, XLSM, XLSB, ODS) wchodzą do projektu jako
+  obraz ze stronami, jak PDF. Stronę 16:9 (1920 x 1080) układa edytor w czcionkach aplikacji:
+  jasny tekst na przezroczystości, ciemny po ustawieniu jasnego tła w Interpret Footage. JSON i
+  XML są kolorowane, Markdown ma nagłówki, listy, cytaty, kod i tabele, tabela powtarza nagłówek
+  na każdej stronie, arkusz to jego zakładki po kolei. Strony są wektorowe, więc ostre w każdej
+  skali. Dokument wchodzi, gdy wskażesz go z nazwy; import folderu oraz wybór razem z wideo,
+  dźwiękiem albo folderem go pomija i liczy w podsumowaniu. Pliki SRT i VTT zostają napisami.
+  Plik JSON albo XML nazwany jak zdjęcie z tego samego wyboru (`IMG_1.jpg.json`, także
+  `IMG_1.jpg.supplemental-metadata.json` z Google Takeout) to dane tego
+  zdjęcia i też zostaje pominięty. Plik płynie na strony w miarę czytania, do 2000 stron, więc
+  nawet bardzo duży albo spreparowany plik zajmuje tyle pamięci, ile pokażą jego strony.
+  Markdown powyżej 2 MB jest pokazany jak zwykły tekst.
+  MCP: `import_media` przyjmuje te pliki po ścieżce według tych samych reguł, `media_info` podaje
+  `document.pages`.
+- Interpret Footage: prawy klik na jednym albo wielu elementach panelu Projekt otwiera okno
+  z ustawieniami według rodzaju medium. Wideo: klatkaż z pliku albo przyjęty (gra każdą klatkę
+  pliku, długość i dźwięk idą za nim), proporcje piksela, kolejność pól, alfa (prosta, ignorowana,
+  premultiplikowana na kolorze), interpretacja i zakres koloru, obrót, timecode początku. Sekwencja
+  obrazów: klatkaż, pierwsza klatka, luki trzymają poprzednią klatkę albo są puste. Obraz: własna
+  długość nowych klipów. Dźwięk: mono, stereo, jeden kanał, mapa kanałów (podwójne mono), inna
+  częstotliwość próbkowania. Przy wielu elementach zmienia się tylko to, czego dotkniesz. Klipy
+  leżące już na osiach zachowują miejsce, długość i czasy źródła, a okno mówi, ile z nich pokazuje
+  teraz inne klatki i ile wychodzi poza koniec źródła. Jedna rewizja, z undo.
+- Więcej typów plików: wszystkie obrazy, które dekoduje dołączony FFmpeg (m.in. JPEG XL,
+  AVIF, HDR, DDS, PSD, ICO, QOI, JPEG 2000, PCX, SGI, PNM), SVG, PDF i AI zgodny z PDF. Źródła
+  wektorowe zostają ostre w każdej skali (rysowanie wektorowe) albo są rysowane raz w wybranym
+  DPI, z przezroczystym tłem albo kolorem. PDF, AI i wielostronicowy TIFF mają strony: liczba
+  stron jest sprawdzana przy imporcie, stronę domyślną ustawia Interpret Footage, a pojedynczy klip
+  ma własną w Effect Controls (Źródło, Strona; klucze trzymają wartość, więc jeden PDF może
+  przewracać strony w czasie).
+- MCP: `update_media` ustawia interpretację tymi samymi słowami co okno (`rate`,
+  `pixel_aspect`, `fields`, `alpha`, `rotation`, `range`, `start_timecode`, `start_frame`,
+  `missing_frames`, `still_duration`, `rendering`, `dpi`, `page`, `page_box`, `background`,
+  `audio_channels`, `sample_rate`; `file` wraca do pliku) i zwraca `items_retimed` oraz
+  `items_past_end`. `media_info` pokazuje `interpretable`, `interpretation`, `file_probe` i
+  `document`. Strona klipu: `set_param` i `set_keyframe` z parametrem `page`.
+- Medium czytane z innym klatkażem albo częstotliwością próbkowania: słowa transkrypcji,
+  bity, cisza, trafienia wyszukiwania i stabilizator idą razem z obrazem i dźwiękiem (analiza
+  trzyma czas pliku, czytający przelicza go na czas medium). Rotoskopia, głębia i rozdzielanie
+  ścieżek na takim medium mówią, że najpierw trzeba wrócić do wartości z pliku. Strona TIFF i
+  strona dokumentu mają limit wielkości zamiast alokacji bez granic; podgląd w pliku TIFF nie
+  jest już liczony jako strona, a strony czarno-białe są czytane.
+- Skopy na GPU z każdej klatki: pomiar pełnej klatki wyjścia w precyzji float zamiast
+  próbki 1920 px i 8 bitów, obraz w pikselach ekranu (także HiDPI), odświeżanie z każdą pokazaną
+  klatką zamiast ok. 8 razy na sekundę. Osiem trybów (przebieg luminancji i RGB, parada RGB i
+  YCbCr, wektoroskop z celami 75 i 100 %, linią skóry i powiększeniem, histogram RGB, kanałów i
+  luminancji z 256 do 4096 koszyków, liniowy i log, CIE 1931 xy z gamutami Rec.709, P3 i
+  Rec.2020, fałszywe kolory), do czterech skopów naraz w pięciu układach, skale w procentach,
+  nitach (PQ), HLG i wartościach kodowych 8 i 10 bitów, wskaźniki przepaleń i wyjścia poza gamut,
+  obszar pomiaru wybierany na monitorze Programu, poświata i jasność śladu. Zatrzymana klatka
+  jest mierzona w rozdzielczości sekwencji. Skale PQ i HLG pokazują też to, co wychodzi poza
+  gamut i ponad zakres (sekwencja PQ z ograniczeniem do szczytu liczy przepalenie na szczycie),
+  płaski obraz nie spowalnia pomiaru, a karta bez shaderów obliczeniowych dostaje komunikat
+  zamiast pustego panelu.
+- Speed na sekwencjach: sekwencja położona na osi (nest) przyjmuje to samo co klip: prędkość
+  w procentach, rewers, dopasowanie do długości, narzędzie Rate Stretch, slip i Time Remap. Obraz,
+  dźwięk, słowa transkrypcji i związane głowice idą za prędkością; wysokość dźwięku zmienia się
+  razem z nią. Zagnieżdżenia z inną prędkością, wstecz albo z Time Remap nie da się spłaszczyć,
+  dopóki nie wróci do 100% do przodu. Okno Speed / Duration otwiera się ze stanem rewersu elementu.
+- Sekwencja jako nest albo klip natywny: nowy przełącznik „Interpretacja sekwencji” w menu
+  elementu i w Effect Controls. Nest działa jak dotąd (dokładny czas w środku, bez końca źródła).
+  Klip natywny traktuje sekwencję jak plik: własne klatki w klatkażu sekwencji, Frame Blending
+  (Frame Mix; Pixel Motion pokazuje na razie Frame Mix), trym i slip w długości sekwencji,
+  trzymanie pierwszej i ostatniej klatki poza nią. Przełączanie tam i z powrotem niczego nie gubi.
+  Agent: `set_speed`, `slip` i `set_frame_blend` na elementach sekwencji, nowe `set_nest_mode`,
+  pełniejsze `nest_info`.
+- Poprawka: odwrócony klip (także w odwróconej sekwencji) pokazywał każdą klatkę o jedną za późno,
+  a pierwsza klatka wypadała tuż za zakresem. Stopklatka w układzie Cupertino zaczyna na klatce
+  widocznej przy każdej prędkości i kierunku.
+- Oś czasu: przeciągnięcie klipu z Altem zostawia kopię w miejscu upuszczenia, a oryginał
+  stoi. Kopiuje się całe zaznaczenie, obraz razem z dźwiękiem, także na inną ścieżkę, z
+  przyciąganiem i z wstawieniem (Ctrl) albo nadpisaniem jak przy przenoszeniu; jedna rewizja i
+  jedno cofnięcie. Alt można wcisnąć i puścić w trakcie, podgląd od razu pokazuje kopię albo
+  przeniesienie, a kursor mówi, który to tryb. W układzie LasVegas kopiuje Ctrl. Sam klip bez
+  partnera przenosi teraz Alt+klik i zwykłe przeciągnięcie; przyciąganie w trakcie wyłącza S.
+  Kopia, także wklejona Ctrl+V, ma własne identyfikatory efektów, masek, znaczników i ujęć.
+- Lewy i prawy Alt działają tak samo w gestach myszy: krzywe na klatkach kluczowych klipów
+  i w Effect Controls, kopia klipu, przycinanie jednej strony. Na polskiej klawiaturze prawy Alt
+  (AltGr) nie docierał dotąd do gestów; pisanie polskich znaków i skróty zostają bez zmian.
+- Tempo jak klatki kluczowe: nagłówek pasa tempa w trybie taktów ma przyciski poprzedni
+  punkt, punkt na głowicy (dodaj albo usuń) i następny punkt, pole BPM do przeciągania i wpisania
+  oraz przełącznik skok albo rampa. W trybie taktów klatki kluczowe na linii klipu lądują na
+  siatce taktów. Agent czyta mapę tempa w `get_timeline` (`tempo_map`).
+- Dwie osie czasu obok siebie: oś, która nie edytuje, rysuje cały interfejs (pasek,
+  nagłówki z przełącznikami, paski przewijania, pas tempa). Jej przełączniki ścieżek i widok
+  działają na jej sekwencji bez przełączania edycji, a kliknięcie w klip albo linijkę od razu
+  edytuje w tej osi.
+- Panel Projekt: po imporcie panel otwiera kosz, do którego trafiły pliki, zaznacza je i
+  przewija do pierwszego, w liście i w siatce; czeka, aż puścisz mysz, i nie zabiera klawiatury
+  osi czasu. Lista ma nagłówki kolumn: klik sortuje (drugi klik odwraca), menu nagłówka pokazuje
+  i ukrywa metadane (typ, czas, klatkaż, rozdzielczość, kodek, format pikseli, kolor, dźwięk,
+  rozmiar, data zmiany, ścieżka, użycia, ocena, tagi, rolka, status), nagłówek da się przeciągnąć
+  w inne miejsce, krawędź zmienia szerokość, dwuklik ją dopasowuje. Układ i sortowanie zapisują
+  się w preferencjach programu. Import folderów (Plik > Importuj folder, menu panelu,
+  upuszczenie) odtwarza strukturę jako kosze w jednej rewizji, pomija pliki ukryte i śmieci
+  systemowe, a po imporcie mówi, ile plików pominął, z listą. Agent: `import_media` z
+  `recursive: true` importuje folder ze strukturą i zwraca kosze oraz pominięte pliki.
+- Listy rozwijane i menu nie poszerzają się same: lista presetów eksportu z zapisanym presetem
+  rosła o 4 punkty w każdej klatce (wiersz z przyciskami zmiany nazwy i usuwania prosił o 4
+  punkty więcej, niż lista miała, a egui daje liście szerokość z poprzedniej klatki), a pasek
+  przewijania długiej listy (efekty i wtyczki w mikserze) wjeżdżał przez pierwsze klatki i
+  poszerzał ją o swoją szerokość. Każda lista i menu ma teraz stałą szerokość od pierwszej
+  klatki i poszerza się tylko dla dłuższej nazwy, która do niej przyszła, najwyżej do ekranu;
+  nazwy dłuższe niż ekran kończą się wielokropkiem (nazwy wtyczek z pełną nazwą w dymku).
+- Effect Controls: przyciski poprzedniej i następnej klatki kluczowej, romb i reset pokazują
+  najechanie i wciśnięcie, mają dymki i szarzeją, gdy nie ma dokąd skoczyć. Skok do klatki
+  kluczowej nie staje już w miejscu przy kluczu między klatkami sekwencji i pomija klucze poza
+  widoczną częścią przyciętego klipu; przyciski, J i K oraz panele Korekcja i Kolor liczą to
+  tak samo. W panelu Kolor przyciski klatek kluczowych działają (wcześniej nie robiły nic), a
+  skrót dodania klucza nie dokłada drugiego klucza w tej samej klatce.
+- „Pokaż w projekcie” w menu zakładki: zakładka osi czasu pokazuje swoją sekwencję, monitor
+  Źródło i edytor tekstu swój klip. Panel Projekt wychodzi na wierzch, otwiera folder elementu,
+  zaznacza go i przewija do niego, w liście i w siatce.
+
 ## 0.19.27 (2026-11-09)
 
 - Dźwięk komponentów web: komponent z `audio` w `layer.json` liczy dźwięk offline z tego
