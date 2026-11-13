@@ -2,6 +2,106 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.30 (2026-11-13)
+
+- Przeciąganie liczb (D149, uwagi testera JD.20 i JD.21): każda liczba w aplikacji (Effect
+  Controls, mikser, eksport, kolor, DAW, maski, pokrętła efektów audio) przesuwa się o jedną
+  jednostkę na punkt ruchu, z Shift o dziesięć, z Ctrl o jedną dziesiątą. Uwaga: Shift
+  przyspiesza, a nie zwalnia jak dotąd w polach liczb, pokrętłach efektów audio i pasku master
+  Koloru. Jednostka zależy od zakresu: 1 dla Pozycji, Skali, stopni, procentów, klatek i pikseli,
+  drobniej dla wąskich zakresów (0,01 dla krycia 0..1, 0,1 dla zaniku pogłosu), okrągła większa
+  liczba dla bardzo szerokich (20 Hz dla częstotliwości korektora 100..8000 Hz). Z Ctrl pole
+  pokazuje miejsca po przecinku. Kursor w trakcie jest ukryty i stoi w miejscu, więc
+  przeciąganie nie kończy się na krawędzi ekranu; po puszczeniu kursor wraca. Przez pulpit
+  zdalny, piórem i dotykiem kursor zostaje widoczny i zawija się na krawędzi okna. Alt+Tab albo
+  wyskakujące okno kończy przeciąganie. Esc w trakcie przywraca wartość sprzed przeciągania i
+  nic nie zapisuje w historii (także na parametrze z kluczami i przy kilku klipach), a dialog,
+  filtr, zaznaczenie kluczy i zaznaczenie nut w MIDI zostają. Szerokość i wysokość eksportu i sekwencji idą po 2 piksele
+  i zawsze są parzyste.
+- Poprawka: wyrażenie wpisane w pole liczby (`*2`, `+10%`) liczy się raz, od wartości
+  sprzed edycji. Wcześniej część pól stosowała je dwa razy (Skala 100 po `*2` dawała 400).
+- Enter w polach tekstowych (D149, JD.30): w polach wielowierszowych (wyrażenia, tekst, notatki
+  znaczników, edytor kodu i JSON, prompty) Return dodaje wiersz, a Ctrl+Return i Enter z
+  klawiatury numerycznej zatwierdzają (Ctrl+Return także w odczepionych oknach). W polach
+  jednowierszowych zatwierdzają oba Entery.
+- Gotowe wyrażenia (D149, JD.32): lista pod plusem mówi, co zastępuje całe wyrażenie (albo
+  zaznaczenie), a co wstawia się w miejscu kursora. Jedno Ctrl+Z przywraca poprzednie wyrażenie.
+- Poprawka (D149, JD.33): plus w edytorze wyrażeń przy zaznaczonym tekście nie zatwierdza już
+  niedokończonego wyrażenia, nie przesuwa panelu i nie zamyka edytora.
+- Preferencje w sekcjach (D150, uwagi testera): lista sekcji z boku (Ogólne, Język i
+  wygląd, Oś czasu, Odtwarzanie i pamięć podręczna, Media, Transkrypcja, AI i modele, Agent,
+  Dokumenty, Aktualizacje, Skróty klawiszowe) zamiast jednej długiej strony. Pole wyszukiwania
+  znajduje ustawienie po polsku i po angielsku, także wpisane bez polskich znaków, i przewija do
+  niego. Okno wraca do ostatniej sekcji, mieści się w 1280x720, a wyszukiwarka, lista i
+  Zamknij są zawsze widoczne. Ogólne pokazują folder ustawień z przyciskiem Otwórz.
+- Skróty klawiszowe pod ręką: Edycja > Skróty klawiszowe… i Ctrl+Alt+K (Premier,
+  Cupertino, Leonardo, Las Vegas, Mozart, Studio) otwierają edytor skrótów jako sekcję
+  Preferencji. Edytor szuka po nazwie polecenia w każdym języku i po klawiszu, wpisanym albo
+  naciśniętym („Szukaj po klawiszu”), a akord zajęty przez inne polecenie jest czerwony przy
+  obu, z podpowiedzią które; „Tylko konflikty” pokazuje same takie wiersze.
+- Pierwsze uruchomienie bez zgadywania (D144, uwagi testera JD.1 do JD.6). Instalator pyta,
+  gdzie zainstalować program (Enter zostawia folder domyślny, `-InstallDir` i `-Yes` bez
+  pytania), a istniejącą instalację aktualizuje tam, gdzie jest. Folder z innymi plikami albo
+  cały dysk dostaje podfolder „HEXART Video Edit”. Odinstalowanie usuwa pliki programu po
+  nazwie, a w folderze, który poprzedni instalator przyjął mimo innych plików, zostawia też
+  podfoldery programu i mówi, które. Instalacje starsze niż znacznik `.hve-install` (v0.14.0 do
+  v0.18.1) są rozpoznawane i dostają znacznik. Program jest w Ustawieniach,
+  Aplikacje: prawy klik na nim w menu Start daje „Odinstaluj”, a w jego folderze menu Start jest
+  skrót „Odinstaluj HEXART Video Edit”. Odinstalowanie pyta, czy zachować ustawienia i listę
+  ostatnich projektów, projektów nie rusza nigdy. Wersja we wpisie idzie za samoaktualizacją.
+  Junction w folderach programu i danych (np. modele przeniesione na inny dysk) znika jako
+  dowiązanie, a to, na co wskazuje, zostaje. `-Purge` z folderu danych spoza domyślnego miejsca
+  usuwa tylko to, co zapisuje program.
+- Okno Projekty bez „Anuluj”: „Nowy projekt”, „Otwórz projekt…” i „Otwórz”; pierwsze
+  uruchomienie idzie prosto do pustego projektu, bez listy do wyboru.
+- Wiadomo, gdzie są ustawienia: Pomoc, „Otwórz folder ustawień”, i ścieżka w „O programie”.
+  Plik `portable.txt` obok programu robi z kopii kopię przenośną z ustawieniami, krokami
+  pierwszego uruchomienia i cache w folderze `data` obok niej i z własnym portem agenta. Kopia z
+  innego folderu pyta raz, czy użyć wspólnych ustawień, czy zostać osobno.
+- Panel Project: podgląd po najechaniu da się wyłączyć (menu Filtra, Shift+H w panelu),
+  wtedy najechanie niczego nie dekoduje. Zaznaczone klipy upuszczone na przycisk „Nowy kosz”
+  trafiają do nowego kosza jednym krokiem; menu klipu ma „Przenieś do nowego kosza” i
+  „Przenieś do kosza” z listą koszy.
+- Panel edycji tekstem pokazuje transkrypcję klipu klikniętego w panelu Project albo na osi,
+  bez otwierania monitora Source; pinezka trzyma bieżący klip.
+- Sześciokropkowe uchwyty paneli nie przebijają już przez okna modalne.
+- „Change with Agent” nie mówi „brak mikrofonu”, gdy mikrofon działa: przerwy zgłaszane przez
+  sterownik nie kończą nagrania, a komunikat podaje prawdziwą przyczynę (brak urządzenia, brak
+  zgody Windows, odłączony, nie otworzył się, sama cisza).
+- Effect Controls (D148, uwagi testera): Delete albo Backspace przy zaznaczonej masce usuwa
+  maskę, a nie cały klip. Panel z fokusem nie oddaje już Delete osi czasu: działa na kluczach,
+  efektach i wartościach albo masce, a bez zaznaczenia nic nie robi. Wiersz maski ma menu
+  kontekstowe (Zmień nazwę, Odwróć, Zablokuj, Usuń maskę), także z nazwy maski. Przy fokusie w
+  panelu Shift+Delete, Alt+Backspace i inne skróty layoutu usuwające klipy nic nie robią,
+  przytrzymany Delete usuwa raz, a kliknięcie maski i efektu daje jedno zaznaczenie naraz.
+- Oś czasu po uwagach testera: klipy upuszczone dalej na pustą sekwencję zostają na
+  miejscu po „Zmień ustawienia sekwencji”, a upuszczenie z nowymi ustawieniami cofa jedno Ctrl+Z.
+  Przeciąganie klipu nad nagłówki ścieżek już go nie gubi: puszczenie nad nagłówkiem kładzie klip
+  na początku tej ścieżki (samo przejście nad nagłówkami w drodze z panelu Projekt niczego nie
+  przesuwa), a nad linijką podgląd stoi; przeciąganie kończy się poza panelem osi albo klawiszem Esc.
+  Prawy przycisk na pustym miejscu ścieżki stawia tam głowicę i zatrzymuje odtwarzanie, jak
+  kliknięcie w linijkę, przeciąganie prawym przewija jak po linijce (z Ctrl z dźwiękiem), a
+  kliknięcie dalej otwiera menu miejsca. Ukośnik (\) pokazuje całą
+  sekwencję, a drugie naciśnięcie wraca do poprzedniego zoomu i przewinięcia, osobno w każdym
+  panelu osi.
+- Skrubowanie w monitorze Program i Źródło: gdy zatrzymasz mysz z wciśniętym przyciskiem,
+  monitor nie udaje już, że obraz zastępczy z innej chwili to klatka głowicy. Do czasu, aż klatka
+  głowicy będzie gotowa, obraz jest przyciemniony z napisem „Czekam na klatkę głowicy”, a potem
+  pokazuje dokładnie czas głowicy; gdy klatki nie da się zdekodować, napis to mówi. W ruchu i przy
+  edycji pod stojącą głowicą obraz zastępczy zostaje jak był, z kreską w rogu.
+- Paski nad obrazem Programu i ukośna kreska w rogu mają legendę w podpowiedzi (linia fokusu,
+  kolory pamięci podglądu, głowica), opis jest w README.
+- Dwuklik w obrazie Programu zaznacza najwyższy klip pod kursorem i włącza transformację, jak w
+  Premiere (bez zablokowanych ścieżek, warstw dopasowania i klipów z kryciem 0; tytuł na cały
+  kadr nie zasłania klipu pod nim); pełny ekran ma swój przycisk w pasku monitora i dalej Ctrl+`.
+- Menu Sekwencja: „Zaznacz klip pod głowicą” (D w układzie Premier, na wskazanych ścieżkach) i
+  przełącznik „Zaznaczenie podąża za głowicą” (domyślnie wyłączony, zapamiętany).
+- Maski i inne nakładki monitora Program nie wychodzą poza obszar obrazu: nie zasłaniają
+  transportu, pasków ani innych paneli. Po oddaleniu widoku punkty maski można stawiać i
+  przeciągać poza kadrem.
+- Potrójny klik na ścieżce maski zaznacza wszystkie jej punkty: ramka przesuwa, skaluje i obraca
+  całą maskę jednym krokiem cofania.
+
 ## 0.19.29 (2026-11-11)
 
 - Dokumenty przez konwersję (D136, część trzecia): HTML, pliki biurowe (DOC, DOCX, ODT, RTF,

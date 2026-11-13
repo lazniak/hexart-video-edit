@@ -29,7 +29,7 @@ Jedna linia w PowerShell:
 irm https://github.com/lazniak/hexart-video-edit/releases/latest/download/install.ps1 | iex
 ```
 
-Instalator pobiera najnowszy zip z GitHub Releases, sprawdza sumę SHA-256, instaluje program w `%LOCALAPPDATA%\Programs\HEXART Video Edit` i zakłada skrót w menu Start. Zapyta, czy włączyć autostart serwera agenta i czy zarejestrować MCP w Claude Code. Nie potrzebuje uprawnień administratora.
+Instalator pobiera najnowszy zip z GitHub Releases, sprawdza sumę SHA-256, pyta, gdzie zainstalować program (Enter = `%LOCALAPPDATA%\Programs\HEXART Video Edit`), i zakłada skróty w menu Start: program i jego odinstalowanie. Program jest też w Ustawieniach, Aplikacje, a prawy klik na nim w menu Start daje „Odinstaluj”. Zapyta, czy włączyć autostart serwera agenta i czy zarejestrować MCP w Claude Code. Nie potrzebuje uprawnień administratora.
 
 Opcje (zamiast jednej linii):
 
@@ -44,9 +44,11 @@ Opcje (zamiast jednej linii):
 | `-Autostart` / `-NoAutostart` | włącza bez pytania / nie pyta |
 | `-Mcp` / `-NoMcp` | rejestruje MCP w Claude Code bez pytania / nie pyta |
 | `-Yes` | nie pyta o nic, bierze odpowiedzi domyślne |
-| `-InstallDir` | inny folder instalacji |
+| `-InstallDir` | folder instalacji bez pytania (folder z innymi plikami albo cały dysk dostaje podfolder `HEXART Video Edit`) |
 
 Ręcznie: pobierz `hexart-video-edit-<wersja>-windows-x64.zip` z [Releases](https://github.com/lazniak/hexart-video-edit/releases), rozpakuj do dowolnego folderu i uruchom `hexart-video-edit.exe`. Obok zipa leży plik `.sha256` do sprawdzenia: `Get-FileHash plik.zip -Algorithm SHA256`. Przy pierwszym uruchomieniu krótki kreator ustawia język, folder projektów i podłącza agenta AI. Rozpakowaną kopię zainstalujesz później instalatorem, który jest w zipie: `powershell -ExecutionPolicy Bypass -File install.ps1` w tym folderze (instaluje pliki z folderu, nic nie pobiera).
+
+Gdzie są ustawienia: Pomoc, „Otwórz folder ustawień” (ścieżka jest też w „O programie”). Wszystkie kopie programu na komputerze dzielą jedne ustawienia, chyba że kopia jest przenośna: plik `portable.txt` obok `hexart-video-edit.exe` sprawia, że trzyma ona ustawienia, kroki pierwszego uruchomienia i cache w folderze `data` obok siebie i ma własny port agenta. Kopia uruchomiona z innego folderu sama raz zapyta, czy użyć wspólnych ustawień, czy zostać osobno.
 
 ### Aktualizacja
 
@@ -147,7 +149,7 @@ One line in PowerShell:
 irm https://github.com/lazniak/hexart-video-edit/releases/latest/download/install.ps1 | iex
 ```
 
-The installer downloads the latest zip from GitHub Releases, checks its SHA-256, installs the program to `%LOCALAPPDATA%\Programs\HEXART Video Edit` and adds a Start menu shortcut. It asks whether to start the agent server at sign-in and whether to register the MCP in Claude Code. No administrator rights needed.
+The installer downloads the latest zip from GitHub Releases, checks its SHA-256, asks where to install the program (Enter = `%LOCALAPPDATA%\Programs\HEXART Video Edit`) and adds Start menu shortcuts: the program and its uninstaller. The program is also listed in Settings, Apps, and right-click on it in the Start menu offers Uninstall. It asks whether to start the agent server at sign-in and whether to register the MCP in Claude Code. No administrator rights needed.
 
 Options (instead of the one-liner):
 
@@ -162,9 +164,11 @@ Options (instead of the one-liner):
 | `-Autostart` / `-NoAutostart` | turn it on without asking / do not ask |
 | `-Mcp` / `-NoMcp` | register the MCP in Claude Code without asking / do not ask |
 | `-Yes` | ask nothing, take the default answers |
-| `-InstallDir` | another install folder |
+| `-InstallDir` | the install folder, without asking (a folder with other files, or a whole drive, gets the subfolder `HEXART Video Edit`) |
 
 Manually: download `hexart-video-edit-<version>-windows-x64.zip` from [Releases](https://github.com/lazniak/hexart-video-edit/releases), unzip anywhere and run `hexart-video-edit.exe`. A `.sha256` file next to the zip lets you verify it: `Get-FileHash file.zip -Algorithm SHA256`. At the first start a short wizard sets the language and the projects folder and connects an AI agent. To install an unpacked copy later, run the installer that comes in the zip: `powershell -ExecutionPolicy Bypass -File install.ps1` in that folder (it installs the files of the folder and downloads nothing).
+
+Where the settings are: Help, "Open settings folder" (About shows the path too). Every copy of the program on a computer shares one set of settings unless the copy is portable: a file `portable.txt` next to `hexart-video-edit.exe` makes it keep its settings, first-run steps and cache in a `data` folder next to it, with an agent port of its own. A copy started from another folder asks once by itself whether to use the shared settings or stay separate.
 
 ### Update
 
