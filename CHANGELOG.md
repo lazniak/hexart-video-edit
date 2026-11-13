@@ -2,6 +2,82 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.31 (2026-11-13)
+
+- Effect Controls: przycisk „Idź do klipu” w nagłówku klipu przenosi głowicę na jego
+  początek, gdy jest poza klipem. Linia głowicy idzie przez całą wysokość panelu, także nad
+  pustym miejscem i zwiniętymi grupami.
+- Effect Controls: pod Skalą Ruchu widać, że obraz klipu jest dopasowany do kadru (na
+  przykład 50 % dla klipu 4K w sekwencji HD), z przełącznikiem „Dopasuj do kadru”. Położenie
+  takiego klipu mówi o tym komunikatem (można go wyłączyć w menu tej linii). Agenci widzą to
+  samo w `get_timeline` i w wyniku edycji (`fit`). Istniejące projekty renderują się bez zmian.
+- Effect Controls: stoper mówi prawdę. Złoty tylko przy klatkach kluczowych, stan
+  wyrażenia ma osobny znak (kropka: działa, pierścień: wyłączone). Parametr z wyłączonym
+  wyrażeniem przyjmuje klatki kluczowe, a klik przy działającym wyrażeniu pyta i może je
+  zastąpić klatkami bez skoku obrazu (jeden krok cofania).
+- Effect Controls: grupy parametrów komponentów web i efektów mają nagłówek z nazwą,
+  wcięcie i linię wzdłuż wierszy grupy.
+- Paleta efektów: skrót (Ctrl+Shift+P w układzie Premier, Ctrl+Space albo
+  Ctrl+Shift+Space w innych, zmienisz go w edytorze skrótów) otwiera małe okno wyszukiwania
+  efektów, presetów i przejść. Szuka w nazwie polskiej i angielskiej, także bez polskich
+  liter. Na górze są ulubione (gwiazdka), potem ostatnio użyte. Strzałki i Enter dodają
+  efekt do zaznaczonych klipów, przejście idzie na cięcie jak Ctrl+D. Ulubione (efekty,
+  presety i przejścia) są w edytorze skrótów i mogą dostać własny skrót; po zdjęciu gwiazdki
+  ten skrót znika. Paleta otwiera się w oknie, w którym naciśnięto skrót, także w oknie
+  odłączonym, a dopóki jest otwarta, klawisze nie uruchamiają skrótów.
+- Nowy projekt bez decyzji za Ciebie: pusta sekwencja nowego projektu ma format „z pierwszego
+  klipu” (widać to w zakładce, w Info i w ustawieniach sekwencji), a pierwszy klip wideo ustawia
+  jej rozmiar, klatkaż i dźwięk bez pytania, w tej samej rewizji (zdjęcie, sam dźwięk ani plansza
+  formatu nie ustalają). Nazwy, które edytor nadaje sam
+  (sekwencja, nowy projekt), są w języku interfejsu, a wybór języka przy pierwszym uruchomieniu
+  przemianowuje nieruszone nazwy pustego projektu. Menu Edycja ma przełącznik „Cofnięcie przenosi
+  głowicę do zmiany” (domyślnie wyłączony); wyłączony, cofnięcie zmiany poza widokiem osi mówi to w
+  komunikacie z przyciskiem „Pokaż”. Agenci widzą `format_unset` w `project_info` i `get_timeline`.
+- Okno niezgodności ustawień po uwagach testera: „Zmień
+  ustawienia sekwencji” nie oddala już osi do całej sekwencji, więc klipy upuszczone w
+  powiększeniu zostają tam, gdzie widać je przed pytaniem, z tym samym zoomem i głowicą. Jedno
+  Ctrl+Z zabiera klipy i nowe ustawienia, a kolejne upuszczenie na pustą sekwencję znów pyta.
+  Pytanie o ustawienia nie przepada, gdy przy upuszczeniu jest otwarte inne okno albo klip nie
+  jest jeszcze zbadany: pojawia się, gdy tylko może. Upuszczenie przenosi ramkę na oś,
+  więc Delete usuwa upuszczone klipy, a nie pliki z projektu.
+- Panel z klawiaturą ma złotą ramkę i tylko on bierze klawisze. Klik albo upuszczenie
+  (także plików z Eksploratora) przenosi ramkę, skróty przełączania paneli i menu Okno też.
+  Delete, Ctrl+A, Ctrl+C/X/V nad osią nie usuwają już niczego z panelu Projekt, gdy ramka jest
+  na osi, i nie edytują osi, gdy ramka jest na innym panelu; inne skróty na tych klawiszach
+  (cofnij w Las Vegas, krok w Mozarcie, czyszczenie wejścia i wyjścia) działają dalej. Złota
+  linia na górze monitorów to teraz ta sama ramka; zakładki grup bez ramki mają szary pasek.
+- Linie krycia i głośności na klipach są domyślnie ukryte i nie łapią się przypadkiem.
+  Pokazuje je przełącznik „Linie klatek kluczowych na klipach” w nowym menu „Ustawienia
+  wyświetlania osi” w pasku osi (Ctrl+Alt+Shift+K, zapamiętany), a na chwilę wystarczy
+  przytrzymać Ctrl+Alt nad ścieżkami (gesty Ctrl+Alt na klipach działają przy tym jak zawsze).
+  Parametr wybrany w nagłówku ścieżki i narzędzie Pióro pokazują linie jak dotąd, obwiednie
+  VEGAS też.
+- Link to nie grupa. „Połącz” łączy jeden obraz z jego dźwiękiem (z tego samego pliku
+  albo z osobnego rejestratora) i nigdy jednego klipu samego ze sobą; połączone części mają
+  znak łańcucha. Dwa obrazy, tytuły i inne klipy łączy nowe „Grupuj” (Ctrl+G, „Rozgrupuj”
+  Ctrl+Shift+G): grupa ma swój znak i przerywaną górną krawędź, klik zaznacza całą grupę,
+  Alt+klik jeden klip. Projekty, w których połączono różne klipy, otwierają się z tymi
+  klipami w grupie (raz pojawia się komunikat), nic nie ginie; dźwięk z rejestratora zostaje
+  połączony z obrazem.
+- Alt+klik zaznacza jedną część połączonego klipu, a jej przeciągnięcie przesuwa tylko ją, bez
+  rozłączania. Części, które się rozjechały, pokazują czerwoną plakietkę z przesunięciem
+  w klatkach, a menu klipu ma „Przesuń do synchronizacji” i „Przesuń źródło do
+  synchronizacji”.
+- Modele, które już masz: Whisper i RIFE mogą korzystać z pliku z innego programu albo
+  wcześniejszego pobrania („Użyj istniejącego pliku…”, „Poszukaj w typowych miejscach”), bez
+  kopiowania, po sprawdzeniu formatu, rozmiaru i sumy kontrolnej. Brak pliku jest opisany
+  wprost.
+- Pobieranie modeli: przycisk Whispera podaje osobno rozmiar modelu i środowiska,
+  postęp pokazuje prędkość i pozostały czas w Preferencjach i w pasku zadań, a przerwane
+  pobieranie można wznowić.
+- Aktualizacje po Twojemu: w Preferencjach do wyboru Automatycznie (jak dotąd), Pytaj
+  (program mówi, że jest nowa wersja, a pobiera ją dopiero po kliknięciu; gotową instaluje po
+  „Uruchom ponownie teraz” albo, jeśli wybierzesz Później, przy następnym starcie) albo
+  Ręcznie (nic nie sprawdza samo). Widać zainstalowaną wersję, kiedy program ostatnio sprawdzał
+  i co znalazł. Pierwszy start po aktualizacji mówi „Zaktualizowano do X (było Y)” i pokazuje,
+  co nowego. Program nigdy nie uruchamia się ponownie sam i nie przerywa eksportu, renderu,
+  nagrywania, generowania, transkrypcji, wysyłki ani sesji online.
+
 ## 0.19.30 (2026-11-13)
 
 - Przeciąganie liczb (D149, uwagi testera JD.20 i JD.21): każda liczba w aplikacji (Effect
@@ -89,7 +165,7 @@ Notatki o wersjach są po polsku. / Release notes are written in Polish.
   głowicy będzie gotowa, obraz jest przyciemniony z napisem „Czekam na klatkę głowicy”, a potem
   pokazuje dokładnie czas głowicy; gdy klatki nie da się zdekodować, napis to mówi. W ruchu i przy
   edycji pod stojącą głowicą obraz zastępczy zostaje jak był, z kreską w rogu.
-- Paski nad obrazem Programu i ukośna kreska w rogu mają legendę w podpowiedzi (linia fokusu,
+- Paski nad obrazem Programu i ukośna kreska w rogu mają legendę w podpowiedzi (ramka fokusu,
   kolory pamięci podglądu, głowica), opis jest w README.
 - Dwuklik w obrazie Programu zaznacza najwyższy klip pod kursorem i włącza transformację, jak w
   Premiere (bez zablokowanych ścieżek, warstw dopasowania i klipów z kryciem 0; tytuł na cały
