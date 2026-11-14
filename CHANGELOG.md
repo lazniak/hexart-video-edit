@@ -2,6 +2,23 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.33 (2026-11-14)
+
+- Stabilizacja: stabilizator przestał pogarszać obraz. Do 0.19.32 na ujęciach z ręki i
+  z drona drgania po stabilizacji rosły (w naszych pomiarach od 1,2 do 5,9 raza). Solver jest
+  napisany od nowa: korekcja powstaje tylko z tego, co analiza zmierzyła. Gdzie para klatek nie
+  ma pomiaru (rozmycie, szarpnięcie), obraz idzie tam za kamerą zamiast za zgadywaną wartością,
+  a ruch, którego analiza nie odróżnia od własnego szumu, nie trafia do korekcji. Drganie
+  dodane do spokojnego ujęcia znika prawie w całości (zostaje z niego od 3 do 10 %). Trudne
+  ujęcia w ruchu, w których analiza gubi część klatek, wychodzą na razie blisko źródła (od
+  0,9 do 1,03 jego drgań): mocniejsza stabilizacja takich ujęć wymaga nowej analizy kamery i
+  jest następnym etapem. Analizy policzone wcześniej liczą się od nowa.
+- Stabilizacja: Gładkość przyjmuje klatki kluczowe, a nowy parametr Siła (0 do 100 %,
+  też z klatkami kluczowymi) mówi, ile korekcji trafia do obrazu: 100 % to cała, 0 to źródło.
+  Obraz nie skacze przy kluczu, także przy kluczu typu hold: solver sam rozkłada zmianę w
+  czasie (okno wygładzania zmienia się najwyżej o sekundę na sekundę). Projekty bez tych
+  kluczy renderują się jak w punkcie wyżej, a agenci ustawiają klucze przez `set_keyframe`.
+
 ## 0.19.32 (2026-11-13)
 
 - Poprawka: klipy dźwiękowe nie gubią już początków przy odtwarzaniu. Mikser gra ciszę,
