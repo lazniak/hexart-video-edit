@@ -2,6 +2,27 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.32 (2026-11-13)
+
+- Poprawka: klipy dźwiękowe nie gubią już początków przy odtwarzaniu. Mikser gra ciszę,
+  dopóki plik nie jest zdekodowany, a o dekodowanie prosił dopiero w chwili, gdy głowica doszła do
+  klipu, więc pierwsze klatki dźwięku przepadały (krótki lektor albo efekt tracił kilka klatek,
+  długi plik więcej). Tak było z każdym plikiem, którego program nie zdążył zdekodować wcześniej:
+  po przełączeniu sekwencji, po położeniu nowego klipu na osi, w zagnieżdżonej sekwencji i przez
+  pierwsze chwile po otwarciu dużego projektu. Teraz pliki aktywnej sekwencji dekodują się z
+  wyprzedzeniem, gdy tylko zmieni się ich zestaw, a pliki z najbliższych 3 sekund przed głowicą
+  idą przed resztą, także gdy odtwarzanie stoi. Jeden z trzech wątków dekodera jest zawsze wolny
+  dla pliku, na który czeka mikser.
+- Poprawka: klatka Pixel Motion nie jest już ciemniejsza od zwykłej klatki tego samego
+  klipu. Przy zwolnieniu i zmianie klatkażu obraz migotał tam, gdzie klatki liczone przez silnik
+  (przepływ albo RIFE) przeplatały się z klatkami źródła: dekoder oddawał silnikowi obraz
+  ciemniejszy o pół do jednej wartości kodu (8 bitów), a przy nasyconych kolorach do dwóch. Teraz
+  obie klatki mają te same poziomy co do zaokrąglenia, w podglądzie i w eksporcie. Dotyczy źródeł
+  8-bitowych Y'CbCr (H.264, HEVC, większość kamer, telefonów i generatorów). Ta sama poprawka
+  wyrównuje eksport takiego klipu skalowanego z eksportem 1:1 oraz obrazy JPEG. Klatki Pixel
+  Motion i klatki z renderu In do Out policzone wcześniej liczą się od nowa (stare pliki usuwa
+  limit pamięci podręcznej).
+
 ## 0.19.31 (2026-11-13)
 
 - Effect Controls: przycisk „Idź do klipu” w nagłówku klipu przenosi głowicę na jego
