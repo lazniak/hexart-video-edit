@@ -2,6 +2,14 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.36 (2026-11-15)
+
+- Stabilizacja i analiza kamery: plik trzymany w folderze projektu (na przykład w `exports`
+  albo `media`) albo w bibliotece nie dawał się analizować. Efekt pokazywał „Analiza nie
+  powiodła się”, a powodem było „file not found”: analiza otwierała ścieżkę zapisaną względem
+  projektu tak, jak stoi, czyli względem katalogu, z którego ruszył program. Działały tylko
+  pliki spoza folderu projektu. Błąd był w stabilizatorze od jego pierwszej wersji.
+
 ## 0.19.35 (2026-11-15)
 
 - Kamera (D155, SV3): analiza ruchu kamery jest osobnym produktem, a stabilizator jej pierwszym
