@@ -2,6 +2,37 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.37 (2026-11-15)
+
+- Agent (poprawki API po pierwszym przebiegu montażu odcinka SYGNAŁ): `edit` z
+  `result: "compact"` zwraca liczniki zmian i mapę nazwa elementu na id, której nigdy nie obcina
+  (133 komendy mieszczą się w 9 KB); pełny wynik jest bez zmian. Późniejsza komenda partii
+  wskazuje element położony wcześniej w tej samej partii (`"#0"` to indeks komendy, `"#title"`
+  to `place` z `"key": "title"`), komendy parametrów biorą `"effect": "hve.motion"` zamiast
+  `target`, a `set_param` i `set_keyframe` na efekcie zwykłą wartość, więc klip da się położyć
+  i przeskalować jedną partią. Nowe `read_docs` czyta przewodniki agenta w częściach (spis
+  nagłówków, sekcja, kolejne porcje). `write_component` zmienia istniejący komponent bez
+  wysyłania całości: same wskazane pliki, zamiana tekstu w pliku (`edits`), zmiana pól
+  manifestu (`manifest_patch`). `import_media` ma zwięzły wynik, a media o tej samej nazwie
+  rozróżnia nazwa pliku z rozszerzeniem. Zestaw `HK` dla komponentów web dostał `HK.rng`,
+  `HK.textWidth` i `HK.fitText`; przewodnik web opisuje rozmiar strony, pola `info` i zmienne
+  CSS.
+- Agent (po drugim przebiegu): każda zmiana agenta, `export` i `normalize_audio` ostrzegają, gdy
+  elementy leżą na torze, którego nie słychać (wyciszony tor, wyciszony VCA, wyciszony submiks
+  na drodze do mastera, solo innego toru). Nowe `measure_audio` mierzy miks zakresu tak, jak zrobi to
+  eksport: głośność LUFS, zakres, true peak, RMS w czasie i odcinki ciszy, dla programu albo
+  każdego toru osobno. `delete_items` bierze zamiast listy id tory albo `all: true` z
+  opcjonalnym zakresem czasu, więc jedna partia czyści oś i układa ją od nowa jako jedna
+  rewizja. `place` przyjmuje `fade_in` i `fade_out`. Wyrażenia mają `fadeDb` i `fadeGain`
+  (przenikanie o stałej mocy). Tor albo sekwencja dodane wcześniej w partii są znajdowane po
+  nazwie.
+- Agent (po eksporcie całego odcinka): `validate_component` i `render_frame` wskazują elementy
+  warstwy web wystające poza kadr (który element, o ile pikseli, za którą krawędź).
+  `export_status` pokazuje, na co idzie czas klatki (dekodowanie, warstwy web, kompozycja,
+  enkoder) w całości, ostatnio i w oknach czasu, więc widać, kiedy i dlaczego eksport zwalnia.
+  `publish` sprawdza gotowość konta YouTube, zanim poprosi użytkownika o zgodę, i mówi wprost,
+  czego brakuje; `server_status` pokazuje ten stan.
+
 ## 0.19.36 (2026-11-15)
 
 - Stabilizacja i analiza kamery: plik trzymany w folderze projektu (na przykład w `exports`
