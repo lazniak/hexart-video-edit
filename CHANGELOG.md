@@ -2,6 +2,34 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.35 (2026-11-15)
+
+- Kamera (D155, SV3): analiza ruchu kamery jest osobnym produktem, a stabilizator jej pierwszym
+  odbiorcą. Agent może poprosić o analizę kamery dowolnego klipu albo pliku wideo bez dodawania
+  stabilizacji (`analyze_camera`), sprawdzić jej stan (`camera_status`) i odczytać ślad kamery
+  klatka po klatce (`get_camera`): pan, tilt i roll, ogniskową, pewność i szum pomiaru, ujęcia,
+  zakresy, których nie dało się zmierzyć, i obiektyw. Jedna analiza na plik i ustawienia
+  (metodę) obsługuje wszystkich, nikt jej nie powtarza. Ślad zawiera na razie sam obrót kamery, bez położenia i punktów sceny
+  (te przyjdą z analizą 6DOF), więc do osadzania elementów w przestrzeni jeszcze nie wystarcza.
+  Obraz po stabilizacji się nie zmienia, zapisane analizy zostają.
+- Preferencje, Cache: analizy kamery projektu mają rozmiar, limit i przycisk „Usuń nieużywane
+  analizy”. Analizy, których projekt teraz nie używa (także wyłączonego stabilizatora), znikają
+  same po 7 dniach albo po przekroczeniu 2 GB (od najdawniej używanej); dotąd każde „Analizuj”
+  i każda zmiana ustawień zostawiały folder na zawsze.
+
+## 0.19.34 (2026-11-15)
+
+- Stabilizacja (D155, SV3a): analiza ruchu kamery lepiej oddziela drganie od paralaksy. Na
+  ujęciach z ręki i z drona, gdzie obiekty są w różnych odległościach, pomiar każdej pary
+  klatek mylił się trochę inaczej i stabilizator brał te różnice za drganie. Teraz prędkości
+  kolejnych par są łączone z przyspieszeniem punktów śledzonych przez trzy klatki, w którym
+  paralaksa się znosi. W naszych pomiarach drgań powyżej około 1 Hz zostaje po stabilizacji
+  przy wygładzeniu 90 %: ujęcie z ręki w marszu 0,42 źródła (było 0,71), dron 0,47 (było 0,51)
+  i 0,78 (było 1,25), znane drganie dołożone do stabilnego ujęcia 0,26 px z 12,8 px (było
+  0,30 px). Ujęcia z szarpnięciami i przelotem, w których część par klatek nie ma pomiaru, są
+  bez poprawy, a jedno przy 90 % wychodzi gorzej niż przed zmianą i gorzej od źródła (całe
+  wspólne drganie 1,02 źródła, było 0,97). Zapisane analizy stabilizacji liczą się od nowa.
+
 ## 0.19.33 (2026-11-14)
 
 - Stabilizacja: stabilizator przestał pogarszać obraz. Do 0.19.32 na ujęciach z ręki i
