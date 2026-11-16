@@ -2,6 +2,38 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.38 (2026-11-16)
+
+- Kontrolki wyrażeń mają nazwy i grupy: nazwę kontrolki zmieniasz w miejscu (dwuklik na
+  nazwie, F2 po kliknięciu w nią albo Zmień nazwę w jej menu), a kontrolki zbierasz w nazwane
+  grupy przez Przenieś do grupy. Grupa w Effect Controls to zwijany nagłówek z liczbą
+  kontrolek i przyciskiem +, który dodaje kontrolkę od razu do niej; dwuklik zmienia nazwę
+  grupy, a jej menu przesuwa ją, rozgrupowuje albo usuwa razem z kontrolkami. Okno ustawień
+  kontrolki ma pole Grupa. Wyrażenia czytają kontrolki jak dotąd, grupa porządkuje tylko
+  panel. Agent widzi i ustawia grupę przez `list_controls` i `set_control` (`group`), a
+  `set_control` zwraca końcowe miejsce kontrolki (`index`, `group`).
+- Zmiana nazwy kontrolki wyrażeń (w miejscu, w oknie ustawień albo przez agenta) przepisuje
+  w tej samej zmianie wyrażenia, które czytały ją po starej nazwie (`ctrl("Stara")`,
+  `effect("controls")("Stara")` i podobne, także z innych klipów i na szynach miksera), i
+  mówi, ile ich było; jedno Ctrl+Z cofa nazwę razem z wyrażeniami. Odwołania po id i
+  kontrolki o tej samej nazwie w innych efektach zostają bez zmian. Przepisywane są też
+  zmienne sekwencji, krzywe grup klipów i kolor planszy, nowa nazwa nie zabiera odwołań
+  innej kontrolce, zmiana typu kontrolki bez nazwy liczy się jako zmiana nazwy, a warstwa
+  web z dźwiękiem nie blokuje już zmiany nazwy. Czego nie da się zachować, zgłasza komunikat.
+- Pick whip wyrażeń (spirala) potrafi więcej. Gdy piszesz wyrażenie, spirala z nagłówka
+  edytora wstawia odwołanie w miejscu kursora; całe poprawne wyrażenie stosuje się od razu,
+  niedokończone zostaje do dopisania, a Esc wraca do tekstu sprzed edycji. Przytrzymana przy
+  górnej albo dolnej krawędzi listy przewija ją. Zmienne są celem (`vars.nazwa`) i źródłem
+  (zmienna z wyrażeniem ma własną spiralę). Przytrzymana nad klipem na osi czasu pokazuje go
+  w Effect Controls, więc parametr może podążać za innym klipem. Działa między panelami i
+  odpiętymi oknami, przytrzymana nad zakładką schowaną za inną (także na liście paska)
+  wyciąga ją na wierzch, a wiersze paneli Kolor i Korekcja też są celami.
+  Przytrzymana nad efektami paska w Mikserze audio pokazuje stos tej szyny w Effect
+  Controls, więc parametr może podążać za efektem ścieżki albo mastera (parametry submiksu
+  są na razie niedozwolone, bo wyrażenia jeszcze ich nie czytają). Upuszczona na świeżo
+  dodane wyrażenie, które ma jeszcze tylko `value` (na przykład zmienna po „Dodaj
+  wyrażenie”), zastępuje je odwołaniem i od razu je stosuje.
+
 ## 0.19.37 (2026-11-15)
 
 - Agent (poprawki API po pierwszym przebiegu montażu odcinka SYGNAŁ): `edit` z
