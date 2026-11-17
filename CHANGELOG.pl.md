@@ -2,6 +2,31 @@
 
 Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
+## 0.19.43 (2026-11-17)
+
+- Kolejka renderu: miniatura na pasku jest większa (160x90 punktów na szerokim panelu) i ma
+  wysokość całej treści paska, zamiast tkwić w rogu. Obraz ostatniej klatki każdego renderu zostaje
+  zapamiętany (mały WebP w pamięci podręcznej, sprzątany jak inne podglądy), więc pasek ma obraz
+  także po restarcie programu oraz dla renderów agenta i procesu w tle.
+- Kolejka renderu: pasek mówi, jak poszedł render. Gotowy: ile trwał i z jaką prędkością
+  (np. „Wyrenderowano w 1 min 25 s · 50 fps, 2,0x”). Błąd, anulowanie albo przerwanie: na którym
+  timecode, której klatce z ilu i przy ilu procentach się zatrzymał, po jakim czasie i z jakiego
+  powodu; pasek postępu zostaje w tym miejscu. Timecode to ten, który pokazuje kursor
+  odtwarzania dla tej klatki (czas sekwencji od zera, bez klatek opuszczanych), więc można tam
+  przejść; zapis w jej własnym timecode (start timecode, drop frame) jest w podpowiedzi, gdy
+  się różni. Klatki to wyrenderowane, czyli przekazane do enkodera: po błędzie plik może mieć
+  kilka klatek mniej. W trakcie renderu widać obok czasu do końca także czas, który już minął.
+  Render, którego program nie dokończył (zamknięcie, awaria), po ponownym uruchomieniu jest
+  oznaczony jako przerwany i pokazuje, dokąd doszedł.
+- Kolejka renderu: agent czyta te same liczby w `export_status` (start i koniec, klatki
+  wyrenderowane z zaplanowanych, `stopped_at`, krotność czasu rzeczywistego, `outcome`). Render
+  przerwany przez zamknięcie programu albo zabicie procesu w tle ma stan `interrupted`, a po
+  restarcie programu `export_status` odpowiada też po `queue_id` z paska kolejki, nawet gdy
+  numer zadania już nie istnieje. Dotychczasowe pola, w tym `timecode`, znaczą to samo co
+  przedtem.
+- Kolejka renderu: w wąskim doku pasek liczy rozmiar miniatury i zawijanie tekstu z
+  widocznej szerokości panelu, a wiersz przycisków nad listą zawija się, więc nic z paska nie
+  wychodzi poza panel.
 ## 0.19.42 (2026-11-17)
 
 - Okno po aktualizacji pokazuje notatki o wydaniu w języku interfejsu: w polskim po polsku, w angielskim i
@@ -152,7 +177,7 @@ Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
 ## 0.19.37 (2026-11-15)
 
-- Agent (poprawki API po pierwszym przebiegu montażu odcinka SYGNAŁ): `edit` z
+- Agent (poprawki API po pierwszym przebiegu montażu odcinka): `edit` z
   `result: "compact"` zwraca liczniki zmian i mapę nazwa elementu na id, której nigdy nie obcina
   (133 komendy mieszczą się w 9 KB); pełny wynik jest bez zmian. Późniejsza komenda partii
   wskazuje element położony wcześniej w tej samej partii (`"#0"` to indeks komendy, `"#title"`
@@ -692,7 +717,7 @@ Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
 ## 0.19.24 (2026-11-08)
 
-- Agent (poprawki API z raportów stillomatic): `clear_markers` bez `kind` czyści znaczniki
+- Agent (poprawki API z raportów z pracy): `clear_markers` bez `kind` czyści znaczniki
   wszystkich rodzajów jedną rewizją, `place` warstwy web przyjmuje zwykłe wartości parametrów,
   `render_frame` przyjmuje `time` zamiast `at`, nowe narzędzie `reset_web_params` przywraca
   parametrom komponentu wartości domyślne, a `preview_component` składa do 36 klatek w jedną

@@ -2,6 +2,33 @@
 
 Polska wersja: [CHANGELOG.pl.md](CHANGELOG.pl.md).
 
+## 0.19.43 (2026-11-17)
+
+- Render queue: the thumbnail on a bar is larger (160x90 points on a wide panel) and as tall as
+  the whole content of the bar, instead of sitting in a corner. The picture of the last frame of
+  every render is remembered (a small WebP in the cache, cleaned like other previews), so a bar
+  has a picture after a restart of the program too, and for renders of an agent and of the
+  background process.
+- Render queue: a bar says how the render went. Done: how long it took and at what speed (for
+  example "Rendered in 1 min 25 s · 50 fps, 2.0x"). An error, a cancel or an interruption: at
+  which timecode, which frame of how many and at what percentage it stopped, after how long and
+  for what reason; the progress bar stays at that point. The timecode is the one the playhead
+  shows for that frame (sequence time from zero, without drop frames), so you can go there; the
+  sequence's own timecode (start timecode, drop frame) is in the tooltip when it differs. The
+  frames are the rendered ones, handed to the encoder: after an error the file can hold a few
+  frames fewer. During a render the time that has passed shows next to the time left. A render
+  the program did not finish (closed, crashed) is marked as interrupted at the next start and
+  shows how far it got.
+- Render queue: an agent reads the same numbers in `export_status` (start and end, frames
+  rendered of those planned, `stopped_at`, the real-time factor, `outcome`). A render
+  interrupted by closing the program or killing the background process has the state
+  `interrupted`, and after a restart of the program `export_status` also answers by the
+  `queue_id` of the bar, even when the job number no longer exists. The fields that were there
+  before, `timecode` among them, mean what they meant.
+- Render queue: in a narrow dock a bar takes the size of its thumbnail and the wrapping of its
+  text from the visible width of the panel, and the row of buttons above the list wraps, so
+  nothing of a bar leaves the panel.
+
 ## 0.19.42 (2026-11-17)
 
 - The window after an update shows the release notes in the language of the interface: Polish
@@ -158,7 +185,7 @@ Polska wersja: [CHANGELOG.pl.md](CHANGELOG.pl.md).
 
 ## 0.19.37 (2026-11-15)
 
-- Agent (API fixes after the first editing pass of the SYGNAŁ episode): `edit` with `result:
+- Agent (API fixes after the first editing pass of an episode): `edit` with `result:
   "compact"` returns change counters and a map of item name to id that is never truncated (133
   commands fit in 9 KB); the full result is unchanged. A later command of a batch can point to
   an item placed earlier in the same batch (`"#0"` is the command index, `"#title"` is a
