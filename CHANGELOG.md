@@ -2,6 +2,73 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.39 (2026-11-16)
+
+- Rozmycie obiektywu (Camera Lens Blur) ma naturalne krawędzie. Rozmyty pierwszy plan
+  przechodzi miękko w tło na całym promieniu rozmycia, tło za nim ciągnie się pod jego krawędź
+  bez szwu i zachowuje własną ostrość, ostry obiekt nie farbuje rozmytego tła, przy skoku głębi
+  nie ma ostrej linii, a brzegi kadru się nie rozmazują. Wnętrze bliskiego obiektu jest w
+  pełni kryjące, małe jasne punkty dają równy bokeh, jasne światła nie gasną skokiem, a zmiana
+  promienia nie skacze przy przejściu poziomów. Podgląd w połowie rozdzielczości wygląda jak
+  eksport.
+- Punkty efektów w monitorze Program: gdy parametr typu punkt jest zaznaczony w
+  Effect Controls, monitor pokazuje tor ruchu punktu z klatkami kluczowymi. Klatki
+  przeciągasz bez ruszania głowicy, celownik dodaje klatkę pod głowicą, menu klatki zmienia
+  interpolację, daje Easy Ease albo ją usuwa. Shift trzyma oś, strzałki przesuwają o 1 px
+  (z Shift o 10), Esc w trakcie przeciągania przywraca wartość, a klatki kluczowe poza klipem
+  są widoczne i edytowalne. Działa dla każdego parametru punktu, nie tylko w Lens Blur, także
+  w odpiętym oknie monitora.
+- Effect Controls pokazuje czas także przed początkiem i po końcu klipu. Klatki
+  kluczowe można tam dodawać (zawsze pod głowicą, na klatce sekwencji), przesuwać, wklejać
+  i przeskakiwać do nich (J i K), a część ścieżek i wykresu poza klipem jest wyraźnie
+  ciemniejsza. Panel idzie za głowicą tylko w pobliżu klipu (do trzech długości klipu, co
+  najmniej 5 s z każdej strony) albo gdy przesuwasz ją w panelu; klucz wstawiony przy dalekiej
+  głowicy trafia pod nią i poszerza zakres panelu. Ruchy głowicy z tego panelu nie przełączają
+  klipu przy włączonym „Zaznaczenie podąża za głowicą”. Agent ustawia klucze poza klipem przez
+  `set_keyframe`, `set_param` z `at`, presety, parametry wtyczek i warstw web. W notach
+  `paste_effects` pole `keys_dropped` nazywa się teraz `keys_outside`.
+- Wyrażenia słyszą dźwięk. `audioLevel()`, `audioPeak()`, `audioAmplitude()` i
+  `audioBand()` czytają poziom RMS w dBFS, szczyt, amplitudę i pasma korektora (po nazwie
+  pasma albo zakresie w Hz) klipów, ścieżek, submiksów i mastera; `thisComp.track()` podaje
+  suwak, panoramę i wysyłki, a `dbToLinear()` i `linearToDb()` przeliczają wartości. Edytor
+  wyrażeń podpowiada te funkcje i ma gotowe wstawki. Analiza poziomów liczy się w tle i
+  zostaje w pamięci podręcznej, podgląd nigdy na nią nie czeka, a eksport i narzędzia agenta
+  czekają na dokładne liczby.
+- Spiralę wyrażeń (pick whip) można upuścić na suwak, miernik, panoramę i wysyłki w Mikserze
+  audio, na klucz albo linię wartości na osi czasu (z Alt jako samą liczbę) i na wartość dB
+  w nagłówku ścieżki audio. Miernik daje szczyt za suwakiem (z automatyką i wyciszeniem,
+  bez panoramy, solo i efektów paska), klucz daje wartość parametru w czasie tego klucza, a
+  dymek przy wskaźniku mówi, co zostanie odczytane.
+  Parametry efektów submiksu można już łączyć.
+- Wyrażenia nie blokują już klatek kluczowych, jak w After Effects. Stoper włącza
+  klatki także przy działającym wyrażeniu. Wpisana wartość (także `+10`, `*2`, `+10%`) i
+  przeciągnięcie zmieniają wartość pod wyrażeniem, a podpowiedź pola pokazuje wynik i wartość
+  pod nim. Wyrażenie czyta własny
+  parametr dowolną ścieżką jako wartość pod sobą, bez błędu odwołania cyklicznego. Spirala
+  upuszczona na własny parametr wpisuje `value` (gdy parametr ma już inne wyrażenie, w trybie
+  łączenia odmawia z wyjaśnieniem, zamiast je kasować). „Zastąp wyrażenie klatkami” jest
+  teraz w menu nazwy parametru. Narzędzia agenta `set_keyframe` i `set_param` zwracają obie
+  wartości.
+- Okna wtyczek VST3 i CLAP słyszą to, co gra: mierniki wejścia, analizatory i
+  redukcja wzmocnienia ruszają się podczas odtwarzania, także na szynach ścieżek i z kluczem
+  side-chain, i opadają po zatrzymaniu. Edycje w oknie wtyczki CLAP nie giną już po pierwszej
+  zmianie.
+- Katalog wtyczek VST znowu pokazuje zrzuty ekranu wtyczek zamiast czerwonych trójkątów;
+  brakujący lub uszkodzony obraz to pusta ramka z podpowiedzią „Obraz niedostępny”.
+- Obraz i dźwięk zostają zsynchronizowane przez całą sesję. Odtwarzacz brał opóźnienie
+  wyjścia dźwięku na bieżąco od sterownika, a ta liczba potrafiła z czasem urosnąć (na
+  słuchawkach 595 ms po trzech godzinach), więc obraz rozjeżdżał się z dźwiękiem. HVE mierzy
+  teraz opóźnienie raz, na starcie strumienia, a zegar odtwarzania nie cofa się po przerwach
+  w dźwięku. `debug_audio` podaje `depth_ms` i `anchor_ms`, a `underruns` liczy tylko braki
+  dźwięku w trakcie odtwarzania. Scenariusze testowe nie otwierają już karty dźwiękowej i
+  piszą dziennik do własnego folderu.
+- Nowy efekt Aberracja chromatyczna (Stylizacja, D163): kolorowe obwódki jak w prawdziwym
+  obiektywie, rosnące ku brzegom kadru albo stałe przesunięcie w wybranym kierunku. Styl
+  widmowy daje gładkie przejścia barw, rozszczepienie RGB daje efekt glitch. Siła, środek
+  (przeciągany na Programie), narastanie, kąt i balans czerwieni i błękitu mają klatki
+  kluczowe i wyrażenia. Cztery presety: Delikatne obwódki obiektywu, Stary obiektyw, Rogi
+  szerokiego kąta, Rozszczepienie RGB (glitch).
+
 ## 0.19.38 (2026-11-16)
 
 - Kontrolki wyrażeń mają nazwy i grupy: nazwę kontrolki zmieniasz w miejscu (dwuklik na
