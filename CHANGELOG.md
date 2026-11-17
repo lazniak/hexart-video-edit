@@ -1,1659 +1,1741 @@
-# Zmiany
+# Changes
 
-Notatki o wersjach są po polsku. / Release notes are written in Polish.
+Polska wersja: [CHANGELOG.pl.md](CHANGELOG.pl.md).
+
+## 0.19.42 (2026-11-17)
+
+- The window after an update shows the release notes in the language of the interface: Polish
+  in a Polish interface, English in an English one and in every other language (until now
+  always Polish, with a note saying so). Switching the language while the window is open
+  switches the notes too. Release notes on GitHub are now in English, with a link to the Polish
+  version, and the README, the security file and the bug report form have the English text
+  first. Every earlier version has full English notes, and hve.hexart.io shows in English the
+  same notes as GitHub. The public Polish changelog is in `CHANGELOG.pl.md` and no longer
+  carries task numbers in brackets.
 
 ## 0.19.41 (2026-11-17)
 
-- Poprawka: materiał 10- i 12-bitowy (ProRes, DNxHR, HEVC, XAVC) ma w klatkach Pixel
-  Motion, w eksporcie ze zmianą rozmiaru i na monitorze w pełnej głębi te same poziomy co w
-  eksporcie 1:1. Dotąd takie klatki były minimalnie inne: cienie o około 1,7 kodu z 1023 wyżej
-  i światła niżej, a przy 12 bitach i materiale z alfą całość o 0,4 % ciemniejsza, więc klatka
-  liczona mogła migotać obok klatki źródła. Kanał alfa materiału 10-bitowego sięga teraz pełnej
-  nieprzezroczystości (było 99,9 %). To samo przy dekodowaniu na karcie graficznej NVIDIA,
-  także dla materiału w pełnym zakresie. Klatki Pixel Motion i render In do Out takich klipów
-  policzą się raz od nowa.
+- Fix: 10-bit and 12-bit footage (ProRes, DNxHR, HEVC, XAVC) now has the same levels in Pixel
+  Motion frames, in resized exports and on the full-depth monitor as in a 1:1 export. Until now
+  such frames were slightly different: shadows about 1.7 code values (out of 1023) higher and highlights
+  lower, and with 12 bits and footage with alpha the whole picture 0.4% darker, so a computed
+  frame could flicker next to a source frame. The alpha channel of 10-bit footage now reaches
+  full opacity (it was 99.9%). The same applies to decoding on an NVIDIA graphics card, also
+  for footage in full range. Pixel Motion frames and In to Out renders of such clips will be
+  computed once again.
 
 ## 0.19.40 (2026-11-17)
 
-- Stabilizacja działa na sekwencji położonej na osi i czytanej jako klip natywny
-  (Interpretacja sekwencji: Klip natywny): kamera jest analizowana z klatek samej sekwencji,
-  po analizach stabilizowanych klipów w jej środku. Gdy potem zmienisz coś w środku sekwencji,
-  nic nie analizuje się samo: stabilizacja używa dalej starej analizy, wiersz efektu pokazuje
-  na czerwono „Sekwencja zmieniona”, a nową analizę zaczyna dopiero przycisk
-  „Analizuj ponownie” (jedna zmiana, do cofnięcia). Cofnięcie zmian w sekwencji przywraca
-  stan gotowy bez liczenia. Eksport takiej sekwencji nie czeka i nie analizuje: okno eksportu
-  mówi na czerwono, że pójdzie stara analiza. Sekwencja czytana jako nest nie ma własnych
-  klatek, więc efekt podpowiada zmianę interpretacji. Agent widzi stan `changed` w
-  `camera_status`. Gdy klatka sekwencji nie wyrenderuje się w całości (plik w środku jest
-  offline, warstwa jeszcze się wczytuje), analiza kończy się błędem z numerem klatki i nic
-  z niej nie zostaje zapisane, zamiast analizować planszę zastępczą.
-- Stabilizacja (D155, SV3.1): ujęcie, w którym kamera obraca się daleko przy mocnym
-  wygładzeniu i kadrowaniu „tylko stabilizacja”, potrafiło w całości wrócić do obrazu
-  źródła (korekcja dochodziła do swojej granicy na wielu klatkach, a obliczenie okna nie
-  kończyło się w limicie kroków). Teraz takie okno dostaje najlepszą ścieżkę mieszczącą się w
-  granicach, a źródło zostaje tylko wtedy, gdy nie ma żadnej.
-- Analiza kamery (D155, SV3.1): para klatek, w której obraz nie rusza się jak jeden obrót
-  (kamera jedzie w stronę sceny), dostaje prędkość z punktów śledzonych przez sąsiednie pary,
-  gdy z obu stron ma pary zmierzone, zamiast zgadniętej z sąsiadów. W naszych pomiarach na
-  ujęciu z najazdem zostaje po stabilizacji 0,86 drgań źródła (było 0,89), przy wygładzeniu
-  90 % 0,89 (było 0,95); na ujęciu z przelotem i szarpnięciami bez poprawy (1,09 wobec 1,07).
-  Większości par bez pomiaru to nie obejmuje, bo w szarpnięciach brakuje śledzonych punktów.
-  Zapisane analizy powstają od nowa przy pierwszym użyciu. Ślad kamery dla agenta oznacza
-  takie pary flagą `chained`, a `hve stab solve` pokazuje, co solver zrobił z zapisaną analizą.
+- Stabilization works on a sequence placed on the timeline and read as a native clip
+  (Sequence interpretation: Native clip). The camera is analyzed from the frames of the
+  sequence itself, after the analyses of the stabilized clips inside it. When you later change
+  something inside the sequence, nothing is analyzed by itself: stabilization keeps using the
+  old analysis, the effect row shows "Sequence changed" in red, and a new analysis starts only
+  with the "Re-analyze" button (one change, undoable). Undoing the changes in the sequence
+  restores the ready state without any computing. Exporting such a sequence does not wait and
+  does not analyze: the export window says in red that the old analysis will be used. A
+  sequence read as a nest has no frames of its own, so the effect suggests changing the
+  interpretation. The agent sees the `changed` state in `camera_status`. When a frame of the
+  sequence does not render completely (a file inside is offline, a layer is still loading),
+  the analysis ends with an error that names the frame number and nothing from it is saved,
+  instead of analyzing a placeholder frame.
+- Stabilization: a shot where the camera turns far, with strong smoothing and the "Stabilize
+  only" framing, could fall back entirely to the source picture (the correction reached its
+  limit on many frames, and the window calculation did not finish within its step limit). Now
+  such a window gets the best path that fits within the limits, and the source is used only
+  when there is none.
+- Camera analysis: a frame pair where the picture does not move like a single rotation (the
+  camera travels toward the scene) now gets its speed from points tracked through the
+  neighboring pairs, when it has measured pairs on both sides, instead of a speed guessed from
+  the neighbors. In our measurements, on a shot with a push-in the shake left after
+  stabilization is 0.86 of the source shake (was 0.89), and at 90% smoothing 0.89 (was 0.95);
+  on a fly-through shot with jerks there is no improvement (1.09 against 1.07). This does not
+  cover most pairs without a measurement, because tracked points are missing in jerks. Saved
+  analyses are made again on first use. The camera track for the agent marks such pairs with
+  the `chained` flag, and `hve stab solve` shows what the solver did with a saved analysis.
+
 ## 0.19.39 (2026-11-16)
 
-- Rozmycie obiektywu (Camera Lens Blur) ma naturalne krawędzie. Rozmyty pierwszy plan
-  przechodzi miękko w tło na całym promieniu rozmycia, tło za nim ciągnie się pod jego krawędź
-  bez szwu i zachowuje własną ostrość, ostry obiekt nie farbuje rozmytego tła, przy skoku głębi
-  nie ma ostrej linii, a brzegi kadru się nie rozmazują. Wnętrze bliskiego obiektu jest w
-  pełni kryjące, małe jasne punkty dają równy bokeh, jasne światła nie gasną skokiem, a zmiana
-  promienia nie skacze przy przejściu poziomów. Podgląd w połowie rozdzielczości wygląda jak
-  eksport.
-- Punkty efektów w monitorze Program: gdy parametr typu punkt jest zaznaczony w
-  Effect Controls, monitor pokazuje tor ruchu punktu z klatkami kluczowymi. Klatki
-  przeciągasz bez ruszania głowicy, celownik dodaje klatkę pod głowicą, menu klatki zmienia
-  interpolację, daje Easy Ease albo ją usuwa. Shift trzyma oś, strzałki przesuwają o 1 px
-  (z Shift o 10), Esc w trakcie przeciągania przywraca wartość, a klatki kluczowe poza klipem
-  są widoczne i edytowalne. Działa dla każdego parametru punktu, nie tylko w Lens Blur, także
-  w odpiętym oknie monitora.
-- Effect Controls pokazuje czas także przed początkiem i po końcu klipu. Klatki
-  kluczowe można tam dodawać (zawsze pod głowicą, na klatce sekwencji), przesuwać, wklejać
-  i przeskakiwać do nich (J i K), a część ścieżek i wykresu poza klipem jest wyraźnie
-  ciemniejsza. Panel idzie za głowicą tylko w pobliżu klipu (do trzech długości klipu, co
-  najmniej 5 s z każdej strony) albo gdy przesuwasz ją w panelu; klucz wstawiony przy dalekiej
-  głowicy trafia pod nią i poszerza zakres panelu. Ruchy głowicy z tego panelu nie przełączają
-  klipu przy włączonym „Zaznaczenie podąża za głowicą”. Agent ustawia klucze poza klipem przez
-  `set_keyframe`, `set_param` z `at`, presety, parametry wtyczek i warstw web. W notach
-  `paste_effects` pole `keys_dropped` nazywa się teraz `keys_outside`.
-- Wyrażenia słyszą dźwięk. `audioLevel()`, `audioPeak()`, `audioAmplitude()` i
-  `audioBand()` czytają poziom RMS w dBFS, szczyt, amplitudę i pasma korektora (po nazwie
-  pasma albo zakresie w Hz) klipów, ścieżek, submiksów i mastera; `thisComp.track()` podaje
-  suwak, panoramę i wysyłki, a `dbToLinear()` i `linearToDb()` przeliczają wartości. Edytor
-  wyrażeń podpowiada te funkcje i ma gotowe wstawki. Analiza poziomów liczy się w tle i
-  zostaje w pamięci podręcznej, podgląd nigdy na nią nie czeka, a eksport i narzędzia agenta
-  czekają na dokładne liczby.
-- Spiralę wyrażeń (pick whip) można upuścić na suwak, miernik, panoramę i wysyłki w Mikserze
-  audio, na klucz albo linię wartości na osi czasu (z Alt jako samą liczbę) i na wartość dB
-  w nagłówku ścieżki audio. Miernik daje szczyt za suwakiem (z automatyką i wyciszeniem,
-  bez panoramy, solo i efektów paska), klucz daje wartość parametru w czasie tego klucza, a
-  dymek przy wskaźniku mówi, co zostanie odczytane.
-  Parametry efektów submiksu można już łączyć.
-- Wyrażenia nie blokują już klatek kluczowych, jak w After Effects. Stoper włącza
-  klatki także przy działającym wyrażeniu. Wpisana wartość (także `+10`, `*2`, `+10%`) i
-  przeciągnięcie zmieniają wartość pod wyrażeniem, a podpowiedź pola pokazuje wynik i wartość
-  pod nim. Wyrażenie czyta własny
-  parametr dowolną ścieżką jako wartość pod sobą, bez błędu odwołania cyklicznego. Spirala
-  upuszczona na własny parametr wpisuje `value` (gdy parametr ma już inne wyrażenie, w trybie
-  łączenia odmawia z wyjaśnieniem, zamiast je kasować). „Zastąp wyrażenie klatkami” jest
-  teraz w menu nazwy parametru. Narzędzia agenta `set_keyframe` i `set_param` zwracają obie
-  wartości.
-- Okna wtyczek VST3 i CLAP słyszą to, co gra: mierniki wejścia, analizatory i
-  redukcja wzmocnienia ruszają się podczas odtwarzania, także na szynach ścieżek i z kluczem
-  side-chain, i opadają po zatrzymaniu. Edycje w oknie wtyczki CLAP nie giną już po pierwszej
-  zmianie.
-- Katalog wtyczek VST znowu pokazuje zrzuty ekranu wtyczek zamiast czerwonych trójkątów;
-  brakujący lub uszkodzony obraz to pusta ramka z podpowiedzią „Obraz niedostępny”.
-- Obraz i dźwięk zostają zsynchronizowane przez całą sesję. Odtwarzacz brał opóźnienie
-  wyjścia dźwięku na bieżąco od sterownika, a ta liczba potrafiła z czasem urosnąć (na
-  słuchawkach 595 ms po trzech godzinach), więc obraz rozjeżdżał się z dźwiękiem. HVE mierzy
-  teraz opóźnienie raz, na starcie strumienia, a zegar odtwarzania nie cofa się po przerwach
-  w dźwięku. `debug_audio` podaje `depth_ms` i `anchor_ms`, a `underruns` liczy tylko braki
-  dźwięku w trakcie odtwarzania. Scenariusze testowe nie otwierają już karty dźwiękowej i
-  piszą dziennik do własnego folderu.
-- Nowy efekt Aberracja chromatyczna (Stylizacja, D163): kolorowe obwódki jak w prawdziwym
-  obiektywie, rosnące ku brzegom kadru albo stałe przesunięcie w wybranym kierunku. Styl
-  widmowy daje gładkie przejścia barw, rozszczepienie RGB daje efekt glitch. Siła, środek
-  (przeciągany na Programie), narastanie, kąt i balans czerwieni i błękitu mają klatki
-  kluczowe i wyrażenia. Cztery presety: Delikatne obwódki obiektywu, Stary obiektyw, Rogi
-  szerokiego kąta, Rozszczepienie RGB (glitch).
+- Camera Lens Blur has natural edges. A blurred foreground blends softly into the background
+  over the whole blur radius, the background behind it extends under its edge without a seam
+  and keeps its own sharpness, a sharp object does not tint the blurred background, there is
+  no hard line at a depth jump, and the frame borders do not smear. The inside of a near
+  object is fully opaque, small bright points give an even bokeh, bright highlights do not
+  drop off in a step, and changing the radius does not jump when it passes from one level to
+  the next. The half-resolution preview looks like the export.
+- Effect points on the Program monitor: when a point parameter is selected in Effect controls,
+  the monitor shows the motion path of the point with its keyframes. You drag keyframes
+  without moving the playhead, the crosshair adds a keyframe under the playhead, and the
+  keyframe menu changes the interpolation, applies Easy Ease or deletes the keyframe. Shift
+  locks the axis, arrows move by 1 px (by 10 with Shift), Esc during a drag restores the
+  value, and keyframes outside the clip are visible and editable. It works for every point
+  parameter, not only in Lens Blur, also in a detached monitor window.
+- Effect controls shows time also before the start and after the end of the clip. Keyframes
+  can be added there (always under the playhead, on a sequence frame), moved, pasted and
+  jumped to (J and K), and the part of the lanes and graph outside the clip is clearly
+  darker. The panel follows the playhead only near the clip (up to three clip lengths, at
+  least 5 s on each side) or when you move it in the panel; a key inserted while the playhead
+  is far away lands under it and widens the range of the panel. Playhead moves made in this
+  panel do not switch the clip while "Selection Follows Playhead" is on. The agent sets keys
+  outside the clip through `set_keyframe`, `set_param` with `at`, presets, plugin parameters
+  and web layer parameters. In the `paste_effects` notes the `keys_dropped` field is now
+  called `keys_outside`.
+- Expressions hear the audio. `audioLevel()`, `audioPeak()`, `audioAmplitude()` and
+  `audioBand()` read the RMS level in dBFS, the peak, the amplitude and the equalizer bands (by
+  band name or a range in Hz) of clips, tracks, submixes and the master; `thisComp.track()`
+  gives the fader, pan and sends, and `dbToLinear()` and `linearToDb()` convert values. The
+  expression editor suggests these functions and has ready snippets. Level analysis is
+  computed in the background and kept in the cache; the preview never waits for it, while
+  export and agent tools wait for exact numbers.
+- The expression pick whip (spiral) can be dropped on the fader, meter, pan and sends in the
+  Audio mixer, on a keyframe or a value line on the timeline (with Alt as a plain number) and
+  on the dB value in an audio track header. The meter gives the peak after the fader (with
+  automation and mute, without pan, solo and strip effects), a keyframe gives the value of
+  the parameter at the time of that key, and a tooltip at the pointer says what will be read.
+  Effect parameters of a submix can now be linked.
+- Expressions no longer block keyframes, as in After Effects. The stopwatch turns on
+  keyframes even while an expression is running. A typed value (also `+10`, `*2`, `+10%`) and
+  a drag change the value under the expression, and the tooltip of the field shows the result
+  and the value under it. An expression reads its own parameter by any path as the value
+  under itself, without a circular reference error. A whip dropped on its own parameter
+  writes `value` (when the parameter already has another expression, in link mode it refuses
+  with an explanation instead of deleting it). "Replace expression with keyframes" is now in
+  the menu of the parameter name. The agent tools `set_keyframe` and `set_param` return both
+  values.
+- VST3 and CLAP plugin windows hear what is playing: input meters, analyzers and gain
+  reduction move during playback, also on track buses and with a side-chain key, and fall
+  back after you stop. Edits made in a CLAP plugin window are no longer lost after the first
+  change.
+- The VST catalog shows plugin screenshots again instead of red triangles; a missing or
+  damaged image is an empty frame with the hint "Image unavailable".
+- Picture and sound stay in sync through the whole session. The player took the audio output
+  latency from the driver on the fly, and that figure could grow over time (on headphones 595
+  ms after three hours), so the picture drifted from the sound. HVE now measures the latency
+  once, when the stream starts, and the playback clock does not step back after gaps in the
+  audio. `debug_audio` reports `depth_ms` and `anchor_ms`, and `underruns` counts only audio
+  dropouts during playback. Test scenarios no longer open the sound card and write their log
+  to their own folder.
+- New effect Chromatic aberration (Stylize): colored fringes like in a real lens, growing
+  toward the frame edges, or a constant shift in a chosen direction. The Spectral style gives
+  smooth color transitions, RGB split gives a glitch look. Amount, center (draggable on the
+  Program monitor), falloff, angle and red / blue balance have keyframes and expressions.
+  Four presets: Subtle lens fringe, Vintage lens, Wide-angle corners, RGB glitch split.
 
 ## 0.19.38 (2026-11-16)
 
-- Kontrolki wyrażeń mają nazwy i grupy: nazwę kontrolki zmieniasz w miejscu (dwuklik na
-  nazwie, F2 po kliknięciu w nią albo Zmień nazwę w jej menu), a kontrolki zbierasz w nazwane
-  grupy przez Przenieś do grupy. Grupa w Effect Controls to zwijany nagłówek z liczbą
-  kontrolek i przyciskiem +, który dodaje kontrolkę od razu do niej; dwuklik zmienia nazwę
-  grupy, a jej menu przesuwa ją, rozgrupowuje albo usuwa razem z kontrolkami. Okno ustawień
-  kontrolki ma pole Grupa. Wyrażenia czytają kontrolki jak dotąd, grupa porządkuje tylko
-  panel. Agent widzi i ustawia grupę przez `list_controls` i `set_control` (`group`), a
-  `set_control` zwraca końcowe miejsce kontrolki (`index`, `group`).
-- Zmiana nazwy kontrolki wyrażeń (w miejscu, w oknie ustawień albo przez agenta) przepisuje
-  w tej samej zmianie wyrażenia, które czytały ją po starej nazwie (`ctrl("Stara")`,
-  `effect("controls")("Stara")` i podobne, także z innych klipów i na szynach miksera), i
-  mówi, ile ich było; jedno Ctrl+Z cofa nazwę razem z wyrażeniami. Odwołania po id i
-  kontrolki o tej samej nazwie w innych efektach zostają bez zmian. Przepisywane są też
-  zmienne sekwencji, krzywe grup klipów i kolor planszy, nowa nazwa nie zabiera odwołań
-  innej kontrolce, zmiana typu kontrolki bez nazwy liczy się jako zmiana nazwy, a warstwa
-  web z dźwiękiem nie blokuje już zmiany nazwy. Czego nie da się zachować, zgłasza komunikat.
-- Pick whip wyrażeń (spirala) potrafi więcej. Gdy piszesz wyrażenie, spirala z nagłówka
-  edytora wstawia odwołanie w miejscu kursora; całe poprawne wyrażenie stosuje się od razu,
-  niedokończone zostaje do dopisania, a Esc wraca do tekstu sprzed edycji. Przytrzymana przy
-  górnej albo dolnej krawędzi listy przewija ją. Zmienne są celem (`vars.nazwa`) i źródłem
-  (zmienna z wyrażeniem ma własną spiralę). Przytrzymana nad klipem na osi czasu pokazuje go
-  w Effect Controls, więc parametr może podążać za innym klipem. Działa między panelami i
-  odpiętymi oknami, przytrzymana nad zakładką schowaną za inną (także na liście paska)
-  wyciąga ją na wierzch, a wiersze paneli Kolor i Korekcja też są celami.
-  Przytrzymana nad efektami paska w Mikserze audio pokazuje stos tej szyny w Effect
-  Controls, więc parametr może podążać za efektem ścieżki albo mastera (parametry submiksu
-  są na razie niedozwolone, bo wyrażenia jeszcze ich nie czytają). Upuszczona na świeżo
-  dodane wyrażenie, które ma jeszcze tylko `value` (na przykład zmienna po „Dodaj
-  wyrażenie”), zastępuje je odwołaniem i od razu je stosuje.
+- Expression controls have names and groups: you rename a control in place (double-click its
+  name, F2 after clicking it, or Rename in its menu) and gather controls into named groups
+  with Move to group. A group in Effect controls is a collapsible header with the number of
+  controls and a + button that adds a control straight into it; a double-click renames the
+  group, and its menu moves it, ungroups it or deletes it together with its controls. The
+  control settings window has a Group field. Expressions read controls as before, the group
+  only organizes the panel. The agent sees and sets the group through `list_controls` and
+  `set_control` (`group`), and `set_control` returns the final place of the control (`index`,
+  `group`).
+- Renaming an expression control (in place, in the settings window or by the agent) rewrites,
+  in the same change, the expressions that read it by the old name (`ctrl("Old")`,
+  `effect("controls")("Old")` and similar, also from other clips and on mixer buses), and
+  says how many there were; one Ctrl+Z undoes the name together with the expressions.
+  References by id and controls of the same name in other effects stay unchanged. Sequence
+  variables, clip group curves and the color of a solid are rewritten too, a new name does not
+  take references away from another control, changing the type of a control without a name
+  counts as a rename, and a web layer with audio no longer blocks a rename. What cannot be
+  kept is reported in a message.
+- The expression pick whip (spiral) can do more. When you write an expression, the whip in
+  the editor header inserts a reference at the cursor: a complete, valid expression applies at
+  once, an unfinished one stays to be completed, and Esc returns to the text from before the
+  edit. Held near the top or bottom edge of a list, it scrolls the list. Variables are targets
+  (`vars.name`) and sources (a variable with an expression has its own whip). Held over a clip
+  on the timeline, it shows that clip in Effect controls, so a parameter can follow another
+  clip. It works between panels and detached windows; held over a tab hidden behind another
+  one (also in the list in the tab bar), it brings that tab to the front, and the rows of the
+  Color and Grading panels are targets too. Held over the strip effects in the Audio mixer, it
+  shows the stack of that bus in Effect controls, so a parameter can follow a track or master
+  effect (submix parameters are not allowed for now, because expressions do not read them
+  yet). Dropped on a freshly added expression that still holds only `value` (for example a
+  variable after "Add an expression"), it replaces it with the reference and applies it at
+  once.
 
 ## 0.19.37 (2026-11-15)
 
-- Agent (poprawki API po pierwszym przebiegu montażu odcinka SYGNAŁ): `edit` z
-  `result: "compact"` zwraca liczniki zmian i mapę nazwa elementu na id, której nigdy nie obcina
-  (133 komendy mieszczą się w 9 KB); pełny wynik jest bez zmian. Późniejsza komenda partii
-  wskazuje element położony wcześniej w tej samej partii (`"#0"` to indeks komendy, `"#title"`
-  to `place` z `"key": "title"`), komendy parametrów biorą `"effect": "hve.motion"` zamiast
-  `target`, a `set_param` i `set_keyframe` na efekcie zwykłą wartość, więc klip da się położyć
-  i przeskalować jedną partią. Nowe `read_docs` czyta przewodniki agenta w częściach (spis
-  nagłówków, sekcja, kolejne porcje). `write_component` zmienia istniejący komponent bez
-  wysyłania całości: same wskazane pliki, zamiana tekstu w pliku (`edits`), zmiana pól
-  manifestu (`manifest_patch`). `import_media` ma zwięzły wynik, a media o tej samej nazwie
-  rozróżnia nazwa pliku z rozszerzeniem. Zestaw `HK` dla komponentów web dostał `HK.rng`,
-  `HK.textWidth` i `HK.fitText`; przewodnik web opisuje rozmiar strony, pola `info` i zmienne
-  CSS.
-- Agent (po drugim przebiegu): każda zmiana agenta, `export` i `normalize_audio` ostrzegają, gdy
-  elementy leżą na torze, którego nie słychać (wyciszony tor, wyciszony VCA, wyciszony submiks
-  na drodze do mastera, solo innego toru). Nowe `measure_audio` mierzy miks zakresu tak, jak zrobi to
-  eksport: głośność LUFS, zakres, true peak, RMS w czasie i odcinki ciszy, dla programu albo
-  każdego toru osobno. `delete_items` bierze zamiast listy id tory albo `all: true` z
-  opcjonalnym zakresem czasu, więc jedna partia czyści oś i układa ją od nowa jako jedna
-  rewizja. `place` przyjmuje `fade_in` i `fade_out`. Wyrażenia mają `fadeDb` i `fadeGain`
-  (przenikanie o stałej mocy). Tor albo sekwencja dodane wcześniej w partii są znajdowane po
-  nazwie.
-- Agent (po eksporcie całego odcinka): `validate_component` i `render_frame` wskazują elementy
-  warstwy web wystające poza kadr (który element, o ile pikseli, za którą krawędź).
-  `export_status` pokazuje, na co idzie czas klatki (dekodowanie, warstwy web, kompozycja,
-  enkoder) w całości, ostatnio i w oknach czasu, więc widać, kiedy i dlaczego eksport zwalnia.
-  `publish` sprawdza gotowość konta YouTube, zanim poprosi użytkownika o zgodę, i mówi wprost,
-  czego brakuje; `server_status` pokazuje ten stan.
+- Agent (API fixes after the first editing pass of the SYGNAŁ episode): `edit` with `result:
+  "compact"` returns change counters and a map of item name to id that is never truncated (133
+  commands fit in 9 KB); the full result is unchanged. A later command of a batch can point to
+  an item placed earlier in the same batch (`"#0"` is the command index, `"#title"` is a
+  `place` with `"key": "title"`), parameter commands take `"effect": "hve.motion"` instead of
+  `target`, and `set_param` and `set_keyframe` on an effect accept a plain value, so a clip can
+  be placed and scaled in one batch. The new `read_docs` reads the agent guides in parts (a
+  table of headings, a section, further chunks). `write_component` changes an existing
+  component without sending the whole of it: only the named files, a text replacement in a file
+  (`edits`), a change of manifest fields (`manifest_patch`). `import_media` has a concise
+  result, and media with the same name are told apart by the file name with its extension. The
+  `HK` kit for web components gained `HK.rng`, `HK.textWidth` and `HK.fitText`; the web guide
+  describes the page size, the `info` fields and CSS variables.
+- Agent (after the second pass): every agent change, `export` and `normalize_audio` warn when
+  items lie on a track that cannot be heard (a muted track, a muted VCA, a muted submix on the
+  way to the master, the solo of another track). The new `measure_audio` measures the mix of a
+  range the way the export will do it: loudness in LUFS, range, true peak, RMS over time and
+  stretches of silence, for the program or for each track separately. `delete_items` takes
+  tracks or `all: true` with an optional time range instead of a list of ids, so one batch
+  clears the timeline and lays it out again as one revision. `place` accepts `fade_in` and
+  `fade_out`. Expressions have `fadeDb` and `fadeGain` (constant-power fades). A track or
+  sequence added earlier in a batch is found by its name.
+- Agent (after exporting a whole episode): `validate_component` and `render_frame` point out
+  the elements of a web layer that stick out of the frame (which element, by how many pixels,
+  past which edge). `export_status` shows where the frame time goes (decoding, web layers,
+  compositing, encoder) in total, recently and in time windows, so you can see when and why an
+  export slows down. `publish` checks that the YouTube account is ready before it asks the user
+  for consent, and says plainly what is missing; `server_status` shows this state.
 
 ## 0.19.36 (2026-11-15)
 
-- Stabilizacja i analiza kamery: plik trzymany w folderze projektu (na przykład w `exports`
-  albo `media`) albo w bibliotece nie dawał się analizować. Efekt pokazywał „Analiza nie
-  powiodła się”, a powodem było „file not found”: analiza otwierała ścieżkę zapisaną względem
-  projektu tak, jak stoi, czyli względem katalogu, z którego ruszył program. Działały tylko
-  pliki spoza folderu projektu. Błąd był w stabilizatorze od jego pierwszej wersji.
+- Stabilization and camera analysis: a file kept in the project folder (for example in
+  `exports` or `media`) or in the library could not be analyzed. The effect showed "The
+  analysis failed", and the reason was "file not found": the analysis opened the path stored
+  relative to the project as it stands, that is relative to the directory the program was
+  started from. Only files outside the project folder worked. The bug had been in the
+  stabilizer since its first version.
 
 ## 0.19.35 (2026-11-15)
 
-- Kamera (D155, SV3): analiza ruchu kamery jest osobnym produktem, a stabilizator jej pierwszym
-  odbiorcą. Agent może poprosić o analizę kamery dowolnego klipu albo pliku wideo bez dodawania
-  stabilizacji (`analyze_camera`), sprawdzić jej stan (`camera_status`) i odczytać ślad kamery
-  klatka po klatce (`get_camera`): pan, tilt i roll, ogniskową, pewność i szum pomiaru, ujęcia,
-  zakresy, których nie dało się zmierzyć, i obiektyw. Jedna analiza na plik i ustawienia
-  (metodę) obsługuje wszystkich, nikt jej nie powtarza. Ślad zawiera na razie sam obrót kamery, bez położenia i punktów sceny
-  (te przyjdą z analizą 6DOF), więc do osadzania elementów w przestrzeni jeszcze nie wystarcza.
-  Obraz po stabilizacji się nie zmienia, zapisane analizy zostają.
-- Preferencje, Cache: analizy kamery projektu mają rozmiar, limit i przycisk „Usuń nieużywane
-  analizy”. Analizy, których projekt teraz nie używa (także wyłączonego stabilizatora), znikają
-  same po 7 dniach albo po przekroczeniu 2 GB (od najdawniej używanej); dotąd każde „Analizuj”
-  i każda zmiana ustawień zostawiały folder na zawsze.
+- Camera: camera motion analysis is a product of its own, and the stabilizer is its first
+  consumer. The agent can ask for the camera analysis of any clip or video file without adding
+  stabilization (`analyze_camera`), check its state (`camera_status`) and read the camera track
+  frame by frame (`get_camera`): pan, tilt and roll, focal length, confidence and measurement
+  noise, shots, ranges that could not be measured, and the lens. One analysis per file and
+  settings (method) serves everyone, nobody repeats it. For now the track contains the camera
+  rotation only, without position and scene points (those will come with the 6DOF analysis), so
+  it is not yet enough for anchoring elements in space. The stabilized picture does not
+  change, and saved analyses stay.
+- Preferences, Cache: the camera analyses of the project have a size, a limit and the "Remove
+  unused analyses" button. Analyses that the project does not use right now (also those of a
+  switched-off stabilizer) disappear on their own after 7 days or when they exceed 2 GB (the
+  least recently used first); until now every "Analyze" and every change of settings left a
+  folder forever.
 
 ## 0.19.34 (2026-11-15)
 
-- Stabilizacja (D155, SV3a): analiza ruchu kamery lepiej oddziela drganie od paralaksy. Na
-  ujęciach z ręki i z drona, gdzie obiekty są w różnych odległościach, pomiar każdej pary
-  klatek mylił się trochę inaczej i stabilizator brał te różnice za drganie. Teraz prędkości
-  kolejnych par są łączone z przyspieszeniem punktów śledzonych przez trzy klatki, w którym
-  paralaksa się znosi. W naszych pomiarach drgań powyżej około 1 Hz zostaje po stabilizacji
-  przy wygładzeniu 90 %: ujęcie z ręki w marszu 0,42 źródła (było 0,71), dron 0,47 (było 0,51)
-  i 0,78 (było 1,25), znane drganie dołożone do stabilnego ujęcia 0,26 px z 12,8 px (było
-  0,30 px). Ujęcia z szarpnięciami i przelotem, w których część par klatek nie ma pomiaru, są
-  bez poprawy, a jedno przy 90 % wychodzi gorzej niż przed zmianą i gorzej od źródła (całe
-  wspólne drganie 1,02 źródła, było 0,97). Zapisane analizy stabilizacji liczą się od nowa.
+- Stabilization: camera motion analysis separates shake from parallax better. On handheld and
+  drone shots, where objects are at different distances, the measurement of each frame pair
+  was off in a slightly different way, and the stabilizer took those differences for shake.
+  Now the velocities of consecutive pairs are combined with the acceleration of points tracked
+  across three frames, in which parallax cancels out. In our measurements, the shake above
+  about 1 Hz that remains after stabilization at 90% smoothing is: a handheld walking shot
+  0.42 of the source (was 0.71), a drone 0.47 (was 0.51) and 0.78 (was 1.25), a known shake
+  added to a steady shot 0.26 px out of 12.8 px (was 0.30 px). Shots with jerks and
+  fly-throughs, where some frame pairs have no measurement, do not improve, and one of them at
+  90% comes out worse than before the change and worse than the source (the whole common
+  shake 1.02 of the source, was 0.97). Saved stabilization analyses are computed again.
 
 ## 0.19.33 (2026-11-14)
 
-- Stabilizacja: stabilizator przestał pogarszać obraz. Do 0.19.32 na ujęciach z ręki i
-  z drona drgania po stabilizacji rosły (w naszych pomiarach od 1,2 do 5,9 raza). Solver jest
-  napisany od nowa: korekcja powstaje tylko z tego, co analiza zmierzyła. Gdzie para klatek nie
-  ma pomiaru (rozmycie, szarpnięcie), obraz idzie tam za kamerą zamiast za zgadywaną wartością,
-  a ruch, którego analiza nie odróżnia od własnego szumu, nie trafia do korekcji. Drganie
-  dodane do spokojnego ujęcia znika prawie w całości (zostaje z niego od 3 do 10 %). Trudne
-  ujęcia w ruchu, w których analiza gubi część klatek, wychodzą na razie blisko źródła (od
-  0,9 do 1,03 jego drgań): mocniejsza stabilizacja takich ujęć wymaga nowej analizy kamery i
-  jest następnym etapem. Analizy policzone wcześniej liczą się od nowa.
-- Stabilizacja: Gładkość przyjmuje klatki kluczowe, a nowy parametr Siła (0 do 100 %,
-  też z klatkami kluczowymi) mówi, ile korekcji trafia do obrazu: 100 % to cała, 0 to źródło.
-  Obraz nie skacze przy kluczu, także przy kluczu typu hold: solver sam rozkłada zmianę w
-  czasie (okno wygładzania zmienia się najwyżej o sekundę na sekundę). Projekty bez tych
-  kluczy renderują się jak w punkcie wyżej, a agenci ustawiają klucze przez `set_keyframe`.
+- Stabilization: the stabilizer no longer makes the picture worse. Up to 0.19.32, on handheld
+  and drone shots the shake after stabilization grew (in our measurements from 1.2 to 5.9
+  times). The solver is written from scratch: the correction is built only from what the
+  analysis measured. Where a frame pair has no measurement (blur, a jerk), the picture follows
+  the camera there instead of a guessed value, and motion that the analysis cannot tell from
+  its own noise does not enter the correction. Shake added to a calm shot disappears almost
+  completely (3 to 10% of it remains). Difficult moving shots, where the analysis loses some
+  of the frames, come out close to the source for now (0.9 to 1.03 of its shake): stronger
+  stabilization of such shots needs a new camera analysis and is the next stage. Analyses
+  computed earlier are computed again.
+- Stabilization: Smoothness accepts keyframes, and the new Strength parameter (0 to 100%,
+  also with keyframes) says how much of the correction reaches the picture: 100% is all of
+  it, 0 is the source. The picture does not jump at a key, also with a hold-type key: the
+  solver spreads the change over time itself (the smoothing window changes by at most one
+  second per second). Projects without such keys render as in the item above, and agents set
+  keys through `set_keyframe`.
 
 ## 0.19.32 (2026-11-13)
 
-- Poprawka: klipy dźwiękowe nie gubią już początków przy odtwarzaniu. Mikser gra ciszę,
-  dopóki plik nie jest zdekodowany, a o dekodowanie prosił dopiero w chwili, gdy głowica doszła do
-  klipu, więc pierwsze klatki dźwięku przepadały (krótki lektor albo efekt tracił kilka klatek,
-  długi plik więcej). Tak było z każdym plikiem, którego program nie zdążył zdekodować wcześniej:
-  po przełączeniu sekwencji, po położeniu nowego klipu na osi, w zagnieżdżonej sekwencji i przez
-  pierwsze chwile po otwarciu dużego projektu. Teraz pliki aktywnej sekwencji dekodują się z
-  wyprzedzeniem, gdy tylko zmieni się ich zestaw, a pliki z najbliższych 3 sekund przed głowicą
-  idą przed resztą, także gdy odtwarzanie stoi. Jeden z trzech wątków dekodera jest zawsze wolny
-  dla pliku, na który czeka mikser.
-- Poprawka: klatka Pixel Motion nie jest już ciemniejsza od zwykłej klatki tego samego
-  klipu. Przy zwolnieniu i zmianie klatkażu obraz migotał tam, gdzie klatki liczone przez silnik
-  (przepływ albo RIFE) przeplatały się z klatkami źródła: dekoder oddawał silnikowi obraz
-  ciemniejszy o pół do jednej wartości kodu (8 bitów), a przy nasyconych kolorach do dwóch. Teraz
-  obie klatki mają te same poziomy co do zaokrąglenia, w podglądzie i w eksporcie. Dotyczy źródeł
-  8-bitowych Y'CbCr (H.264, HEVC, większość kamer, telefonów i generatorów). Ta sama poprawka
-  wyrównuje eksport takiego klipu skalowanego z eksportem 1:1 oraz obrazy JPEG. Klatki Pixel
-  Motion i klatki z renderu In do Out policzone wcześniej liczą się od nowa (stare pliki usuwa
-  limit pamięci podręcznej).
+- Fix: audio clips no longer lose their starts during playback. The mixer played silence until
+  the file was decoded, and it asked for decoding only when the playhead reached the clip, so
+  the first frames of sound were lost (a short voice-over or effect lost a few frames, a long
+  file more). This happened with every file the program had not decoded earlier: after
+  switching the sequence, after placing a new clip on the timeline, in a nested sequence and
+  for the first moments after opening a large project. Now the files of the active sequence
+  are decoded ahead as soon as their set changes, and the files from the nearest 3 seconds
+  before the playhead go before the rest, also when playback is stopped. One of the three
+  decoder threads is always free for the file the mixer is waiting for.
+- Fix: a Pixel Motion frame is no longer darker than a regular frame of the same clip. With
+  slow motion and frame rate changes the picture flickered where frames computed by the engine
+  (optical flow or RIFE) alternated with source frames: the decoder gave the engine a picture
+  darker by half to one code value (8 bits), and with saturated colors by up to two. Now both
+  frames have the same levels up to rounding, in the preview and in the export. This applies to
+  8-bit Y'CbCr sources (H.264, HEVC, most cameras, phones and generators). The same fix aligns
+  the export of such a clip scaled with the 1:1 export, and JPEG images. Pixel Motion frames
+  and frames of In to Out renders computed earlier are computed again (the old files are
+  removed by the cache limit).
 
 ## 0.19.31 (2026-11-13)
 
-- Effect Controls: przycisk „Idź do klipu” w nagłówku klipu przenosi głowicę na jego
-  początek, gdy jest poza klipem. Linia głowicy idzie przez całą wysokość panelu, także nad
-  pustym miejscem i zwiniętymi grupami.
-- Effect Controls: pod Skalą Ruchu widać, że obraz klipu jest dopasowany do kadru (na
-  przykład 50 % dla klipu 4K w sekwencji HD), z przełącznikiem „Dopasuj do kadru”. Położenie
-  takiego klipu mówi o tym komunikatem (można go wyłączyć w menu tej linii). Agenci widzą to
-  samo w `get_timeline` i w wyniku edycji (`fit`). Istniejące projekty renderują się bez zmian.
-- Effect Controls: stoper mówi prawdę. Złoty tylko przy klatkach kluczowych, stan
-  wyrażenia ma osobny znak (kropka: działa, pierścień: wyłączone). Parametr z wyłączonym
-  wyrażeniem przyjmuje klatki kluczowe, a klik przy działającym wyrażeniu pyta i może je
-  zastąpić klatkami bez skoku obrazu (jeden krok cofania).
-- Effect Controls: grupy parametrów komponentów web i efektów mają nagłówek z nazwą,
-  wcięcie i linię wzdłuż wierszy grupy.
-- Paleta efektów: skrót (Ctrl+Shift+P w układzie Premier, Ctrl+Space albo
-  Ctrl+Shift+Space w innych, zmienisz go w edytorze skrótów) otwiera małe okno wyszukiwania
-  efektów, presetów i przejść. Szuka w nazwie polskiej i angielskiej, także bez polskich
-  liter. Na górze są ulubione (gwiazdka), potem ostatnio użyte. Strzałki i Enter dodają
-  efekt do zaznaczonych klipów, przejście idzie na cięcie jak Ctrl+D. Ulubione (efekty,
-  presety i przejścia) są w edytorze skrótów i mogą dostać własny skrót; po zdjęciu gwiazdki
-  ten skrót znika. Paleta otwiera się w oknie, w którym naciśnięto skrót, także w oknie
-  odłączonym, a dopóki jest otwarta, klawisze nie uruchamiają skrótów.
-- Nowy projekt bez decyzji za Ciebie: pusta sekwencja nowego projektu ma format „z pierwszego
-  klipu” (widać to w zakładce, w Info i w ustawieniach sekwencji), a pierwszy klip wideo ustawia
-  jej rozmiar, klatkaż i dźwięk bez pytania, w tej samej rewizji (zdjęcie, sam dźwięk ani plansza
-  formatu nie ustalają). Nazwy, które edytor nadaje sam
-  (sekwencja, nowy projekt), są w języku interfejsu, a wybór języka przy pierwszym uruchomieniu
-  przemianowuje nieruszone nazwy pustego projektu. Menu Edycja ma przełącznik „Cofnięcie przenosi
-  głowicę do zmiany” (domyślnie wyłączony); wyłączony, cofnięcie zmiany poza widokiem osi mówi to w
-  komunikacie z przyciskiem „Pokaż”. Agenci widzą `format_unset` w `project_info` i `get_timeline`.
-- Okno niezgodności ustawień po uwagach testera: „Zmień
-  ustawienia sekwencji” nie oddala już osi do całej sekwencji, więc klipy upuszczone w
-  powiększeniu zostają tam, gdzie widać je przed pytaniem, z tym samym zoomem i głowicą. Jedno
-  Ctrl+Z zabiera klipy i nowe ustawienia, a kolejne upuszczenie na pustą sekwencję znów pyta.
-  Pytanie o ustawienia nie przepada, gdy przy upuszczeniu jest otwarte inne okno albo klip nie
-  jest jeszcze zbadany: pojawia się, gdy tylko może. Upuszczenie przenosi ramkę na oś,
-  więc Delete usuwa upuszczone klipy, a nie pliki z projektu.
-- Panel z klawiaturą ma złotą ramkę i tylko on bierze klawisze. Klik albo upuszczenie
-  (także plików z Eksploratora) przenosi ramkę, skróty przełączania paneli i menu Okno też.
-  Delete, Ctrl+A, Ctrl+C/X/V nad osią nie usuwają już niczego z panelu Projekt, gdy ramka jest
-  na osi, i nie edytują osi, gdy ramka jest na innym panelu; inne skróty na tych klawiszach
-  (cofnij w Las Vegas, krok w Mozarcie, czyszczenie wejścia i wyjścia) działają dalej. Złota
-  linia na górze monitorów to teraz ta sama ramka; zakładki grup bez ramki mają szary pasek.
-- Linie krycia i głośności na klipach są domyślnie ukryte i nie łapią się przypadkiem.
-  Pokazuje je przełącznik „Linie klatek kluczowych na klipach” w nowym menu „Ustawienia
-  wyświetlania osi” w pasku osi (Ctrl+Alt+Shift+K, zapamiętany), a na chwilę wystarczy
-  przytrzymać Ctrl+Alt nad ścieżkami (gesty Ctrl+Alt na klipach działają przy tym jak zawsze).
-  Parametr wybrany w nagłówku ścieżki i narzędzie Pióro pokazują linie jak dotąd, obwiednie
-  VEGAS też.
-- Link to nie grupa. „Połącz” łączy jeden obraz z jego dźwiękiem (z tego samego pliku
-  albo z osobnego rejestratora) i nigdy jednego klipu samego ze sobą; połączone części mają
-  znak łańcucha. Dwa obrazy, tytuły i inne klipy łączy nowe „Grupuj” (Ctrl+G, „Rozgrupuj”
-  Ctrl+Shift+G): grupa ma swój znak i przerywaną górną krawędź, klik zaznacza całą grupę,
-  Alt+klik jeden klip. Projekty, w których połączono różne klipy, otwierają się z tymi
-  klipami w grupie (raz pojawia się komunikat), nic nie ginie; dźwięk z rejestratora zostaje
-  połączony z obrazem.
-- Alt+klik zaznacza jedną część połączonego klipu, a jej przeciągnięcie przesuwa tylko ją, bez
-  rozłączania. Części, które się rozjechały, pokazują czerwoną plakietkę z przesunięciem
-  w klatkach, a menu klipu ma „Przesuń do synchronizacji” i „Przesuń źródło do
-  synchronizacji”.
-- Modele, które już masz: Whisper i RIFE mogą korzystać z pliku z innego programu albo
-  wcześniejszego pobrania („Użyj istniejącego pliku…”, „Poszukaj w typowych miejscach”), bez
-  kopiowania, po sprawdzeniu formatu, rozmiaru i sumy kontrolnej. Brak pliku jest opisany
-  wprost.
-- Pobieranie modeli: przycisk Whispera podaje osobno rozmiar modelu i środowiska,
-  postęp pokazuje prędkość i pozostały czas w Preferencjach i w pasku zadań, a przerwane
-  pobieranie można wznowić.
-- Aktualizacje po Twojemu: w Preferencjach do wyboru Automatycznie (jak dotąd), Pytaj
-  (program mówi, że jest nowa wersja, a pobiera ją dopiero po kliknięciu; gotową instaluje po
-  „Uruchom ponownie teraz” albo, jeśli wybierzesz Później, przy następnym starcie) albo
-  Ręcznie (nic nie sprawdza samo). Widać zainstalowaną wersję, kiedy program ostatnio sprawdzał
-  i co znalazł. Pierwszy start po aktualizacji mówi „Zaktualizowano do X (było Y)” i pokazuje,
-  co nowego. Program nigdy nie uruchamia się ponownie sam i nie przerywa eksportu, renderu,
-  nagrywania, generowania, transkrypcji, wysyłki ani sesji online.
+- Effect controls: the "Go to clip" button in the clip header moves the playhead to the start
+  of the clip when it is outside the clip. The playhead line runs through the whole height of
+  the panel, also over empty space and collapsed groups.
+- Effect controls: under Motion Scale you can see that the picture of the clip is fitted to the
+  frame (for example 50% for a 4K clip in an HD sequence), with a "Fit to frame" switch. The
+  Position of such a clip says so in a message (it can be turned off in the menu of that
+  line). Agents see the same in `get_timeline` and in the edit result (`fit`). Existing
+  projects render unchanged.
+- Effect controls: the stopwatch tells the truth. It is gold only with keyframes, and the
+  state of an expression has its own mark (dot: running, ring: off). A parameter with an
+  expression turned off accepts keyframes, and a click with a running expression asks and can
+  replace it with keyframes without a jump in the picture (one undo step).
+- Effect controls: parameter groups of web components and effects have a header with a name,
+  an indent and a line along the rows of the group.
+- Effect palette: a shortcut (Ctrl+Shift+P in the Premier layout, Ctrl+Space or
+  Ctrl+Shift+Space in the others, changeable in the shortcut editor) opens a small search
+  window for effects, presets and transitions. It searches Polish and English names, also
+  typed without Polish letters. Favorites (star) are at the top, then recently used. Arrows and
+  Enter add the effect to the selected clips, a transition goes on the cut like Ctrl+D.
+  Favorites (effects, presets and transitions) are in the shortcut editor and can get their own
+  shortcut; when you remove the star, that shortcut disappears. The palette opens in the window
+  where the shortcut was pressed, also a detached one, and while it is open, keys do not run
+  shortcuts.
+- A new project without decisions made for you: the empty sequence of a new project has the
+  format "from the first clip" (visible in the tab, in Info and in the sequence settings), and
+  the first video clip sets its size, frame rate and sound without asking, in the same revision
+  (a still image, audio alone or a format card do not set it). The names the editor gives by
+  itself (sequence, new project) are in the interface language, and the language choice at the
+  first start renames the untouched names of the empty project. The Edit menu has the "Undo
+  moves the playhead to the change" switch (off by default); when it is off, undoing a change
+  outside the timeline view says so in a message with a "Show" button. Agents see `format_unset`
+  in `project_info` and `get_timeline`.
+- The clip mismatch window after tester feedback: "Change sequence settings" no longer zooms
+  the timeline out to the whole sequence, so clips dropped while zoomed in stay where you see
+  them before the question, with the same zoom and playhead. One Ctrl+Z takes back the clips
+  and the new settings, and the next drop onto an empty sequence asks again. The question about
+  settings is no longer lost when another window is open at the drop or a clip is not yet
+  probed: it appears as soon as it can. A drop moves the frame to the timeline, so Delete
+  removes the dropped clips, not files from the project.
+- The panel that has the keyboard has a gold frame, and only it takes the keys. A click or a
+  drop (also of files from Explorer) moves the frame, and so do the panel switching shortcuts
+  and the Window menu. Delete, Ctrl+A and Ctrl+C/X/V over the timeline no longer remove
+  anything from the Project panel when the frame is on the timeline, and do not edit the
+  timeline when the frame is on another panel; other shortcuts on those keys (undo in Las
+  Vegas, step in Mozart, clearing the in and out points) keep working. The gold line at the top
+  of the monitors is now the same frame; tab groups without the frame have a gray bar.
+- The opacity and volume lines on clips are hidden by default and are not grabbed by accident.
+  They are shown by the "Clip keyframe lines" switch in the new "Timeline display settings"
+  menu in the timeline bar (Ctrl+Alt+Shift+K, remembered), and for a moment it is enough to
+  hold Ctrl+Alt over the tracks (Ctrl+Alt gestures on clips work as always). A parameter chosen
+  in the track header and the Pen tool show the lines as before, and so do the VEGAS
+  envelopes.
+- Link is not a group. "Link" joins one picture with its sound (from the same file or from a
+  separate recorder) and never one clip with itself; linked parts have a chain mark. Two
+  pictures, titles and other clips are joined by the new "Group" (Ctrl+G, "Ungroup"
+  Ctrl+Shift+G): a group has its own mark and a dashed top edge, a click selects the whole
+  group, Alt+click one clip. Projects in which different clips were linked open with those
+  clips in a group (a message appears once), nothing is lost; sound from a recorder stays
+  linked with the picture.
+- Alt+click selects one part of a linked clip, and dragging it moves only that part, without
+  unlinking. Parts that have drifted apart show a red badge with the offset in frames, and the
+  clip menu has "Move into sync" and "Slip into sync".
+- Models you already have: Whisper and RIFE can use a file from another program or from an
+  earlier download ("Use an existing file…", "Look in the usual places"), without copying,
+  after checking the format, size and checksum. A missing file is described plainly.
+- Model downloads: the Whisper button gives the size of the model and of the runtime
+  separately, progress shows speed and time left in Preferences and in the task bar, and an
+  interrupted download can be resumed.
+- Updates your way: in Preferences choose Automatic (as before), Ask (the program says that a
+  new version exists and downloads it only after a click; it installs a ready one after
+  "Restart now" or, if you choose Later, at the next start) or Manual (it checks nothing by
+  itself). You can see the installed version, when the program last checked and what it found.
+  The first start after an update says "Updated to X (was Y)" and shows what is new. The
+  program never restarts by itself and never interrupts an export, a render, a recording, a
+  generation, a transcription, an upload or an online session.
 
 ## 0.19.30 (2026-11-13)
 
-- Przeciąganie liczb (D149, uwagi testera JD.20 i JD.21): każda liczba w aplikacji (Effect
-  Controls, mikser, eksport, kolor, DAW, maski, pokrętła efektów audio) przesuwa się o jedną
-  jednostkę na punkt ruchu, z Shift o dziesięć, z Ctrl o jedną dziesiątą. Uwaga: Shift
-  przyspiesza, a nie zwalnia jak dotąd w polach liczb, pokrętłach efektów audio i pasku master
-  Koloru. Jednostka zależy od zakresu: 1 dla Pozycji, Skali, stopni, procentów, klatek i pikseli,
-  drobniej dla wąskich zakresów (0,01 dla krycia 0..1, 0,1 dla zaniku pogłosu), okrągła większa
-  liczba dla bardzo szerokich (20 Hz dla częstotliwości korektora 100..8000 Hz). Z Ctrl pole
-  pokazuje miejsca po przecinku. Kursor w trakcie jest ukryty i stoi w miejscu, więc
-  przeciąganie nie kończy się na krawędzi ekranu; po puszczeniu kursor wraca. Przez pulpit
-  zdalny, piórem i dotykiem kursor zostaje widoczny i zawija się na krawędzi okna. Alt+Tab albo
-  wyskakujące okno kończy przeciąganie. Esc w trakcie przywraca wartość sprzed przeciągania i
-  nic nie zapisuje w historii (także na parametrze z kluczami i przy kilku klipach), a dialog,
-  filtr, zaznaczenie kluczy i zaznaczenie nut w MIDI zostają. Szerokość i wysokość eksportu i sekwencji idą po 2 piksele
-  i zawsze są parzyste.
-- Poprawka: wyrażenie wpisane w pole liczby (`*2`, `+10%`) liczy się raz, od wartości
-  sprzed edycji. Wcześniej część pól stosowała je dwa razy (Skala 100 po `*2` dawała 400).
-- Enter w polach tekstowych (D149, JD.30): w polach wielowierszowych (wyrażenia, tekst, notatki
-  znaczników, edytor kodu i JSON, prompty) Return dodaje wiersz, a Ctrl+Return i Enter z
-  klawiatury numerycznej zatwierdzają (Ctrl+Return także w odczepionych oknach). W polach
-  jednowierszowych zatwierdzają oba Entery.
-- Gotowe wyrażenia (D149, JD.32): lista pod plusem mówi, co zastępuje całe wyrażenie (albo
-  zaznaczenie), a co wstawia się w miejscu kursora. Jedno Ctrl+Z przywraca poprzednie wyrażenie.
-- Poprawka (D149, JD.33): plus w edytorze wyrażeń przy zaznaczonym tekście nie zatwierdza już
-  niedokończonego wyrażenia, nie przesuwa panelu i nie zamyka edytora.
-- Preferencje w sekcjach (D150, uwagi testera): lista sekcji z boku (Ogólne, Język i
-  wygląd, Oś czasu, Odtwarzanie i pamięć podręczna, Media, Transkrypcja, AI i modele, Agent,
-  Dokumenty, Aktualizacje, Skróty klawiszowe) zamiast jednej długiej strony. Pole wyszukiwania
-  znajduje ustawienie po polsku i po angielsku, także wpisane bez polskich znaków, i przewija do
-  niego. Okno wraca do ostatniej sekcji, mieści się w 1280x720, a wyszukiwarka, lista i
-  Zamknij są zawsze widoczne. Ogólne pokazują folder ustawień z przyciskiem Otwórz.
-- Skróty klawiszowe pod ręką: Edycja > Skróty klawiszowe… i Ctrl+Alt+K (Premier,
-  Cupertino, Leonardo, Las Vegas, Mozart, Studio) otwierają edytor skrótów jako sekcję
-  Preferencji. Edytor szuka po nazwie polecenia w każdym języku i po klawiszu, wpisanym albo
-  naciśniętym („Szukaj po klawiszu”), a akord zajęty przez inne polecenie jest czerwony przy
-  obu, z podpowiedzią które; „Tylko konflikty” pokazuje same takie wiersze.
-- Pierwsze uruchomienie bez zgadywania (D144, uwagi testera JD.1 do JD.6). Instalator pyta,
-  gdzie zainstalować program (Enter zostawia folder domyślny, `-InstallDir` i `-Yes` bez
-  pytania), a istniejącą instalację aktualizuje tam, gdzie jest. Folder z innymi plikami albo
-  cały dysk dostaje podfolder „HEXART Video Edit”. Odinstalowanie usuwa pliki programu po
-  nazwie, a w folderze, który poprzedni instalator przyjął mimo innych plików, zostawia też
-  podfoldery programu i mówi, które. Instalacje starsze niż znacznik `.hve-install` (v0.14.0 do
-  v0.18.1) są rozpoznawane i dostają znacznik. Program jest w Ustawieniach,
-  Aplikacje: prawy klik na nim w menu Start daje „Odinstaluj”, a w jego folderze menu Start jest
-  skrót „Odinstaluj HEXART Video Edit”. Odinstalowanie pyta, czy zachować ustawienia i listę
-  ostatnich projektów, projektów nie rusza nigdy. Wersja we wpisie idzie za samoaktualizacją.
-  Junction w folderach programu i danych (np. modele przeniesione na inny dysk) znika jako
-  dowiązanie, a to, na co wskazuje, zostaje. `-Purge` z folderu danych spoza domyślnego miejsca
-  usuwa tylko to, co zapisuje program.
-- Okno Projekty bez „Anuluj”: „Nowy projekt”, „Otwórz projekt…” i „Otwórz”; pierwsze
-  uruchomienie idzie prosto do pustego projektu, bez listy do wyboru.
-- Wiadomo, gdzie są ustawienia: Pomoc, „Otwórz folder ustawień”, i ścieżka w „O programie”.
-  Plik `portable.txt` obok programu robi z kopii kopię przenośną z ustawieniami, krokami
-  pierwszego uruchomienia i cache w folderze `data` obok niej i z własnym portem agenta. Kopia z
-  innego folderu pyta raz, czy użyć wspólnych ustawień, czy zostać osobno.
-- Panel Project: podgląd po najechaniu da się wyłączyć (menu Filtra, Shift+H w panelu),
-  wtedy najechanie niczego nie dekoduje. Zaznaczone klipy upuszczone na przycisk „Nowy kosz”
-  trafiają do nowego kosza jednym krokiem; menu klipu ma „Przenieś do nowego kosza” i
-  „Przenieś do kosza” z listą koszy.
-- Panel edycji tekstem pokazuje transkrypcję klipu klikniętego w panelu Project albo na osi,
-  bez otwierania monitora Source; pinezka trzyma bieżący klip.
-- Sześciokropkowe uchwyty paneli nie przebijają już przez okna modalne.
-- „Change with Agent” nie mówi „brak mikrofonu”, gdy mikrofon działa: przerwy zgłaszane przez
-  sterownik nie kończą nagrania, a komunikat podaje prawdziwą przyczynę (brak urządzenia, brak
-  zgody Windows, odłączony, nie otworzył się, sama cisza).
-- Effect Controls (D148, uwagi testera): Delete albo Backspace przy zaznaczonej masce usuwa
-  maskę, a nie cały klip. Panel z fokusem nie oddaje już Delete osi czasu: działa na kluczach,
-  efektach i wartościach albo masce, a bez zaznaczenia nic nie robi. Wiersz maski ma menu
-  kontekstowe (Zmień nazwę, Odwróć, Zablokuj, Usuń maskę), także z nazwy maski. Przy fokusie w
-  panelu Shift+Delete, Alt+Backspace i inne skróty layoutu usuwające klipy nic nie robią,
-  przytrzymany Delete usuwa raz, a kliknięcie maski i efektu daje jedno zaznaczenie naraz.
-- Oś czasu po uwagach testera: klipy upuszczone dalej na pustą sekwencję zostają na
-  miejscu po „Zmień ustawienia sekwencji”, a upuszczenie z nowymi ustawieniami cofa jedno Ctrl+Z.
-  Przeciąganie klipu nad nagłówki ścieżek już go nie gubi: puszczenie nad nagłówkiem kładzie klip
-  na początku tej ścieżki (samo przejście nad nagłówkami w drodze z panelu Projekt niczego nie
-  przesuwa), a nad linijką podgląd stoi; przeciąganie kończy się poza panelem osi albo klawiszem Esc.
-  Prawy przycisk na pustym miejscu ścieżki stawia tam głowicę i zatrzymuje odtwarzanie, jak
-  kliknięcie w linijkę, przeciąganie prawym przewija jak po linijce (z Ctrl z dźwiękiem), a
-  kliknięcie dalej otwiera menu miejsca. Ukośnik (\) pokazuje całą
-  sekwencję, a drugie naciśnięcie wraca do poprzedniego zoomu i przewinięcia, osobno w każdym
-  panelu osi.
-- Skrubowanie w monitorze Program i Źródło: gdy zatrzymasz mysz z wciśniętym przyciskiem,
-  monitor nie udaje już, że obraz zastępczy z innej chwili to klatka głowicy. Do czasu, aż klatka
-  głowicy będzie gotowa, obraz jest przyciemniony z napisem „Czekam na klatkę głowicy”, a potem
-  pokazuje dokładnie czas głowicy; gdy klatki nie da się zdekodować, napis to mówi. W ruchu i przy
-  edycji pod stojącą głowicą obraz zastępczy zostaje jak był, z kreską w rogu.
-- Paski nad obrazem Programu i ukośna kreska w rogu mają legendę w podpowiedzi (ramka fokusu,
-  kolory pamięci podglądu, głowica), opis jest w README.
-- Dwuklik w obrazie Programu zaznacza najwyższy klip pod kursorem i włącza transformację, jak w
-  Premiere (bez zablokowanych ścieżek, warstw dopasowania i klipów z kryciem 0; tytuł na cały
-  kadr nie zasłania klipu pod nim); pełny ekran ma swój przycisk w pasku monitora i dalej Ctrl+`.
-- Menu Sekwencja: „Zaznacz klip pod głowicą” (D w układzie Premier, na wskazanych ścieżkach) i
-  przełącznik „Zaznaczenie podąża za głowicą” (domyślnie wyłączony, zapamiętany).
-- Maski i inne nakładki monitora Program nie wychodzą poza obszar obrazu: nie zasłaniają
-  transportu, pasków ani innych paneli. Po oddaleniu widoku punkty maski można stawiać i
-  przeciągać poza kadrem.
-- Potrójny klik na ścieżce maski zaznacza wszystkie jej punkty: ramka przesuwa, skaluje i obraca
-  całą maskę jednym krokiem cofania.
+- Dragging numbers (tester feedback): every number in the app (Effect controls, mixer, export,
+  color, DAW, masks, audio effect knobs) changes by one unit per point of movement, by ten with
+  Shift, by a tenth with Ctrl. Note: Shift now speeds up and no longer slows down as before in
+  number fields, audio effect knobs and the Color master bar. The unit depends on the range: 1
+  for Position, Scale, degrees, percents, frames and pixels, finer for narrow ranges (0.01 for
+  opacity 0..1, 0.1 for reverb decay), a round larger number for very wide ones (20 Hz for the
+  equalizer frequency 100..8000 Hz). With Ctrl the field shows decimal places. The cursor is
+  hidden during the drag and stays in place, so a drag does not end at the screen edge; after
+  you release, the cursor comes back. Over remote desktop, with a pen and with touch the cursor
+  stays visible and wraps at the window edge. Alt+Tab or a pop-up window ends the drag. Esc
+  during a drag restores the value from before and writes nothing to the history (also on a
+  parameter with keys and with several clips), and the dialog, filter, key selection and note
+  selection in MIDI stay. The width and height of an export and of a sequence go in steps of 2
+  pixels and are always even.
+- Fix: an expression typed in a number field (`*2`, `+10%`) is computed once, from the value
+  before the edit. Before, some fields applied it twice (Scale 100 after `*2` gave 400).
+- Enter in text fields (tester feedback): in multi-line fields (expressions, text, marker
+  notes, the code and JSON editor, prompts) Return adds a line, and Ctrl+Return and Enter on
+  the numeric keypad confirm (Ctrl+Return also in detached windows). In single-line fields
+  both Enter keys confirm.
+- Ready expressions (tester feedback): the list under the plus says what replaces the whole
+  expression (or the selection) and what is inserted at the cursor. One Ctrl+Z restores the
+  previous expression.
+- Fix (tester feedback): the plus in the expression editor with selected text no longer
+  confirms an unfinished expression, does not shift the panel and does not close the editor.
+- Preferences in sections (tester feedback): a list of sections on the side (General, Language
+  and look, Timeline, Playback and cache, Media, Transcription, AI and models, Agent,
+  Documents, Updates, Keyboard shortcuts) instead of one long page. The search field finds a
+  setting in Polish and in English, also typed without Polish letters, and scrolls to it. The
+  window returns to the last section, fits in 1280x720, and the search, the list and Close are
+  always visible. General shows the settings folder with an Open button.
+- Keyboard shortcuts at hand: Edit > Keyboard shortcuts… and Ctrl+Alt+K (Premier, Cupertino,
+  Leonardo, Las Vegas, Mozart, Studio) open the shortcut editor as a section of Preferences.
+  The editor searches by command name in every language and by key, typed or pressed ("Find by
+  key"), and a chord taken by another command is red on both, with a hint which one; "Only
+  conflicts" shows only such rows.
+- First run without guessing (tester feedback). The installer asks where to install (Enter
+  keeps the default folder, `-InstallDir` and `-Yes` skip the question) and updates an existing
+  installation where it is. A folder with other files, or a whole drive, gets a subfolder
+  "HEXART Video Edit". Uninstalling removes the program files by name, and in a folder that a
+  previous installer accepted despite other files it also leaves the program's subfolders and
+  says which. Installations older than the `.hve-install` marker (v0.14.0 to v0.18.1) are
+  recognized and get the marker. The program is listed in Settings, Apps: a right click on it
+  in the Start menu gives "Uninstall", and in its Start menu folder there is a shortcut
+  "Uninstall HEXART Video Edit". Uninstalling asks whether to keep the settings and the list of
+  recent projects, and never touches projects. The version in the entry follows self-updates. A
+  junction in the program and data folders (for example models moved to another drive)
+  disappears as a link, and what it points to stays. `-Purge` from a data folder outside the
+  default place removes only what the program writes.
+- The Projects window without "Cancel": "New project", "Open project…" and "Open"; the first
+  run goes straight to an empty project, without a list to choose from.
+- It is clear where the settings are: Help, "Open settings folder", and the path in "About". A
+  `portable.txt` file next to the program turns the copy into a portable one, with settings,
+  first-run steps and cache in a `data` folder next to it and with its own agent port. A copy
+  from another folder asks once whether to use the shared settings or stay separate.
+- Project panel: the hover preview can be turned off (Filter menu, Shift+H in the panel); then
+  hovering decodes nothing. Selected clips dropped on the "New bin" button go into a new bin in
+  one step; the clip menu has "Move to new bin" and "Move to bin" with a list of bins.
+- The text editing panel shows the transcript of the clip clicked in the Project panel or on
+  the timeline, without opening the Source monitor; the pin keeps the current clip.
+- The six-dot panel handles no longer show through modal windows.
+- "Change with agent" no longer says "no microphone" when the microphone works: gaps reported
+  by the driver do not end the recording, and the message gives the real cause (no device, no
+  Windows permission, unplugged, did not open, only silence).
+- Effect controls (tester feedback): Delete or Backspace with a mask selected removes the
+  mask, not the whole clip. A panel that has the focus no longer hands Delete to the timeline:
+  it acts on keys, effects and values or on the mask, and with no selection does nothing. A
+  mask row has a context menu (Rename, Invert, Lock, Delete mask), also from the mask name.
+  With the focus in the panel, Shift+Delete, Alt+Backspace and other layout shortcuts that
+  delete clips do nothing, a held Delete removes once, and a click on a mask and on an effect
+  gives one selection at a time.
+- Timeline after tester feedback: clips dropped farther along an empty sequence stay in place
+  after "Change sequence settings", and a drop with new settings is undone with one Ctrl+Z.
+  Dragging a clip over track headers no longer loses it: releasing over a header puts the clip
+  at the start of that track (just passing over the headers on the way from the Project panel
+  moves nothing), and over the ruler the preview stands still; a drag ends outside the
+  timeline panel or with Esc. A right click on an empty place of a track puts the playhead
+  there and stops playback, like a click on the ruler, dragging with the right button scrubs as
+  on the ruler (with Ctrl with sound), and a further click opens the place menu. The backslash
+  (`\`) shows the whole sequence, and a second press returns to the previous zoom and scroll,
+  separately in each timeline panel.
+- Scrubbing in the Program and Source monitors: when you stop the mouse with the button held,
+  the monitor no longer pretends that a stand-in picture from another moment is the frame of
+  the playhead. Until the playhead frame is ready, the picture is dimmed with the label
+  "Waiting for the playhead frame", and then it shows exactly the time of the playhead; when the
+  frame cannot be decoded, the label says so. While moving, and when editing under a standing
+  playhead, the stand-in picture stays as it was, with a small stroke in the corner.
+- The bars above the Program picture and the diagonal stroke in the corner have a legend in
+  the tooltip (focus frame, preview cache colors, playhead); a description is in the README.
+- A double click in the Program picture selects the topmost clip under the pointer and turns on
+  transform, as in Premiere (without locked tracks, adjustment layers and clips with opacity
+  0; a full-frame title does not cover the clip under it); full screen has its own button in
+  the monitor bar and still Ctrl+`.
+- Sequence menu: "Select Clip at Playhead" (D in the Premier layout, on the targeted tracks)
+  and the "Selection Follows Playhead" switch (off by default, remembered).
+- Masks and other overlays of the Program monitor do not go outside the picture area: they do
+  not cover the transport, the bars or other panels. After you zoom the view out, mask points
+  can be placed and dragged outside the frame.
+- A triple click on a mask path selects all its points: the box moves, scales and rotates the
+  whole mask in one undo step.
 
 ## 0.19.29 (2026-11-11)
 
-- Dokumenty przez konwersję (D136, część trzecia): HTML, pliki biurowe (DOC, DOCX, ODT, RTF,
-  PPT, PPTX, ODP, XLS) i EPS wchodzą do projektu jako obraz ze stronami, jak PDF. HTML drukuje
-  Chrome albo Edge na stronie 16:9: strona dostaje pliki ze swojego folderu, bez sieci i bez
-  innych plików komputera, a zmiana pliku obok niej (arkusz stylów, obraz) daje nowy obraz.
-  Pliki biurowe konwertuje LibreOffice:
-  Twój albo zainstalowany jednym przyciskiem w Preferencjach, sekcja Dokumenty (373 MB, do
-  folderu narzędzi edytora, bez instalacji w systemie). EPS konwertuje Ghostscript, jeśli go
-  masz w wersji 10.03.1 albo nowszej (starsza ma znane luki i nie jest uruchamiana, tak samo
-  program, który nie podaje swojej wersji). Każdy z
-  nich działa jako osobny program, a wynik leży w cache i liczy się do jego limitu. Konwersję
-  zatrzymuje Anuluj importu, eksportu albo innego zadania w tle (render podglądu, zapis klatki) i
-  zamknięcie edytora, a program kończy się razem ze wszystkim, co
-  uruchomił. Gdy programu nie ma albo konwersja się nie uda, import mówi, co się stało; eksport
-  z takim dokumentem zatrzymuje się z tym samym komunikatem.
+- Documents through conversion (part three): HTML, office files (DOC, DOCX, ODT, RTF, PPT,
+  PPTX, ODP, XLS) and EPS come into the project as a picture with pages, like a PDF. HTML is
+  printed by Chrome or Edge on a 16:9 page: the page gets the files from its own folder,
+  without the network and without any other files of the computer, and a change of a file next
+  to it (a style sheet, an image) gives a new picture. Office files are converted by
+  LibreOffice: yours, or one installed with a single button in Preferences, the Documents
+  section (373 MB, into the tools folder of the editor, without a system-wide installation).
+  EPS is converted by Ghostscript, if you have version 10.03.1 or newer (an older one has known
+  vulnerabilities and is not run, and neither is a program that does not report its version).
+  Each of them runs as a separate program, and the result lies in the cache and counts toward
+  its limit. The conversion is stopped by Cancel of the import, the export or another
+  background task (a preview render, saving a frame) and by closing the editor, and the program
+  ends together with everything it started. When the program is missing or the conversion
+  fails, the import says what happened; an export with such a document stops with the same
+  message.
 
 ## 0.19.28 (2026-11-11)
 
-- Match Color: nowy efekt dopasowuje kolor całego klipu do wybranych klatek odniesienia
-  (klip z osi i klatka w nim, do 16). W Effect Controls lista referencji z miniaturą i timecode,
-  „Dodaj referencję” kliknięciem w klip na osi, „Klip pod wskaźnikiem”, a parametr „Referencja” ma
-  klatki kluczowe (liniowe mieszają odniesienia, Hold przełącza). Siła, osobno jasność i kolor,
-  ochrona neutralnych. Analiza w tle z postępem i pamięcią na dysku, to samo w podglądzie i
-  eksporcie. Agent: `match_color` z `mode: effect` i `match_color_status`. Klip ze stabilizacją
-  jest mierzony po jej analizie, drugi Match Color na klipie po pierwszym, usunięcie referencji
-  przenumerowuje klucze, a zagnieżdżony klip referencji nadal działa. Kopia sekwencji,
-  „Uczyń unikalnym”, wklejanie i kopia przez Alt razem z klipem referencji dopasowują do kopii
-  klipów, a warstwa korekcyjna nie może być referencją. Referencja na elemencie sekwencji z
-  prędkością albo wstecz wskazuje tę samą klatkę.
-- Dokumenty jako strony (D136, część druga): pliki tekstowe (TXT, LOG, INI, TOML, YAML),
-  Markdown, JSON, XML, CSV i TSV oraz arkusze (XLSX, XLSM, XLSB, ODS) wchodzą do projektu jako
-  obraz ze stronami, jak PDF. Stronę 16:9 (1920 x 1080) układa edytor w czcionkach aplikacji:
-  jasny tekst na przezroczystości, ciemny po ustawieniu jasnego tła w Interpret Footage. JSON i
-  XML są kolorowane, Markdown ma nagłówki, listy, cytaty, kod i tabele, tabela powtarza nagłówek
-  na każdej stronie, arkusz to jego zakładki po kolei. Strony są wektorowe, więc ostre w każdej
-  skali. Dokument wchodzi, gdy wskażesz go z nazwy; import folderu oraz wybór razem z wideo,
-  dźwiękiem albo folderem go pomija i liczy w podsumowaniu. Pliki SRT i VTT zostają napisami.
-  Plik JSON albo XML nazwany jak zdjęcie z tego samego wyboru (`IMG_1.jpg.json`, także
-  `IMG_1.jpg.supplemental-metadata.json` z Google Takeout) to dane tego
-  zdjęcia i też zostaje pominięty. Plik płynie na strony w miarę czytania, do 2000 stron, więc
-  nawet bardzo duży albo spreparowany plik zajmuje tyle pamięci, ile pokażą jego strony.
-  Markdown powyżej 2 MB jest pokazany jak zwykły tekst.
-  MCP: `import_media` przyjmuje te pliki po ścieżce według tych samych reguł, `media_info` podaje
+- Match Color: a new effect matches the color of a whole clip to chosen reference frames (a clip
+  on the timeline and a frame in it, up to 16). In Effect controls there is a list of references
+  with a thumbnail and timecode, "Add reference" by clicking a clip on the timeline, "Clip under
+  playhead", and the "Reference" parameter has keyframes (linear ones blend the references, Hold
+  switches between them). Strength, Luminance and Color are separate, plus Protect neutrals. The
+  analysis runs in the background with progress and a cache on disk, and
+  it is the same in preview and export. Agent: `match_color` with `mode: effect` and
+  `match_color_status`. A clip with stabilization is measured after its analysis, a second Match
+  Color on a clip after the first, removing a reference renumbers the keys, and a nested
+  reference clip still works. A copied sequence, "Make unique", paste and an Alt copy together
+  with the reference clip match to the copies of the clips, and an adjustment layer cannot be a
+  reference. A reference on a nested sequence item with changed speed or reversed points to the
+  same frame.
+- Documents as pages (part two): text files (TXT, LOG, INI, TOML, YAML), Markdown, JSON, XML, CSV
+  and TSV, and spreadsheets (XLSX, XLSM, XLSB, ODS) come into the project as a picture with
+  pages, like a PDF. The editor lays out a 16:9 page (1920 x 1080) in the app's fonts: light text
+  on transparency, dark text once you set a light background in Interpret Footage. JSON and XML
+  are colored, Markdown has headings, lists, quotes, code and tables, a table repeats its header
+  on every page, and a spreadsheet is its sheets one after another. The pages are vector, so
+  they are sharp at any scale. A document comes in when you pick it by name; a folder import,
+  and a selection together with video, audio or a folder, skips it and counts it in the summary.
+  SRT and VTT files stay captions. A JSON or XML file named like a photo from the same selection
+  (`IMG_1.jpg.json`, also `IMG_1.jpg.supplemental-metadata.json` from Google Takeout) is the data
+  of that photo and is skipped too. The file is streamed into pages as it is read, up to 2000
+  pages, so even a very large or malformed file takes only as much memory as its pages show.
+  Markdown above 2 MB is shown as plain text.
+  MCP: `import_media` takes these files by path under the same rules, `media_info` reports
   `document.pages`.
-- Interpret Footage: prawy klik na jednym albo wielu elementach panelu Projekt otwiera okno
-  z ustawieniami według rodzaju medium. Wideo: klatkaż z pliku albo przyjęty (gra każdą klatkę
-  pliku, długość i dźwięk idą za nim), proporcje piksela, kolejność pól, alfa (prosta, ignorowana,
-  premultiplikowana na kolorze), interpretacja i zakres koloru, obrót, timecode początku. Sekwencja
-  obrazów: klatkaż, pierwsza klatka, luki trzymają poprzednią klatkę albo są puste. Obraz: własna
-  długość nowych klipów. Dźwięk: mono, stereo, jeden kanał, mapa kanałów (podwójne mono), inna
-  częstotliwość próbkowania. Przy wielu elementach zmienia się tylko to, czego dotkniesz. Klipy
-  leżące już na osiach zachowują miejsce, długość i czasy źródła, a okno mówi, ile z nich pokazuje
-  teraz inne klatki i ile wychodzi poza koniec źródła. Jedna rewizja, z undo.
-- Więcej typów plików: wszystkie obrazy, które dekoduje dołączony FFmpeg (m.in. JPEG XL,
-  AVIF, HDR, DDS, PSD, ICO, QOI, JPEG 2000, PCX, SGI, PNM), SVG, PDF i AI zgodny z PDF. Źródła
-  wektorowe zostają ostre w każdej skali (rysowanie wektorowe) albo są rysowane raz w wybranym
-  DPI, z przezroczystym tłem albo kolorem. PDF, AI i wielostronicowy TIFF mają strony: liczba
-  stron jest sprawdzana przy imporcie, stronę domyślną ustawia Interpret Footage, a pojedynczy klip
-  ma własną w Effect Controls (Źródło, Strona; klucze trzymają wartość, więc jeden PDF może
-  przewracać strony w czasie).
-- MCP: `update_media` ustawia interpretację tymi samymi słowami co okno (`rate`,
+- Interpret Footage: a right click on one or more items in the Project panel opens a window with
+  settings by kind of media. Video: frame rate from the file or a chosen one (every frame of the
+  file plays, the length and the sound follow), pixel aspect ratio, field order, alpha (straight,
+  ignored, premultiplied over a color), color interpretation and range, rotation, start
+  timecode. Image sequence: frame rate, first frame, gaps hold the previous frame or are empty.
+  Still image: its own length for new clips. Sound: mono, stereo, one channel, a channel map
+  (dual mono), another sample rate. With several items, only what you touch changes. Clips that
+  are already on the timelines keep their place, length and source times, and the window says how
+  many of them now show other frames and how many run past the end of the source. One revision,
+  with undo.
+- More file types: all images that the bundled FFmpeg decodes (among others JPEG XL, AVIF, HDR,
+  DDS, PSD, ICO, QOI, JPEG 2000, PCX, SGI, PNM), SVG, PDF and AI files compatible with PDF.
+  Vector sources stay sharp at any scale (vector drawing) or are drawn once at a chosen DPI, with
+  a transparent background or a color. PDF, AI and multi-page TIFF have pages: the number of
+  pages is checked on import, Interpret Footage sets the default page, and a single clip has its
+  own page in Effect controls (Source, Page; keys hold the value, so one PDF can turn pages over
+  time).
+- MCP: `update_media` sets the interpretation with the same words as the window (`rate`,
   `pixel_aspect`, `fields`, `alpha`, `rotation`, `range`, `start_timecode`, `start_frame`,
   `missing_frames`, `still_duration`, `rendering`, `dpi`, `page`, `page_box`, `background`,
-  `audio_channels`, `sample_rate`; `file` wraca do pliku) i zwraca `items_retimed` oraz
-  `items_past_end`. `media_info` pokazuje `interpretable`, `interpretation`, `file_probe` i
-  `document`. Strona klipu: `set_param` i `set_keyframe` z parametrem `page`.
-- Medium czytane z innym klatkażem albo częstotliwością próbkowania: słowa transkrypcji,
-  bity, cisza, trafienia wyszukiwania i stabilizator idą razem z obrazem i dźwiękiem (analiza
-  trzyma czas pliku, czytający przelicza go na czas medium). Rotoskopia, głębia i rozdzielanie
-  ścieżek na takim medium mówią, że najpierw trzeba wrócić do wartości z pliku. Strona TIFF i
-  strona dokumentu mają limit wielkości zamiast alokacji bez granic; podgląd w pliku TIFF nie
-  jest już liczony jako strona, a strony czarno-białe są czytane.
-- Skopy na GPU z każdej klatki: pomiar pełnej klatki wyjścia w precyzji float zamiast
-  próbki 1920 px i 8 bitów, obraz w pikselach ekranu (także HiDPI), odświeżanie z każdą pokazaną
-  klatką zamiast ok. 8 razy na sekundę. Osiem trybów (przebieg luminancji i RGB, parada RGB i
-  YCbCr, wektoroskop z celami 75 i 100 %, linią skóry i powiększeniem, histogram RGB, kanałów i
-  luminancji z 256 do 4096 koszyków, liniowy i log, CIE 1931 xy z gamutami Rec.709, P3 i
-  Rec.2020, fałszywe kolory), do czterech skopów naraz w pięciu układach, skale w procentach,
-  nitach (PQ), HLG i wartościach kodowych 8 i 10 bitów, wskaźniki przepaleń i wyjścia poza gamut,
-  obszar pomiaru wybierany na monitorze Programu, poświata i jasność śladu. Zatrzymana klatka
-  jest mierzona w rozdzielczości sekwencji. Skale PQ i HLG pokazują też to, co wychodzi poza
-  gamut i ponad zakres (sekwencja PQ z ograniczeniem do szczytu liczy przepalenie na szczycie),
-  płaski obraz nie spowalnia pomiaru, a karta bez shaderów obliczeniowych dostaje komunikat
-  zamiast pustego panelu.
-- Speed na sekwencjach: sekwencja położona na osi (nest) przyjmuje to samo co klip: prędkość
-  w procentach, rewers, dopasowanie do długości, narzędzie Rate Stretch, slip i Time Remap. Obraz,
-  dźwięk, słowa transkrypcji i związane głowice idą za prędkością; wysokość dźwięku zmienia się
-  razem z nią. Zagnieżdżenia z inną prędkością, wstecz albo z Time Remap nie da się spłaszczyć,
-  dopóki nie wróci do 100% do przodu. Okno Speed / Duration otwiera się ze stanem rewersu elementu.
-- Sekwencja jako nest albo klip natywny: nowy przełącznik „Interpretacja sekwencji” w menu
-  elementu i w Effect Controls. Nest działa jak dotąd (dokładny czas w środku, bez końca źródła).
-  Klip natywny traktuje sekwencję jak plik: własne klatki w klatkażu sekwencji, Frame Blending
-  (Frame Mix; Pixel Motion pokazuje na razie Frame Mix), trym i slip w długości sekwencji,
-  trzymanie pierwszej i ostatniej klatki poza nią. Przełączanie tam i z powrotem niczego nie gubi.
-  Agent: `set_speed`, `slip` i `set_frame_blend` na elementach sekwencji, nowe `set_nest_mode`,
-  pełniejsze `nest_info`.
-- Poprawka: odwrócony klip (także w odwróconej sekwencji) pokazywał każdą klatkę o jedną za późno,
-  a pierwsza klatka wypadała tuż za zakresem. Stopklatka w układzie Cupertino zaczyna na klatce
-  widocznej przy każdej prędkości i kierunku.
-- Oś czasu: przeciągnięcie klipu z Altem zostawia kopię w miejscu upuszczenia, a oryginał
-  stoi. Kopiuje się całe zaznaczenie, obraz razem z dźwiękiem, także na inną ścieżkę, z
-  przyciąganiem i z wstawieniem (Ctrl) albo nadpisaniem jak przy przenoszeniu; jedna rewizja i
-  jedno cofnięcie. Alt można wcisnąć i puścić w trakcie, podgląd od razu pokazuje kopię albo
-  przeniesienie, a kursor mówi, który to tryb. W układzie LasVegas kopiuje Ctrl. Sam klip bez
-  partnera przenosi teraz Alt+klik i zwykłe przeciągnięcie; przyciąganie w trakcie wyłącza S.
-  Kopia, także wklejona Ctrl+V, ma własne identyfikatory efektów, masek, znaczników i ujęć.
-- Lewy i prawy Alt działają tak samo w gestach myszy: krzywe na klatkach kluczowych klipów
-  i w Effect Controls, kopia klipu, przycinanie jednej strony. Na polskiej klawiaturze prawy Alt
-  (AltGr) nie docierał dotąd do gestów; pisanie polskich znaków i skróty zostają bez zmian.
-- Tempo jak klatki kluczowe: nagłówek pasa tempa w trybie taktów ma przyciski poprzedni
-  punkt, punkt na głowicy (dodaj albo usuń) i następny punkt, pole BPM do przeciągania i wpisania
-  oraz przełącznik skok albo rampa. W trybie taktów klatki kluczowe na linii klipu lądują na
-  siatce taktów. Agent czyta mapę tempa w `get_timeline` (`tempo_map`).
-- Dwie osie czasu obok siebie: oś, która nie edytuje, rysuje cały interfejs (pasek,
-  nagłówki z przełącznikami, paski przewijania, pas tempa). Jej przełączniki ścieżek i widok
-  działają na jej sekwencji bez przełączania edycji, a kliknięcie w klip albo linijkę od razu
-  edytuje w tej osi.
-- Panel Projekt: po imporcie panel otwiera kosz, do którego trafiły pliki, zaznacza je i
-  przewija do pierwszego, w liście i w siatce; czeka, aż puścisz mysz, i nie zabiera klawiatury
-  osi czasu. Lista ma nagłówki kolumn: klik sortuje (drugi klik odwraca), menu nagłówka pokazuje
-  i ukrywa metadane (typ, czas, klatkaż, rozdzielczość, kodek, format pikseli, kolor, dźwięk,
-  rozmiar, data zmiany, ścieżka, użycia, ocena, tagi, rolka, status), nagłówek da się przeciągnąć
-  w inne miejsce, krawędź zmienia szerokość, dwuklik ją dopasowuje. Układ i sortowanie zapisują
-  się w preferencjach programu. Import folderów (Plik > Importuj folder, menu panelu,
-  upuszczenie) odtwarza strukturę jako kosze w jednej rewizji, pomija pliki ukryte i śmieci
-  systemowe, a po imporcie mówi, ile plików pominął, z listą. Agent: `import_media` z
-  `recursive: true` importuje folder ze strukturą i zwraca kosze oraz pominięte pliki.
-- Listy rozwijane i menu nie poszerzają się same: lista presetów eksportu z zapisanym presetem
-  rosła o 4 punkty w każdej klatce (wiersz z przyciskami zmiany nazwy i usuwania prosił o 4
-  punkty więcej, niż lista miała, a egui daje liście szerokość z poprzedniej klatki), a pasek
-  przewijania długiej listy (efekty i wtyczki w mikserze) wjeżdżał przez pierwsze klatki i
-  poszerzał ją o swoją szerokość. Każda lista i menu ma teraz stałą szerokość od pierwszej
-  klatki i poszerza się tylko dla dłuższej nazwy, która do niej przyszła, najwyżej do ekranu;
-  nazwy dłuższe niż ekran kończą się wielokropkiem (nazwy wtyczek z pełną nazwą w dymku).
-- Effect Controls: przyciski poprzedniej i następnej klatki kluczowej, romb i reset pokazują
-  najechanie i wciśnięcie, mają dymki i szarzeją, gdy nie ma dokąd skoczyć. Skok do klatki
-  kluczowej nie staje już w miejscu przy kluczu między klatkami sekwencji i pomija klucze poza
-  widoczną częścią przyciętego klipu; przyciski, J i K oraz panele Korekcja i Kolor liczą to
-  tak samo. W panelu Kolor przyciski klatek kluczowych działają (wcześniej nie robiły nic), a
-  skrót dodania klucza nie dokłada drugiego klucza w tej samej klatce.
-- „Pokaż w projekcie” w menu zakładki: zakładka osi czasu pokazuje swoją sekwencję, monitor
-  Źródło i edytor tekstu swój klip. Panel Projekt wychodzi na wierzch, otwiera folder elementu,
-  zaznacza go i przewija do niego, w liście i w siatce.
+  `audio_channels`, `sample_rate`; `file` goes back to the file) and returns `items_retimed` and
+  `items_past_end`. `media_info` shows `interpretable`, `interpretation`, `file_probe` and
+  `document`. The page of a clip: `set_param` and `set_keyframe` with the `page` parameter.
+- Media read at a different frame rate or sample rate: transcript words, beats, silence, search
+  hits and the stabilizer go along with picture and sound (the analysis keeps the file's time,
+  and the reader converts it to the media's time). Rotoscope, depth and stem separation on such
+  media say that you must first go back to the values from the file. A TIFF page and a document
+  page have a size limit instead of unbounded allocation; the preview inside a TIFF file is no
+  longer counted as a page, and black-and-white pages are read.
+- Scopes on the GPU from every frame: the full output frame is measured in float precision
+  instead of a 1920 px, 8-bit sample, the picture is in screen pixels (also on HiDPI), and it
+  refreshes with every frame shown instead of about 8 times a second. Eight modes (luma and RGB
+  waveform, RGB and YCbCr parade, vectorscope with 75 and 100% targets, skin line and zoom,
+  histogram of RGB, channels and luma from 256 to 4096 bins, linear and log, CIE 1931 xy with
+  Rec.709, P3 and Rec.2020 gamuts, false color), up to four scopes at once in five layouts,
+  scales in percent, nits (PQ), HLG and 8 and 10-bit code values, indicators of clipping and
+  out-of-gamut values, a measurement region picked on the Program monitor, persistence and trace
+  brightness. A paused frame is measured at the sequence resolution. PQ and HLG scales also show
+  what goes beyond the gamut and above the range (a PQ sequence limited to its peak counts
+  clipping at the peak), a flat picture does not slow the measuring down, and a graphics card
+  without compute shaders gets a message instead of an empty panel.
+- Speed on sequences: a sequence placed on the timeline (a nest) takes what a clip takes: speed
+  in percent, reverse, fit to duration, the Rate Stretch tool, slip and Time Remap. Picture,
+  sound, transcript words and the associated playheads follow the speed; the pitch of the sound
+  changes with it. A nest with another speed, reversed or with Time Remap cannot be flattened
+  until it is back at 100% forward. The Speed and duration window opens with the item's reverse
+  state.
+- A sequence as a nest or as a native clip: a new "Sequence interpretation" switch in the item
+  menu and in Effect controls. A nest works as before (exact time inside, no source end). A
+  native clip treats the sequence like a file: its own frames at the sequence frame rate, Frame
+  Blending (Frame Mix; Pixel Motion shows Frame Mix for now), trim and slip within the length of
+  the sequence, and a held first and last frame beyond it. Switching back and forth loses
+  nothing. Agent: `set_speed`, `slip` and `set_frame_blend` on sequence items, the new
+  `set_nest_mode` and a fuller `nest_info`.
+- Fix: a reversed clip (also in a reversed sequence) showed every frame one too late, and the
+  first frame fell just outside the range. A freeze frame in the Cupertino layout starts on the
+  frame that is visible at every speed and direction.
+- Timeline: dragging a clip with Alt leaves a copy where you drop it, and the original stays.
+  The whole selection is copied, picture together with sound, also to another track, with
+  snapping and with insert (Ctrl) or overwrite as when moving; one revision and one undo. You
+  can press and release Alt during the drag, the preview shows at once whether it is a copy or a
+  move, and the cursor says which mode it is. In the LasVegas layout Ctrl copies. A single clip
+  without its partner is now moved with Alt+click and a plain drag; S turns snapping off during
+  the drag. A copy, also one pasted with Ctrl+V, has its own identifiers of effects, masks,
+  markers and takes.
+- Left and right Alt work the same in mouse gestures: curves on clip keyframes and in Effect
+  Controls, copying a clip, trimming one side. On a Polish keyboard the right Alt (AltGr) did
+  not reach gestures until now; typing Polish characters and shortcuts stay unchanged.
+- Tempo as keyframes: the header of the tempo lane in bars mode has buttons for the previous
+  point, a point at the playhead (add or remove) and the next point, a BPM field to drag and to
+  type in, and a switch between step and ramp. In bars mode, keyframes on a clip line land on
+  the bar grid. The agent reads the tempo map in `get_timeline` (`tempo_map`).
+- Two timelines side by side: the timeline that is not being edited draws the whole interface
+  (the bar, headers with switches, scroll bars, the tempo lane). Its track switches and its view
+  act on its own sequence without switching the editing, and a click on a clip or the ruler
+  edits in that timeline at once.
+- Project panel: after an import the panel opens the bin the files went to, selects them and
+  scrolls to the first one, in the list and in the grid; it waits until you release the mouse
+  and does not take the keyboard from the timeline. The list has column headers: a click sorts
+  (a second click reverses), the header menu shows and hides metadata (type, duration, frame
+  rate, resolution, codec, pixel format, color, audio, size, modified date, path, uses, rating,
+  tags, reel, status), a header can be dragged to another place, an edge changes the width, and a
+  double click fits it. The layout and sorting are saved in the program's preferences. Folder
+  import (File > Import folder, the panel menu, drop) recreates the structure as bins in one
+  revision, skips hidden files and system junk, and after the import says how many files it
+  skipped, with a list. Agent: `import_media` with `recursive: true` imports a folder with its
+  structure and returns the bins and the skipped files.
+- Dropdown lists and menus no longer widen by themselves: the list of export presets with a
+  saved preset grew by 4 points in every frame (the row with the rename and delete buttons asked
+  for 4 points more than the list had, and the interface toolkit gives a list the width from the previous frame),
+  and the scroll bar of a long list (effects and plugins in the mixer) slid in over the first
+  frames and widened the list by its own width. Every list and menu now has a fixed width from
+  the first frame and widens only for a longer name that has arrived in it, at most up to the
+  screen; names longer than the screen end with an ellipsis (plugin names with the full name in
+  a tooltip).
+- Effect controls: the previous and next keyframe buttons, the diamond and reset show hover and
+  press, have tooltips and grey out when there is nowhere to jump. A jump to a keyframe no longer
+  stops in place at a key between frames of the sequence, and it skips keys outside the visible
+  part of a trimmed clip; the buttons, J and K, and the Grading and Color panels count it the
+  same way. In the Color panel the keyframe buttons work (they did nothing before), and the
+  shortcut that adds a key no longer adds a second key on the same frame.
+- "Reveal in Project" in the tab menu: a timeline tab reveals its sequence, the Source monitor
+  and the text editor reveal their clip. The Project panel comes to the front, opens the folder
+  of the item, selects it and scrolls to it, in the list and in the grid.
 
 ## 0.19.27 (2026-11-09)
 
-- Dźwięk komponentów web: komponent z `audio` w `layer.json` liczy dźwięk offline z tego
-  samego czasu, parametrów i kluczy co obraz (`hve.onAudio` blok po bloku albo
-  `hve.renderAudio`). Na osi to para obraz i dźwięk zlinkowana jak klip z dźwiękiem, render idzie
-  w tle z cache na dysku i w pamięci, eksport na niego czeka. Agent: `add_web_layer` kładzie parę,
-  `preview_component_audio` zapisuje WAV z poziomem i obwiednią.
+- Sound of web components: a component with `audio` in `layer.json` computes its sound offline
+  from the same time, parameters and keys as its picture (`hve.onAudio` block by block or
+  `hve.renderAudio`). On the timeline it is a picture and sound pair linked like a clip with
+  sound, the render runs in the background with a cache on disk and in memory, and export waits
+  for it. Agent: `add_web_layer` places the pair, `preview_component_audio` saves a WAV with the
+  level and envelope.
 
 ## 0.19.26 (2026-11-09)
 
-- Sekwencje obrazów: ponumerowane klatki PNG, EXR, DPX, TIFF, JPEG i WebP wchodzą jako
-  jeden klip z klatkażem do wyboru w oknie importu (domyślnie klatkaż aktywnej sekwencji), także
-  przy przeciąganiu na oś. Klatkaż zmienia się później w menu klipu (Interpret Footage), z
-  ostrzeżeniem, gdy klipy sięgną poza koniec sekwencji. Brakująca klatka pokazuje klatkę sprzed
-  luki, nigdy czarną, a okno importu, panel Info i MCP mówią, ilu klatek brakuje. Cała sekwencja
-  to jeden dekoder, także gdy klatki są co drugą. MCP: `import_media` z wzorcem (`%04d`, `####`)
-  albo `sequence: true`, `media_info` z numerami i lukami, `update_media` z `rate`.
+- Image sequences: numbered PNG, EXR, DPX, TIFF, JPEG and WebP frames come in as one clip with a
+  frame rate chosen in the import window (the active sequence's rate by default), also when
+  dragged onto the timeline. The frame rate can be changed later in the clip menu (Interpret
+  Footage), with a warning when clips would reach past the end of the sequence. A missing frame
+  shows the frame from before the gap, never black, and the import window, the Info panel and
+  MCP say how many frames are missing. The whole sequence is one decoder, also when the frames
+  are numbered with steps of two. MCP: `import_media` with a pattern (`%04d`, `####`) or
+  `sequence: true`, `media_info` with numbers and gaps, `update_media` with `rate`.
 
-- Plik offline: klip, którego pliku nie ma, pokazuje w monitorach Program i Źródło planszę
-  „Plik offline” z nazwą pliku zamiast czerni. Eksport wypisuje brakujące pliki przed startem i
-  rusza dopiero po zgodzie na te pliki (wtedy z planszą; plik, który zniknie później, nadal go
-  zatrzymuje). Agent dostaje listę w `render_frame` i `export`, a zgodę daje użytkownik w oknie
-  edytora.
+- Media offline: a clip whose file is missing shows a "Media offline" card with the file name in
+  the Program and Source monitors instead of black. Export lists the missing files before it
+  starts and begins only after you agree to those files (then with the card; a file that
+  disappears later still stops it). The agent gets the list in `render_frame` and `export`, and
+  the user agrees in the editor window.
 
 ## 0.19.25 (2026-11-09)
 
-- Import FCPXML z Final Cut Pro: pliki `.fcpxml` i paczki `.fcpxmld`, także z ZIP-a z
-  Maca (nazwy w NFD). Oś główna, ścieżki połączone, conform 24p do projektu 50p (25 kl./s),
-  retime z krzywą prędkości jako Time Remap, przenikania, krycie, transformacja, głośność i
-  znaczniki. Przejścia i efekty bez odpowiednika w HVE (Simple Camera Slide, mLut, Match Color,
-  krzywe) dostają znacznik do przeglądu i wpis w raporcie wierności. Cięcia J i L, wyłączony
-  dźwięk kamery w klipach synchronizowanych i wyłączone kanały przechodzą jak w FCP; pliku na
-  udziale sieciowym import nie dotyka bez zgody.
-- Ostatnia klatka źródła nie ginie już przy prędkości równej długości źródła przez długość
-  klipu.
-- MCP: `render_frame` zapisuje kopię klatki w projekcie (`out_path`) i pomija wybrane ścieżki
-  (`exclude_tracks`); `match_color` porównuje klatki w jednym czasie sekwencji (`at`); `trim`
-  przesuwa klucze efektów z krawędzią na życzenie (`keys: "edge"`) i ostrzega o kluczach poza
-  klipem; `edit` zachowuje aktywną sekwencję przy przebudowie i zgłasza jej zmianę; opis `edit`
-  ma ściągę nazw pól; `get_timeline` pokazuje Time Remap klipu i liczy z niego początek i koniec
-  w źródle.
-- Agent zapisuje swoje sugestie i zgłoszenia błędów w lokalnym pliku (D128, `feedback_note`), a
-  `feedback_send` otwiera je w oknie zgłoszenia, tylko prywatnie do HEXART; wysyła użytkownik.
-- Akcje edytora z zewnątrz, na przykład ze Stream Decka: `hve action <id>`, HTTP
-  `/admin/action`, lista akcji `hve action --list`; opis w `docs/stream-deck.md`. Działają jak
-  skrót (nie przy otwartym oknie dialogowym, menu ani polu tekstowym), odpowiedź mówi, czy akcja
-  się wykonała, a ich zmiany mają w Historii własnego autora. Cofnij, ponów, nagrywanie
-  mikrofonu i zastąpienie otwartego projektu nigdy z zewnątrz.
-- Agent mierzy kolor ujęć liczbami (D129, `color_stats`): luma, średnie RGB, ciepło i odcień
-  półtonów, chroma i przepalenia każdego ujęcia oraz skoki między sąsiednimi ujęciami, bez
-  oglądania obrazu każdego z nich. Klatki z wnętrza ujęcia, poza przejściami, renderowane w
-  pamięci, z limitem czasu.
-- Efekty od pierwszego upuszczenia: NTSC z listy startuje od wyglądu VHS, a gdy Ustawienia
-  efektów nie są na wierzchu, komunikat mówi, gdzie są, i otwiera je kliknięciem. Pasy kinowe mają
-  presety z proporcjami kina (2,39:1, 1,85:1, 2:1, 4:3, 1:1).
-- Przejścia wideo są w Efektach zaraz pod efektami wideo, każde z opisem w podpowiedzi
-  (przybliżenie, wypchnięcie, wsunięcie i inne).
-- Ścieżka audio dodaje efekt albo wtyczkę VST z własnego menu, nie tylko w mikserze.
-- Nagrania: ujęcie z przypadkowego nagrania usuwa się w panelu Nagrywanie jedną rewizją, a
-  nagrania, których projekt już nie ma, przycisk przy komunikacie albo w panelu przenosi do kosza
-  projektu (sprawdzając w chwili kliknięcia, czego projekt używa), a komunikat po wszystkim ma
-  przycisk Przywróć.
-- Monitor Program: środek warstwy ją przesuwa (punkt zakotwiczenia z Altem), uchwyty małej
-  warstwy maleją, a nacisk przesunięty o włos niczego nie zmienia. Przeciągnięcie warstwy przy
-  wyłączonej edycji podpowiada, gdzie ją włączyć.
-- Wygaszanie Ctrl+D na wolnym brzegu klipu gaśnie równo w jasności (D125, także w starych
-  projektach), a pas między ścieżkami wideo i audio jest szerszy: klip przeciągnięty w dół zostaje
-  na V1.
-- Stabilizator obrazu, żyroskop z pliku (D122, ST6): analiza czyta żyroskop i akcelerometr
-  zapisane przez kamerę (DJI, GoPro, Sony, Insta360, Blackmagic, RED, aplikacje iPhone, logi
-  Gyroflow `.gcsv` obok pliku), sama dopasowuje czas i ułożenie czujnika do obrazu na trzech
-  krótkich odcinkach i liczy resztę ujęcia z żyroskopu bez dekodowania klatek. Horyzont trzyma
-  się grawitacji. Profile obiektywów: ten zapisany w pliku przez kamerę albo baza Gyroflow
-  (domena publiczna, pobierana na żądanie: `hve stab lens-db --download`), z ogniskową i
-  dystorsją z profilu zamiast szacowania. `hve stab analyze` ma `--source auto|optical|gyro`,
-  `--gyro-offset-ms`, `--lens` i `--lens-profile`. Uszkodzony plik z kamery nie zamyka programu
-  (odczyt w osobnym procesie z limitem pamięci), log, który zaczął się sam, znajduje się w
-  całości (także przy chodzie), a profil GoPro pasuje do trybu obiektywu z pliku (Wide,
-  Linear, SuperView), także gdy baza ma kilka ustawień tego trybu. Długi odczyt z dysku
-  sieciowego trwa, dopóki idzie, a gdy się nie uda (także plik zablokowany albo dysk, który
-  zniknął), powód widać w wyniku analizy, a następne analizy próbują znowu, najwyżej trzy razy.
-  Efekt Stabilizacja w edytorze analizuje już z żyroskopem, gdy plik go ma i zgadza się z
-  obrazem, i z ogniskową z profilu obiektywu prostoliniowego (z pliku albo z bazy
-  zainstalowanej przez `hve stab lens-db --download`); profilu rybiego oka, poziomowania do
-  grawitacji, dystorsji w renderze i wyboru źródła oraz obiektywu w efekcie jeszcze nie ma.
-  Po aktualizacji każdy klip z efektem Stabilizacja raz analizuje się od nowa (silnik analizy
-  w wersji 2).
-- Jeden stan połączenia agenta: okno Agent, jego pasek i Preferencje mówią to samo, także
-  gdy klient ze starym kluczem albo klient innej kopii programu puka na port. Taki klient dostaje
-  wiadomość, jak połączyć się ponownie (odpowiedź 401 zaczyna się od „unauthorized: ” z radą, a
-  nie jest samym „unauthorized”), serwer liczy odrzucone próby z kluczem zamiast zapisywać każdą
-  do logu, a `hve mcp --connect` po zmianie klucza czyta go ponownie i działa dalej.
-- Okno Agent zaczyna się od zwięzłego podsumowania: jedna linia na zmianę albo krok
-  agenta, powtórzenia zliczone; połączenie, sesje, wywołania i wiadomości są pod „Szczegóły”.
-- Co wyłączone, tego nie ma: bez serwera agenta znika przycisk „Zmień z agentem” i lista
-  wytycznych dla agenta.
-- Warstwy web z WebGL, także mapy MapLibre GL i Mapbox GL: każda klatka pokazuje stan
-  ustawiony dla jej czasu (dotąd mapa sterowana z `hve.onFrame` pokazywała kamerę z poprzedniej
-  klatki, a zatrzymana głowica zostawała z kadrem sprzed ruchu). Mapa czeka na swój styl i
-  kafle, więc `hve.ready(map.once('load'))` nie wisi już 15 s na klatce. Eksport renderuje
-  następne klatki takich warstw na wszystkich wątkach przeglądarek naraz. Przeglądarka wybiera
-  wydajną kartę graficzną, a gdy WebGL rysuje procesor (SwiftShader, WARP), monitor Program
-  pokazuje odznakę „WebGL bez GPU”, a `debug_web` to zgłasza.
-- Parametry komponentów web w Ustawieniach efektów: podpowiedź nazwy mówi, co parametr
-  robi, w jakim zakresie i jednostce i jaka jest wartość domyślna; grupy z manifestu są razem
-  pod swoją nazwą i można je zwinąć strzałką, a ustawienia zaawansowane są w zwiniętej grupie
-  na końcu. Agenci dostają przewodnik `hve://docs/web-components` i podpowiedzi `advice` przy
-  zapisie komponentu. Stare manifesty działają bez zmian.
-  Wartości warstwy spoza manifestu (ustawione przez agenta) mają teraz własne kontrolki w
-  grupie „Spoza manifestu”, zamiast być tylko w JSON projektu.
-- Pasek pamięci w monitorze Program: cienki pasek pod tytułem pokazuje, co z sekund
-  wokół głowicy jest gotowe do odtworzenia od razu (złote w pamięci, zielone wyrenderowane,
-  niebieskie wczytuje się, ciemne jeszcze nie wczytane); podpowiedź podaje, ile sekund przed
-  głowicą jest gotowe.
+- Final Cut Pro import: `.fcpxml` files and `.fcpxmld` bundles, also from a ZIP made on a Mac
+  (NFD names). The primary storyline, connected clips, a 24p conform into a 50p project
+  (25 fps), retimes with a speed curve as Time Remap, dissolves, opacity, transform, volume and
+  markers. Transitions and effects with no counterpart in HVE (Simple Camera Slide, mLut, Match
+  Color, curves) get a marker for review and a line in the fidelity report. J and L cuts, muted
+  camera sound in synchronized clips and disabled channels carry over as in FCP; a file on a
+  network share is not touched without consent.
+- The last source frame no longer disappears when the speed equals the source length divided by
+  the clip length.
+- MCP: `render_frame` saves a copy of the frame in the project (`out_path`) and skips chosen
+  tracks (`exclude_tracks`); `match_color` compares frames at one sequence time (`at`); `trim`
+  moves effect keys with the edge on request (`keys: "edge"`) and warns about keys outside the
+  clip; `edit` keeps the active sequence on a rebuild and reports its change; the description of
+  `edit` has a cheat sheet of field names; `get_timeline` shows a clip's Time Remap and computes
+  its start and end in the source from it.
+- The agent saves its suggestions and bug reports in a local file (`feedback_note`), and
+  `feedback_send` opens them in the report window, privately to HEXART only; the user sends
+  them.
+- Editor actions from outside, for example from a Stream Deck: `hve action <id>`, HTTP
+  `/admin/action`, the action list `hve action --list`; described in the Stream Deck guide. They
+  work like a shortcut (not with an open dialog, menu or text field), the response says whether
+  the action ran, and their changes have their own author in History. Undo, redo, microphone
+  recording and replacing the open project never run from outside.
+- The agent measures the color of shots with numbers (`color_stats`): luma, mean RGB, warmth and
+  tint of the midtones, chroma and clipping of every shot, and the jumps between neighboring
+  shots, without looking at an image of each. Frames come from inside the shot, outside
+  transitions, rendered in memory, with a time limit.
+- Effects from the first drop: NTSC from the list starts with a VHS look, and when Effect
+  Controls is not on top, the message says where it is and opens it with a click. Letterbox has
+  presets with cinema aspect ratios (2.39:1, 1.85:1, 2:1, 4:3, 1:1).
+- Video transitions are in Effects right under the video effects, each with a description in
+  the tooltip (zoom, push, slide and others).
+- An audio track adds an effect or a VST plugin from its own menu, not only in the mixer.
+- Recordings: a take from an accidental recording is removed in the Recording panel in one
+  revision, and recordings the project no longer has are moved to the project's trash by a
+  button next to the message or in the panel (checking at the moment of the click what the
+  project uses), and the message afterwards has a Restore button.
+- Program monitor: the center of a layer moves it (the anchor point with Alt), the handles of a
+  small layer shrink, and a press moved by a hair changes nothing. Dragging a layer while
+  editing is off hints where to turn it on.
+- The Ctrl+D fade on a free edge of a clip fades evenly in brightness (also in old projects),
+  and the gap between video and audio tracks is wider: a clip dragged down stays on V1.
+- Image stabilizer, gyroscope from the file: the analysis reads the gyroscope and accelerometer
+  data recorded by the camera (DJI, GoPro, Sony, Insta360, Blackmagic, RED, iPhone apps, Gyroflow
+  `.gcsv` logs next to the file), matches the timing and orientation of the sensor to the
+  picture by itself on three short stretches, and calculates the rest of the shot from the
+  gyroscope without decoding frames. The horizon holds to gravity. Lens profiles: the one the
+  camera wrote in the file or the Gyroflow database (public domain, downloaded on demand:
+  `hve stab lens-db --download`), with the focal length and distortion from the profile instead
+  of an estimate. `hve stab analyze` has `--source auto|optical|gyro`, `--gyro-offset-ms`,
+  `--lens` and `--lens-profile`. A damaged camera file does not close the program (it is read in
+  a separate process with a memory limit), a log that started on its own is found whole (also
+  while walking), and a GoPro profile matches the lens mode from the file (Wide, Linear,
+  SuperView), also when the database has several settings for that mode. A long read from a
+  network drive lasts as long as it keeps going, and when it fails (also a locked file or a
+  drive that disappeared), the reason is visible in the analysis result, and the following
+  analyses try again, at most three times. The Stabilize effect in the editor now analyzes with
+  the gyroscope when the file has it and it agrees with the picture, and with the focal length
+  from a rectilinear lens profile (from the file or from the database installed with
+  `hve stab lens-db --download`); a fisheye profile, leveling to gravity, distortion in the
+  render, and choosing the source and the lens in the effect are not there yet. After the update
+  every clip with the Stabilize effect is analyzed anew once (analysis engine version 2).
+- One agent connection state: the Agent window, its bar and Preferences say the same, also when
+  a client with an old key, or a client of another copy of the program, knocks on the port. Such
+  a client gets a message on how to reconnect (a 401 response starts with "unauthorized: " and
+  advice, and is not a bare "unauthorized"), the server counts rejected attempts with a key
+  instead of writing each one to the log, and `hve mcp --connect` rereads the key after a change
+  and keeps working.
+- The Agent window starts with a short summary: one line per change or step of the agent,
+  repeats counted; the connection, sessions, calls and messages are under "Details".
+- What is turned off is not there: without the agent server, the "Change with agent" button and
+  the list of guidelines for the agent disappear.
+- Web layers with WebGL, also MapLibre GL and Mapbox GL maps: every frame shows the state set
+  for its time (until now a map driven from `hve.onFrame` showed the camera from the previous
+  frame, and a stopped playhead stayed on the view from before the move). The map waits for its
+  style and tiles, so `hve.ready(map.once('load'))` no longer hangs for 15 s on a frame. Export
+  renders the next frames of such layers on all browser threads at once. The browser picks the
+  efficient graphics card, and when WebGL is drawn by the CPU (SwiftShader, WARP), the Program
+  monitor shows a "WebGL without GPU" badge and `debug_web` reports it.
+- Parameters of web components in Effect controls: the tooltip of a name says what the
+  parameter does, its range and unit, and its default value; groups from the manifest are
+  together under their name and can be collapsed with an arrow, and advanced settings are in a
+  collapsed group at the end. Agents get the guide `hve://docs/web-components` and `advice`
+  hints when a component is saved. Old manifests work unchanged.
+  Layer values outside the manifest (set by an agent) now have their own controls in the "Not in
+  the manifest" group, instead of being only in the project JSON.
+- Memory bar in the Program monitor: a thin bar under the title shows which of the seconds
+  around the playhead are ready to play at once (gold in memory, green rendered, blue loading,
+  dark not loaded yet); the tooltip says how many seconds ahead of the playhead are ready.
 
 ## 0.19.24 (2026-11-08)
 
-- Agent (poprawki API z raportów stillomatic): `clear_markers` bez `kind` czyści znaczniki
-  wszystkich rodzajów jedną rewizją, `place` warstwy web przyjmuje zwykłe wartości parametrów,
-  `render_frame` przyjmuje `time` zamiast `at`, nowe narzędzie `reset_web_params` przywraca
-  parametrom komponentu wartości domyślne, a `preview_component` składa do 36 klatek w jedną
-  stykówkę WebP z czasem i parametrami każdej klatki.
-- Poprawka: komponent web, który uruchamia Web Workera, nie zawiesza już serwera stron edytora.
-- Stabilizator obrazu w edytorze (D122, ST2): efekt Stabilizacja w grupie Przekształcenia. Po
-  dodaniu do klipu wideo sam ustawia analizę w kolejce (klip pod głowicą i to, na co czeka
-  eksport, najpierw; jedna analiza naraz, w tle, z częścią mocy karty graficznej), a monitor od
-  pierwszych przeanalizowanych fragmentów pokazuje obraz już stabilizowany. Prosty widok: Rezultat
-  (Gładki ruch, Kinowy, Statyw, Z ręki, Tylko rolling shutter), Gładkość, Metoda, Kadr „Przytnij i
-  powiększ” do 115 % i wiersz Analiza z przyciskiem Analizuj. Zmiana szybkości, Time Remap albo
-  przycięcia klipu nie wymaga nowej analizy, ścieżka liczy się od nowa w milisekundach. Obraz
-  próbkowany jest raz (Lanczos 3), a klatka, której nie trzeba korygować, przechodzi do pliku bez
-  zmian, co do bitu. Eksport czeka na analizę; okno eksportu mówi, ile klipów na nią czeka.
-- Stabilizator obrazu, krok drugi (D122, ST1): analiza ruchu kamery z prawdziwego materiału.
-  Punkty śledzone na GPU, obrót kamery z każdej pary klatek, samokalibracja ogniskowej (z
-  zabezpieczeniem przed paralaksą drona i spaceru), czas odczytu rolling shuttera, cięcia,
-  powtórzone klatki i ujęcia płaskie. Analiza idzie fragmentami w czasie źródła, zapisuje się w
-  folderze projektu i po przerwaniu rusza od miejsca, w którym stanęła. Pomiar:
-  `hve stab analyze` z czasem każdego etapu i wynikiem każdego fragmentu.
-- Wtyczki VST3 i CLAP włączają się pierwszym kliknięciem: przy odtwarzaniu wyłączona
-  wtyczka ma już wczytaną instancję, więc po włączeniu od razu słychać przetworzony dźwięk.
-- Licencje nie przeszkadzają w pracy: sprawdzanie licencji w trakcie pracy (znacznik na
-  pasku, pytania przy eksporcie, odmowy dla agenta) jest domyślnie wyłączone i włącza się w
-  Preferencjach > Licencje. Raport jest zawsze na żądanie (Pomoc > Licencje i komponenty).
-  Przycisk „Wpisz licencje” zapisuje w folderze projektu `licenses/` skąd pochodzi każdy plik i
-  na jakiej jest licencji, a przy każdym elemencie można zaznaczyć, że wolno go pokazać
-  publicznie (lista w `public.txt`).
-- Okno pewniej przejmuje serwer agenta z tła: zajęty serwer jest pytany ponownie, okno
-  nie otwiera drugi raz projektu, który trzyma proces w tle, próbuje znowu co 10 s, a znacznik
-  „AGENT: BRAK POŁĄCZENIA” znika sam, gdy połączenie wróci. `show_editor` z tła otwiera jedno
-  okno. „Zmień z agentem” pyta przed włączeniem nagrywania mikrofonu i kursora.
-- Zgłoszenia błędów są domyślnie prywatne: trafiają tylko do HEXART, bez publicznego
-  zgłoszenia na GitHubie, z opcją dołączenia projektu bez mediów (bez folderów, nazw bibliotek i
-  nazwy projektu; „Pokaż, co zostanie wysłane” pokazuje dokładny tekst). Za duże zgłoszenie traci
-  najpierw projekt, potem zrzut ekranu, i okno mówi, co pominięto. Publiczne zgłoszenie to osobny
-  wybór ze zgodą. Polityka prywatności i regulamin w wersji 1.1.
-- Lektor ElevenLabs domyślnie na najnowszym modelu `eleven_v4_turbo`.
-- Effect Controls: kopiowanie efektów i wartości także w widoku grupy, „Wklej ze
-  skalowaniem czasu kluczy” (klucze dopasowane do długości klipu docelowego, jak Paste Attributes w
-  Premiere), Ctrl+V w panelu wkleja efekty klipu skopiowanego na osi, a agent ma narzędzia
-  `copy_effects` i `paste_effects` (wklejanie jedną rewizją, ten sam schowek co panel).
-- Oś czasu: Shift+klik na cięciu innej ścieżki dodaje punkt edycji (HVE i Premier), każdy
-  punkt ma swój znak, a Trim Backward i Forward przesuwają wszystkie naraz jedną rewizją.
-- Asysta zrzutu wszędzie: edycje źródła wszystkich layoutów (Leonardo, Mozart, Cupertino,
-  Edison, LasVegas) nie nadpisują już dźwięku pod spodem, dźwięk idzie na wolną albo nową
-  ścieżkę; narzędzia MCP `place_clip`, `insert_clip` i `overwrite_clip` mają opcję `assist`, a
-  wynik podaje ścieżki.
-- Zaznaczanie do przodu i do tyłu w każdym layoutcie: Edycja, Zaznacz klipy do przodu i do
-  tyłu, na wszystkich ścieżkach albo na tej ścieżce, od głowicy; w LasVegas „Zaznacz zdarzenia do
-  końca”, w Mozart Select Right i Select Left.
-- Ripple zablokowany przez muzykę z blokadą synchronizacji: komunikat mówi, która ścieżka
-  blokuje, a przycisk obok zamyka lukę bez niej jedną rewizją.
-- Menu Okno: Resetuj układ (panele z osobnych okien wracają) i najczęstsze panele na górze,
-  z Ustawieniami efektów, w każdym layoutcie.
-- Zakładki osi wracają po ponownym otwarciu projektu, każda raz.
-- Nadpisanie zastępuje klip w całości (D121, TA9): edycja źródła albo zrzut z asystą nad klipem z
-  obrazem i dźwiękiem zdejmuje w nadpisanym zakresie także jego własny dźwięk (częściowe nakrycie
-  tnie go na krawędzi), a nowy dźwięk ląduje na jego miejscu. Muzyka, lektor i efekty pod spodem
-  zostają nietknięte.
-- Katalog wtyczek: wtyczka wstawiona innym instalatorem do folderów użytkownika jest
-  pokazana jako znaleziona, bez instalacji; znaleziona w innym folderze ma przycisk „Zainstaluj drugą
-  kopię” z ostrzeżeniem.
-- Poprawki: wtyczki VST3 kompilują się na Linuksie, losowo padający test zaproszeń w pracy
-  zespołowej naprawiony.
-- Stabilizator obrazu, krok pierwszy (D122, ST0): nowy moduł obliczeń stabilizacji. Zapisuje
-  analizę ruchu kamery w folderze projektu (pliki fragmentów sprawdzane sumą kontrolną, zapis bez
-  ryzyka uszkodzenia), wygładza ścieżkę kamery w milisekundach (Gładki ruch, Kinowy, Statyw, Z ręki,
-  horyzont, kadr z automatycznym powiększeniem do 115 %) i liczy siatkę warpu z błędem poniżej
-  1/64 piksela. Pomiar: `hve stab bench`. Efektu w edytorze jeszcze nie ma.
-- Studio: ruch tłumika, panoramy i gałek wtyczek w trybie zapisu automatyki słychać od
-  razu, a nie dopiero po zatrzymaniu; gałki wtyczek z okna edytora wtyczki zapisują się w tym
-  samym przebiegu. Komping zakresu ujęcia nie tnie już klipu: klip zostaje w całości, gra
-  odcinki wybranych ujęć z krótkim przenikaniem, a połączony obraz się nie zmienia. Ocena ujęć
-  jest polem ujęcia (stare projekty przenoszą ją same przy otwarciu). Pętla ADR i Foley wraca do
-  pre-rollu, więc beepy i streamer są w każdym okrążeniu; streamer może być też na monitorze
-  Source. Listę cue ADR i Foley można zapisać do CSV i PDF (z polskimi literami) i wczytać z CSV
-  (przecinek albo średnik, także zapis polskiego Excela, kolumny po polsku albo angielsku, bez
-  dubli). Nowe: Scrubber (F9,
-  przeciągnięcie po ścieżkach przewija dźwięk), Consolidate (Alt+Shift+3, klipy w zakresie w
-  jeden plik) i Tab to Transient (Ctrl+Alt+T, Tab skacze po uderzeniach w dźwięku).
-- Eksport 4K szybciej: ujęcie 4K HEVC z drona albo aparatu dekoduje się w eksporcie
-  dwoma procesami naraz, a płaszczyzny obrazu przychodzą z karty graficznej bez przeliczania,
-  więc etap źródła jest krótszy (pomiar w D119). Obraz w pliku jest identyczny jak dotąd, co do
-  bitu.
-- Eksport przy pełnej maszynie nie przełącza już po 20 s dekodera na procesor, gdy dekoder
-  karty graficznej jest wolny, ale wciąż dostarcza klatki: czeka na niego dalej (do 5 minut
-  ponad limit). Zawieszony dekoder jest wymieniany jak dotąd.
-- Procesy FFmpeg (dekodery, enkodery, proxy) kończą się zawsze razem z edytorem albo komendą
-  `hve`, także po awarii albo zamknięciu z Menedżera zadań. Skrypt, który czytał wyjście
-  `hve play`, nie czeka już na dekodery, które przeżyły komendę.
-- Maski z długą ścieżką (gwiazdy, kształty z tysiącami punktów) renderują się kilka razy
-  szybciej: na klatce 4K gwiazda z 2016 punktami ścieżki kosztuje około 21 ms zamiast
-  103 ms. Obraz jest identyczny jak dotąd, bajt w bajt.
-- Panel Kolor nie zatrzymuje już edytora przy dopasowaniu koloru: kadr wzorcowy i
-  klatka dopasowania dekodują się w tle, a przycisk czeka z kółkiem postępu.
-- Test enkoderów sprzętowych (NVENC, QSV, AMF) rusza w tle kilka sekund po starcie programu, więc okno eksportu i pierwszy eksport nie czekają na niego, także przy zajętym GPU.
-- Kolejka renderu: kopia dla WhatsApp z materiału HDR (PQ, HLG) ma mapowanie tonów do
-  SDR i nie wygląda już blado; przy wysyłce WhatsApp z paska można dopisać podpis, widoczny w
-  oknie zgody; eksporty agenta, które proces w tle kończy po otwarciu okna, pojawiają się w
-  kolejce jako paski z postępem i oznaczeniem „W tle”.
-- Pixel Motion z RIFE: kopia modelu w połowie precyzji (fp16) powstaje na tym komputerze
-  przy instalacji modelu albo przy pierwszym włączeniu fp16 w Preferencjach. Do Full HD liczy
-  około trzy razy szybciej niż fp32, przy 4K wolniej, więc domyślnie zostaje fp32. Preferencje
-  ostrzegają, gdy najdłuższy bok klatki 3840 px i więcej wydłuży eksport zwolnionego tempa.
-- Pixel Motion przy odtwarzaniu według terminów: klatki pośrednie liczą się w kolejności,
-  w jakiej monitor je pokaże, od głowicy w kierunku i z prędkością odtwarzania (także w pętli In
-  do Out). Klatka, której silnik nie zdąży zrobić na czas, wypada z kolejki i zamiast niej gra
-  Frame Mix, więc silnik nie traci czasu na klatki spóźnione i robi te, które jeszcze zdąży.
-  Render w bezczynności Pixel Motion idzie od głowicy w kierunku ostatniego odtwarzania.
-- Render w tle po bezczynności (D118, Preferencje > Render podglądu, domyślnie wyłączony): gdy
-  przez chwilę nic nie robisz, edytor sam renderuje podgląd od In do Out (bez nich okolice
-  głowicy), z limitem GPU w procentach czasu. Klawisz, kliknięcie, odtwarzanie, eksport albo
-  edycja go zatrzymuje; postęp i zajęcie GPU widać na liście pracy w tle w pasku stanu.
-- Render Source od In do Out (D118, menu Sekwencja, albo Render In do Out przy monitorze Source
-  w fokusie): zdekodowane klatki klipu między znacznikami trafiają do pamięci renderu i monitor
-  Source gra je stamtąd (odznaka WYRENDEROWANE), bez dekodera.
-- Monitor Source odtwarza z przewidywaniem klatek jak Program: klatki najbliższych sekund
-  dekodują się według terminów, także wstecz i w pętli między znacznikami.
+- Agent (API fixes from field reports): `clear_markers` without `kind` clears markers of all
+  kinds in one revision, `place` of a web layer takes plain parameter values, `render_frame`
+  takes `time` instead of `at`, the new tool `reset_web_params` restores the default values of a
+  component's parameters, and `preview_component` composes up to 36 frames into one WebP contact
+  sheet with the time and parameters of each frame.
+- Fix: a web component that starts a Web Worker no longer hangs the editor's page server.
+- Image stabilizer in the editor: the Stabilize effect in the Transform group. Once added to a
+  video clip, it queues its own analysis (the clip under the playhead and whatever an export
+  waits for go first; one analysis at a time, in the background, using part of the graphics
+  card's power), and from the first analyzed fragments the monitor shows an already stabilized
+  picture. Simple view: Result (Smooth, Cinematic, Tripod, Handheld, Rolling shutter only),
+  Smoothness, Method, the "Crop and zoom" framing up to 115%, and an Analysis row with an
+  Analyze button. Changing the speed, Time Remap or the trim of a clip needs no new analysis,
+  and the path is recalculated in milliseconds. The picture is sampled once (Lanczos 3), and a
+  frame that needs no correction passes to the file unchanged, bit for bit. Export waits for the
+  analysis; the export window says how many clips are waiting for it.
+- Image stabilizer, step two: camera motion analysis from real footage. Points tracked on the
+  GPU, camera rotation from every pair of frames, self-calibration of the focal length (with a
+  safeguard against drone and walking parallax), rolling shutter readout time, cuts, repeated
+  frames and flat shots. The analysis runs in fragments in source time, is saved in the project
+  folder and, after an interruption, resumes where it stopped. Measurement: `hve stab analyze`
+  with the time of every stage and the result of every fragment.
+- VST3 and CLAP plugins switch on with the first click: during playback a disabled plugin
+  already has its instance loaded, so after you enable it the processed sound is heard at once.
+- Licenses stay out of the way: license checking during work (a marker on the bar, questions at
+  export, refusals for the agent) is off by default and turns on in Preferences > Licences. The
+  report is always on demand (Help > Licences and components). The "Write licences" button saves
+  in the project folder `licenses/` where each file comes from and under what license it is, and
+  each item can be marked as allowed to be shown publicly (the list is in `public.txt`).
+- The window takes over the background agent server more reliably: a busy server is asked again,
+  the window does not open a second time a project that a background process holds, it tries
+  again every 10 s, and the "AGENT: NOT CONNECTED" badge disappears by itself when the
+  connection returns. `show_editor` from the background opens one window. "Change with agent"
+  asks before turning on microphone and cursor recording.
+- Bug reports are private by default: they go only to HEXART, without a public report on
+  GitHub, with an option to attach the project without media (without folders, library names and
+  the project name; "Show what will be sent" shows the exact text). A report that is too big
+  loses the project first, then the screenshot, and the window says what was left out. A public
+  report is a separate choice with consent. Privacy policy and terms of use in version 1.1.
+- ElevenLabs voice-over defaults to the newest model, `eleven_v4_turbo`.
+- Effect controls: copying effects and values also in the group view, "Paste with key times
+  scaled" (keys fitted to the length of the target clip, like Paste Attributes in Premiere),
+  Ctrl+V in the panel pastes the effects of a clip copied on the timeline, and the agent has the
+  tools `copy_effects` and `paste_effects` (paste in one revision, the same clipboard as the
+  panel).
+- Timeline: Shift+click on a cut on another track adds an edit point (HVE and Premier), every
+  point has its own mark, and Trim Backward and Forward move all of them at once in one
+  revision.
+- Drop assist everywhere: source edits in all layouts (Leonardo, Mozart, Cupertino, Edison,
+  LasVegas) no longer overwrite the sound underneath, the sound goes to a free or a new track;
+  the MCP tools `place_clip`, `insert_clip` and `overwrite_clip` have an `assist` option, and the
+  result lists the tracks.
+- Select forward and backward in every layout: Edit, Select clips forward and backward, on all
+  tracks or on this track, from the playhead; in LasVegas "Select events to end", in Mozart
+  Select Right and Select Left.
+- A ripple blocked by music with a sync lock: the message says which track blocks it, and the
+  button next to it closes the gap without that track in one revision.
+- Window menu: Reset layout (panels from separate windows come back) and the most common panels
+  at the top, with Effect controls, in every layout.
+- Timeline tabs come back when the project is reopened, each once.
+- Overwrite replaces a clip as a whole: a source edit or a drop with assist over a clip with
+  picture and sound also removes its own sound in the overwritten range (a partial overlap cuts
+  it at the edge), and the new sound lands in its place. Music, voice-over and effects
+  underneath stay untouched.
+- Plugin catalog: a plugin put in the user folders by another installer is shown as found,
+  with no install; one found in another folder has an "Install a second copy" button with a
+  warning.
+- Fixes: VST3 plugins compile on Linux, and a randomly failing test of invitations in team
+  work is fixed.
+- Image stabilizer, step one: a new stabilization calculation module. It saves the camera
+  motion analysis in the project folder (fragment files checked with a checksum, written with no
+  risk of corruption), smooths the camera path in milliseconds (Smooth, Cinematic, Tripod,
+  Handheld, horizon, framing with automatic zoom up to 115%) and calculates the warp grid with
+  an error below 1/64 of a pixel. Measurement: `hve stab bench`. There is no effect in the
+  editor yet.
+- Studio: moves of the fader, pan and plugin knobs in automation write mode are heard at once,
+  not only after stopping; plugin knobs from the plugin editor window are saved in the same
+  pass. Comping a take range no longer cuts the clip: the clip stays whole and plays the
+  segments of the chosen takes with a short crossfade, and the combined picture does not change.
+  Take rating is a field of the take (old projects move it themselves on opening). The ADR and
+  Foley loop returns to the pre-roll, so the beeps and the streamer are in every pass; the
+  streamer can also be on the Source monitor. The ADR and Foley cue list can be saved to CSV and
+  PDF (with Polish letters) and loaded from CSV (comma or semicolon, also the Polish Excel
+  format, columns in Polish or English, no duplicates). New: Scrubber (F9, dragging across the
+  tracks scrubs the sound), Consolidate (Alt+Shift+3, the clips in the range into one file) and
+  Tab to Transient (Ctrl+Alt+T, Tab jumps across the hits in the sound).
+- Faster 4K export: a 4K HEVC shot from a drone or a camera is decoded by two processes at once
+  in export, and the picture planes arrive from the graphics card without conversion, so the
+  source stage is shorter. The picture in the file is identical to before, bit for bit.
+- Export on a full machine no longer switches the decoder to the CPU after 20 s when the
+  graphics card decoder is slow, and still delivers frames: it keeps waiting for it (up to 5
+  minutes over the limit). A hung decoder is replaced as before.
+- FFmpeg processes (decoders, encoders, proxies) always end together with the editor or the
+  `hve` command, also after a crash or a close from Task Manager. A script that read the output
+  of `hve play` no longer waits for decoders that outlived the command.
+- Masks with a long path (stars, shapes with thousands of points) render several times faster:
+  on a 4K frame a star with a 2016-point path costs about 21 ms instead of 103 ms. The picture is
+  identical to before, byte for byte.
+- The Color panel no longer stops the editor on color matching: the reference frame and the
+  matching frame decode in the background, and the button waits with a progress spinner.
+- The hardware encoder test (NVENC, QSV, AMF) starts in the background a few seconds after the
+  program starts, so the export window and the first export do not wait for it, also with a busy
+  GPU.
+- Render queue: a WhatsApp copy of HDR footage (PQ, HLG) has tone mapping to SDR and no longer
+  looks pale; when sending to WhatsApp from the bar you can add a caption, visible in the
+  consent window; agent exports that a background process ends after the window opens appear in
+  the queue as bars with progress and an "In background" mark.
+- Pixel Motion with RIFE: a half-precision (fp16) copy of the model is made on this computer
+  when the model is installed or when fp16 is first turned on in Preferences. Up to Full HD it
+  computes about three times faster than fp32, at 4K slower, so fp32 stays the default.
+  Preferences warn when a frame whose longest side is 3840 px or more will lengthen a slow-motion
+  export.
+- Pixel Motion during playback by deadlines: in-between frames are computed in the order in
+  which the monitor will show them, from the playhead, in the direction and at the speed of
+  playback (also in an In to Out loop). A frame that the engine cannot finish in time drops out
+  of the queue and Frame Mix plays in its place, so the engine does not waste time on late
+  frames and makes the ones it can still make. The idle render of Pixel Motion goes from the
+  playhead in the direction of the last playback.
+- Background render when idle (Preferences > Preview render, off by default): when you do
+  nothing for a moment, the editor renders the preview from In to Out on its own (without them,
+  the stretch around the playhead), with a GPU limit in percent of the time. A key, a click,
+  playback, an export or an edit stops it; progress and GPU use are shown in the background work
+  list in the status bar.
+- Render Source In to Out (Sequence menu, or Render In to Out next to the Source monitor in
+  focus): the decoded frames of the clip between the markers go to the render memory and the
+  Source monitor plays them from there (a "Rendered" badge), without a decoder.
+- The Source monitor plays with frame prediction like Program: the frames of the nearest
+  seconds are decoded by deadlines, also backward and in a loop between the markers.
 
 ## 0.19.23 (2026-11-07)
 
-- Nowy efekt ASCII (D112, Stylizacja): obraz rysowany znakami dowolnej czcionki zainstalowanej
-  w systemie, pobranej z Google Fonts albo leżącej w folderze `fonts` projektu (najlepiej o stałej
-  szerokości; brakująca czcionka zastępowana wbudowaną Hack z ostrzeżeniem). Czcionka dodana do
-  folderu `fonts` w trakcie pracy pojawia się sama, a plik czcionki wybrany z dysku jest kopiowany
-  do tego folderu, więc projekt działa też na innym komputerze. 60 parametrów:
-  wielkość i proporcje komórek albo liczba kolumn, odstępy, skala glifu, obrót i przesunięcie
-  siatki, 15 zestawów znaków i własny, wybór znaku po jasności, po krawędziach i ich kierunku
-  albo po obu, dithering, jasność, kontrast i gamma przed mapowaniem, kolor jeden, ze źródła, z
-  gradientu, z palety (ANSI, CGA, Game Boy, C64, PICO-8 i inne) albo kwantyzowany, tło, oryginał
-  pod znakami, tryby mieszania, grubość i kontur znaków, stabilność w czasie oraz animacje deszczu
-  i mieszania znaków z ziarnem. 34 gotowe presety, od zielonego terminala i deszczu Matrix po
-  gazetę, Game Boya i mozaikę. Działa w czasie rzeczywistym na GPU, eksport jest taki sam jak
-  podgląd; agent widzi efekt i presety przez MCP.
-- Okna ustawień wbudowanych efektów audio: każdy wbudowany efekt audio otwiera się w
-  osobnym oknie, przyciskiem w nagłówku efektu w Effect Controls, podwójnym kliknięciem slotu
-  w mikserze (ścieżka i master) albo z menu slotu. Okno ma wykres na żywo dla swojego efektu:
-  krzywą EQ na widmie przed i po z pasmami do przeciągania i solo pasma, krzywą przenoszenia
-  kompresorów, limiterów i bramek z GR i jego historią, zanik pogłosu, echa opóźnienia, LFO,
-  profil szumu z przyciskiem „Przechwyć profil”, krzywą przesteru i saturacji, głośność i
-  szczyt rzeczywisty masteringu, goniometr. Każdą wartość można wpisać z jednostką, Shift
-  zmienia dokładnie, podwójne kliknięcie przywraca domyślną, a cały gest cofa jedno Ctrl+Z.
-  Do tego A/B, bypass bez trzasku, wejście, miks i wyjście oraz odsłuch side chain, pasma i
-  tego, co efekt zabiera.
-- Presety efektów audio: 499 presetów fabrycznych (od 8 do 15 na efekt) w kategoriach
-  dialog, lektor, podcast, muzyka, emisja, Foley, ADR, czyszczenie, mastering i sound design,
-  w przeglądarce z wyszukiwaniem, kategoriami i ulubionymi. Własne presety: zapis, zmiana
-  nazwy, nadpisanie, usuwanie, import i eksport; agent ma je też przez MCP
-  (`list_effect_presets`, `save_effect_preset`, `delete_effect_preset`, `user:<nazwa>` w
-  `apply_effect_preset`). Preset nie kasuje przechwyconego profilu szumu odszumiania, a
-  „Zapisz jako” go nie zabiera. Gdy pliku własnych presetów nie da się odczytać, HVE go nie
-  nadpisuje i mówi, że zapis się nie udał.
-- Nowe efekty audio: ekspander, kształtowanie transjentów, ducker, de-plosive, leveler
-  głośności (cel w LUFS), declipper, tremolo i auto-pan, pitch shifter, filtr DC, utility
-  (biegunowość, M/S, szerokość, mono, panorama), saturacja i de-reverb.
-- Poprawki efektów audio: bez trzasków przy zmianach parametrów i przełączaniu
-  (nachylenie filtrów, typy pasm, sekcje, bypass), włączony ponownie delay ani pogłos nie
-  odtwarza starych próbek, pogłos surround nie przycina odtwarzania i ma poprawne mapy
-  kanałów, chorus, flanger i phaser brzmią w podglądzie od środka klipu tak jak w eksporcie,
-  odszumianie pamięta przechwycony profil po przewinięciu, declicker działa tak samo przy
-  44,1, 48 i 96 kHz, głośność kanałów zna układy quad, 5.0 i 6.1. Ustawienia domyślne brzmią
-  dokładnie jak wcześniej na ścieżkach mono i stereo. Inaczej mogą zabrzmieć stare projekty,
-  w których jest: pasmo cięcia PEQ z Q powyżej 1,93 (teraz najwyżej 1,93, rezonans do +6 dB),
-  własny plik IR w innej częstotliwości próbkowania albo dłuższy niż 10 s (przepróbkowanie
-  filtrem sinc zamiast liniowego, 50 ms wyciszenia przy cięciu), declicker przy 44,1 albo
-  96 kHz (okna według częstotliwości), głośność kanałów albo pogłos surround w układach quad,
-  5.0 i 6.1 (poprawne mapy kanałów), chorus, flanger i phaser na ścieżce z kanałem LFE (LFE
-  już nie jest modulowany) oraz odtwarzanie tych trzech efektów od środka klipu (faza LFO z
-  czasu elementu, jak w eksporcie).
-- Kontrolki wyrażeń: efekt Kontrolki wyrażeń ma teraz osiemnaście typów kontrolek z
-  własnymi nazwami: suwak (z zakresem i jednostką), procent, liczba całkowita, kąt pokazany
-  jak w After Effects jako obroty i stopnie (`2x +45°`), orientacja 3D, pole wyboru, kolor z
-  pipetą z monitora Program, punkt z uchwytem na monitorze, punkt 3D, wektor 2D i 3D, lista
-  rozwijana z nazwanymi pozycjami, warstwa (wybór klipu), zakres, czas, tekst, ziarno
-  losowania z przyciskiem nowego ziarna i krzywa. Kontrolkę dodajesz przyciskiem „+ Kontrolka”
-  pod efektem albo z menu efektów (Kontrolki wyrażeń, potem typ); menu kontekstowe wiersza
-  otwiera ustawienia (nazwa, typ, granice, zakres suwaka, krok, jednostka, pozycje listy,
-  podpowiedź), powiela, przesuwa i usuwa kontrolkę, a każda zmiana to jeden krok cofania.
-  Wyrażenia czytają kontrolki po nazwie: `ctrl("Prędkość") * time`, `ctrl("Obrót").revolutions`,
-  `ctrl("Tryb").item`, `ctrl("Cel").value.position`, `ctrl("Okno").lerp(0.5)`,
-  `ctrl("Krzywa").at(time / 4)`, a zapis z After Effects `effect("Speed")("Slider")` też
-  działa. Kopiowanie i wklejanie wartości kontrolki na inny klip tworzy tam brakującą
-  kontrolkę. Starsze projekty z pięcioma dawnymi kontrolkami otwierają się bez zmian. Agenci
-  dostali narzędzia MCP `list_controls`, `set_control` i `remove_control`.
-- Wtyczki VST: nowe okno z katalogiem vst.hexart.io (ponad 1100 opisanych wtyczek, z
-  recenzjami, licencjami i linkami), z wyszukiwarką i filtrami, także bez sieci. Darmowe
-  wtyczki VST3 i CLAP HVE instaluje jednym kliknięciem po potwierdzeniu: pobiera plik prosto
-  od producenta, sprawdza SHA-256 i kopiuje do folderów użytkownika, bez uprawnień
-  administratora; potem są od razu w przeglądarce efektów. Aktualizacja i odinstalowanie w tym
-  samym oknie. Płatne i z kontem otwierają stronę producenta. Agent przez MCP szuka w katalogu
-  i prosi o instalację, która zawsze czeka na Twoją zgodę.
-- Kolor źródła bez zmian: pliki dronów DJI i telefonów, które w materiale HD zapisują
-  stary tag transferu z czasów SD (`bt470m`), HVE czyta jak BT.709, tak jak Premiere i
-  Resolve, więc render takich ujęć ma dokładnie kolor źródła i może iść prosto do enkodera.
-  Zmiana widoczna w starych projektach: render tych plików (do tej pory przeliczany z gammy
-  2,2, jaśniejszy w cieniach) zmienia się na zgodny ze źródłem. Dawne odczytanie zostaje w
-  menu materiału w panelu Projekt: Interpretacja koloru, Tagi jak zapisane (do wyboru także
-  Rec.709 wymuszone i krzywe log, PQ, HLG; w MCP `update_media` z `color`, pisownia
-  dowolna, np. „BT.709” albo „S-Log3”). Wybrane ręcznie PQ i HLG działają jak tagi HDR:
-  plakietka HDR i podgląd SDR.
-- Ujęcie narysowane 1:1 (bez skali, obrotu i efektów) wychodzi z renderu z próbkami źródła
-  także wtedy, gdy klatka idzie przez kartę graficzną (tytuł nad ujęciem, przejście, inna
-  głębia albo podpróbkowanie pliku wyjściowego): karta sama przelicza płaszczyzny Y'CbCr
-  źródła, bez przycinania kolorów spoza RGB. Różnica wobec źródła spada z do 50 wartości kodu
-  w ponad jednej trzeciej próbek do najwyżej 1 przy tej samej głębi i podpróbkowaniu (0 poza
-  tytułem i w H.264). Materiał 4:4:4 tak samo, do każdego wyjścia: do 4:4:4 z do 54 wartości
-  w 24 % próbek na najwyżej 1, do 4:2:0 i 4:2:2 tak samo luminancja. Takie ujęcie 4K
-  renderuje się też o około 20 % szybciej, bo dekoder nie przelicza go na RGB. Bez zmian
-  zostają: ujęcie 4:2:0 albo 4:2:2 w eksporcie z drobniejszą chrominancją (4:4:4, RGB), które
-  bierze chrominancję interpolowaną jak dotąd, i ujęcie przesunięte o nieparzystą liczbę
-  pikseli w poziomie (przy 4:2:0 także wierszy), które idzie dawną drogą.
-- Warstwa położona 1:1 w całych pikselach (ujęcie, tytuł, plansza) kopiuje się piksel w
-  piksel zamiast przez filtr, w podglądzie i w każdym eksporcie. Dawny filtr wpuszczał w górny
-  wiersz i lewą kolumnę klatki ślad tła, a przy ostrych krawędziach odrobinę sąsiednich
-  pikseli. Zmienia się od 0,014 do 0,038 % próbek, w 95 do 99 % z nich o 1 wartość kodu,
-  najwyżej o 10 (eksport 4:4:4 10-bit), a średni błąd wobec źródła w tych pikselach spada z
-  0,95 do 0,34 wartości kodu.
+- New ASCII effect (Stylize): the picture drawn with characters of any font installed in the
+  system, downloaded from Google Fonts or sitting in the project's `fonts` folder (best with a
+  fixed width; a missing font is replaced by the built-in Hack with a warning). A font added to
+  the `fonts` folder while you work appears by itself, and a font file picked from disk is
+  copied to that folder, so the project also works on another computer. 60 parameters: size and
+  aspect of the cells or the number of columns, spacing, glyph scale, rotation and offset of the
+  grid, 15 character sets and a custom one, character choice by brightness, by edges and their
+  direction, or by both, dithering, brightness, contrast and gamma before mapping, color: one,
+  from the source, from a gradient, from a palette (ANSI, CGA, Game Boy, C64, PICO-8 and others)
+  or quantized, background, the original under the characters, blend modes, thickness and
+  outline of the characters, stability in time, and animations of rain and character mixing with
+  grain. 34 ready presets, from green terminal and Matrix rain to newspaper, Game Boy and
+  mosaic. It runs in real time on the GPU, the export is the same as the preview; the agent sees
+  the effect and the presets through MCP.
+- Settings windows of the built-in audio effects: every built-in audio effect opens in its own
+  window, with the button in the effect header in Effect controls, with a double click on the
+  slot in the mixer (track and master) or from the slot menu. The window has a live graph for
+  its effect: the EQ curve on the spectrum before and after with draggable bands and band solo,
+  the transfer curve of compressors, limiters and gates with gain reduction and its history,
+  reverb decay, delay echoes, LFO, a noise profile with a "Capture profile" button, the
+  distortion and saturation curve, loudness and true peak of mastering, a goniometer. Every
+  value can be typed with a unit, Shift changes it precisely, a double click restores the
+  default, and the whole gesture is undone with one Ctrl+Z. Also A/B, click-free bypass, input,
+  mix and output, and monitoring of the side chain, the band and what the effect takes away.
+- Audio effect presets: 499 factory presets (8 to 15 per effect) in the categories dialogue,
+  voice-over, podcast, music, broadcast, Foley, ADR, cleanup, mastering and sound design, in a
+  browser with search, categories and favorites. Own presets: save, rename, overwrite, delete,
+  import and export; the agent has them through MCP too (`list_effect_presets`,
+  `save_effect_preset`, `delete_effect_preset`, `user:<name>` in `apply_effect_preset`). A preset
+  does not erase the captured noise profile of noise reduction, and "Save as" does not take it
+  away. When the file of own presets cannot be read, HVE does not overwrite it and says that the
+  save failed.
+- New audio effects: expander, transient shaper, ducker, de-plosive, loudness leveler (target
+  in LUFS), declipper, tremolo and auto-pan, pitch shifter, DC filter, utility (polarity, M/S,
+  width, mono, pan), saturation and de-reverb.
+- Audio effect fixes: no clicks when parameters change or are switched (filter slopes, band
+  types, sections, bypass), a delay or reverb switched on again does not play old samples,
+  surround reverb does not cut playback short and has correct channel maps, chorus, flanger and
+  phaser sound in preview from the middle of a clip the same as in export, noise reduction
+  remembers the captured profile after a seek, the declicker works the same at 44.1, 48 and
+  96 kHz, channel loudness knows the quad, 5.0 and 6.1 layouts. Default settings sound exactly
+  as before on mono and stereo tracks. Old projects may sound different if they contain: a PEQ
+  cut band with Q above 1.93 (now 1.93 at most, resonance up to +6 dB), a custom IR file at
+  another sample rate or longer than 10 s (resampling with a sinc filter instead of a linear
+  one, a 50 ms fade-out when it is cut), a declicker at 44.1 or 96 kHz (windows according to the
+  sample rate), channel loudness or surround reverb in quad, 5.0 and 6.1 layouts (correct
+  channel maps), chorus, flanger and phaser on a track with an LFE channel (LFE is no longer
+  modulated) and playback of those three effects from the middle of a clip (LFO phase from the
+  item time, as in export).
+- Expression Controls: the Expression Controls effect now has eighteen control types with their
+  own names: slider (with range and unit), percent, integer, angle shown as in After Effects as
+  revolutions and degrees (`2x +45°`), 3D orientation, checkbox, color with an eyedropper from
+  the Program monitor, point with a handle on the monitor, 3D point, 2D and 3D vector, dropdown
+  list with named items, layer (a clip choice), range, time, text, random seed with a new-seed
+  button, and curve. You add a control with the "+ Control" button under the effect or from the
+  effects menu (Expression Controls, then the type); the context menu of a row opens the
+  settings (name, type, limits, slider range, step, unit, list items, tooltip), duplicates,
+  moves and removes the control, and every change is one undo step. Expressions read controls by
+  name: `ctrl("Speed") * time`, `ctrl("Rotation").revolutions`, `ctrl("Mode").item`,
+  `ctrl("Target").value.position`, `ctrl("Window").lerp(0.5)`, `ctrl("Curve").at(time / 4)`, and
+  the After Effects form `effect("Speed")("Slider")` works too. Copying and pasting a control's
+  value onto another clip creates the missing control there. Older projects with the five old
+  controls open unchanged. Agents got the MCP tools `list_controls`, `set_control` and
+  `remove_control`.
+- VST plugins: a new window with the vst.hexart.io catalog (over 1100 described plugins, with
+  reviews, licenses and links), with search and filters, also with no network. HVE installs free
+  VST3 and CLAP plugins with one click after confirmation: it downloads the file straight from
+  the maker, checks SHA-256 and copies it to the user folders, with no administrator rights;
+  they are then at once in the effects browser. Update and uninstall are in the same window.
+  Paid ones and ones that need an account open the maker's page. Through MCP the agent searches
+  the catalog and asks for an install, which always waits for your consent.
+- Source color unchanged: DJI drone and phone files that write the old SD-era transfer tag
+  (`bt470m`) in HD footage are read by HVE as BT.709, like Premiere and Resolve, so the render of
+  such shots has exactly the source color and can go straight to the encoder. A change visible
+  in old projects: the render of these files (until now recalculated from gamma 2.2, lighter in
+  the shadows) changes to match the source. The old reading stays in the media menu in the
+  Project panel: "Colour interpretation", "Tags as written" (also to choose from: forced Rec.709
+  and log, PQ and HLG curves; in MCP `update_media` with `color`, any spelling, for example
+  "BT.709" or "S-Log3"). PQ and HLG chosen by hand work like HDR tags: an HDR badge and an SDR
+  preview.
+- A shot drawn 1:1 (without scale, rotation or effects) comes out of the render with the source
+  samples also when the frame goes through the graphics card (a title over the shot, a
+  transition, another depth or subsampling of the output file): the card converts the source's
+  Y'CbCr planes itself, without clipping colors outside RGB. The difference from the source falls
+  from up to 50 code values in more than a third of the samples to at most 1 at the same depth
+  and subsampling (0 outside the title and in H.264). 4:4:4 footage the same way, to every
+  output: to 4:4:4 from up to 54 values in 24% of the samples to at most 1, to 4:2:0 and 4:2:2
+  the same for luminance. Such a 4K shot also renders about 20% faster, because the decoder
+  does not convert it to RGB. Unchanged: a 4:2:0 or 4:2:2 shot in an export with finer
+  chrominance (4:4:4, RGB), which takes interpolated chrominance as before, and a shot shifted by
+  an odd number of pixels horizontally (for 4:2:0 also vertically), which goes the old way.
+- A layer placed 1:1 on whole pixels (shot, title, card) is copied pixel for pixel instead of
+  through a filter, in the preview and in every export. The old filter let a trace of the
+  background into the top row and the left column of the frame, and with sharp edges a little of
+  the neighboring pixels. It changes 0.014 to 0.038% of the samples, in 95 to 99% of them by 1
+  code value, by 10 at most (4:4:4 10-bit export), and the mean error against the source in
+  those pixels falls from 0.95 to 0.34 code values.
 
 ## 0.19.22 (2026-11-07)
 
-- Zrzut klipu z obrazem i dźwiękiem na oś: część pod kursorem trafia na wskazaną
-  ścieżkę, druga na ścieżkę obok, która jest wolna (sparowaną, najbliższą wolną albo nową),
-  więc niczego nie nadpisuje. Nowa ścieżka pokazuje się w trakcie przeciągania jako zarys pod
-  ścieżkami, dochodzi po puszczeniu, a całość cofa jedno Ctrl+Z. Tak samo przy przyciskach
-  Wstaw i Nadpisz monitora Source. Wstawienie z Ctrl nie rozsynchronizowuje już obrazu z
-  dźwiękiem.
-- Delete i Backspace przy zaznaczonej jednej części zlinkowanego klipu (Alt+klik) usuwają tylko
-  ją, we wszystkich layoutach. Ctrl+C i Ctrl+X biorą tak samo tylko ją, więc wklejenie nie
-  dubluje części, która została.
-- Klik na końcówce klipu zaznacza punkt edycji z jego stroną każdym narzędziem do trymowania i w
-  każdym layoutzie, także wolny koniec klipu; Roll zaznacza obie strony.
-- Dwuklik na klip na osi otwiera go w Source każdym narzędziem i w każdym layoutzie.
-- Start bez mrugania: okno edytora pojawia się raz, od razu w zapisanym miejscu i
-  rozmiarze, z ciemnym paskiem tytułu. Nie ma już białego okna w rogu ekranu ani skoku przy
-  maksymalizacji, a okna wypięte pokazują się dopiero na swoim miejscu.
-- Ekran startowy: znak programu z animacją, numer wersji i postęp startu (grafika,
-  ustawienia, usługi, układ, serwer agenta, projekt) na monitorze, na którym otworzy się
-  okno. Gaśnie nad gotowym edytorem. Wyłączysz go w Preferencjach > Ogólne > Ekran startowy.
-- Gdy okno edytora nie może się otworzyć (na przykład bez sterownika grafiki), program mówi to
-  w oknie komunikatu z błędem i folderem dziennika, zamiast zamknąć się bez słowa.
-- Kolejka renderu od nowa: każdy render to pasek, a oczekujące przeciągasz za uchwyt
-  w kolejności, w jakiej mają się renderować (renderują się po kolei). W pasku widać klatkę,
-  którą FFmpeg właśnie koduje, nazwę pliku (pełna ścieżka w podpowiedzi, klik pokazuje plik w
-  folderze), procent z dwoma miejscami po przecinku, timecode i czas do końca.
-  Transfer jednym przyciskiem: w trakcie renderu pole „Transfer po renderze”, potem przycisk,
-  a po wysłaniu „Link”, który kopiuje link do schowka, aż link wygaśnie. WhatsApp tak samo, z
-  wyborem odbiorców i jedną zgodą przed wysłaniem, gdy działa whatsapp-scrap; plik większy niż
-  16 MB HVE najpierw zmniejsza w tle do kopii tymczasowej. Kolejka zapisuje się w projekcie i
-  wraca po restarcie (przerwany render z przyciskiem „Renderuj ponownie”).
+- Dropping a clip with picture and sound onto the timeline: the part under the cursor goes to
+  the track you point at, the other part to a free track next to it (a paired one, the nearest
+  free one or a new one), so nothing is overwritten. A new track shows while you drag as an
+  outline under the tracks, appears when you release, and one Ctrl+Z undoes it all. The same
+  with the Insert and Overwrite buttons of the Source monitor. Insert with Ctrl no longer takes
+  picture and sound out of sync.
+- Delete and Backspace with one part of a linked clip selected (Alt+click) remove only that
+  part, in all layouts. Ctrl+C and Ctrl+X take only that part the same way, so a paste does not
+  duplicate the part that stayed.
+- A click on a clip end selects the edit point with its side with every trim tool and in every
+  layout, including a free end of a clip; Roll selects both sides.
+- A double click on a clip on the timeline opens it in Source with every tool and in every
+  layout.
+- Start without flicker: the editor window appears once, straight in its saved place and size,
+  with a dark title bar. There is no white window in the corner of the screen and no jump on
+  maximizing, and detached windows show up only in their own place.
+- Splash screen: the program mark with animation, the version number and the start progress
+  (graphics, settings, services, layout, agent server, project) on the monitor where the window
+  will open. It fades over the ready editor. You turn it off in Preferences > General > Splash
+  screen.
+- When the editor window cannot open (for example with no graphics driver), the program says so
+  in an error message window with the log folder, instead of closing without a word.
+- Render queue from scratch: every render is a bar, and the waiting ones you drag by a handle
+  into the order in which they should render (they render one after another). The bar shows the
+  frame that FFmpeg is encoding right now, the file name (the full path in the tooltip, a click
+  shows the file in its folder), percent with two decimal places, timecode and time left.
+  Transfer with one button: during the render a "Transfer when done" field, then a button, and
+  after sending a "Link" that copies the link to the clipboard until the link expires. WhatsApp
+  the same way, with a choice of recipients and one consent before sending when whatsapp-scrap
+  is running; a file larger than 16 MB HVE first shrinks in the background to a temporary copy.
+  The queue is saved in the project and comes back after a restart (an interrupted render with a
+  "Render again" button).
 
 ## 0.19.21 (2026-11-06)
 
-- Efekt NTSC i VHS (`hve.ntsc`, D106): port zhuker/ntsc na GPU, prawdziwa deformacja sygnału
-  (kodowanie i dekodowanie kompozytowe, dzwonienie, szum, filtry taśmy VHS), nie nakładka.
-  Najlepiej na warstwie korekcyjnej nad całym montażem. Presety `broadcast`, `vhs` i `vhs_lp`,
-  szum losowany z ziarna i numeru klatki, więc podgląd i eksport wyglądają tak samo.
-- Szybszy eksport bez zmiany ani jednej próbki: klip bez efektów, który ma już układ
-  pikseli pliku wyjściowego (to samo podpróbkowanie, ta sama głębia, macierz i zakres, ten sam
-  rozmiar), idzie z dekodera prosto do enkodera w Y'CbCr, więc render jest identyczny ze
-  źródłem co do bitu (wcześniej przechodził przez RGB i z powrotem). Warstwy całkiem zakryte
-  nieprzezroczystym klipem, który wystaje poza kadr, nie są w eksporcie dekodowane ani
-  liczone (wynik ten sam co do bitu, a projekt z czterema ścieżkami 4K renderuje się kilka do
-  kilkunastu razy szybciej). Wideo 10-bit idzie z dekodera do karty graficznej w połowie
-  bajtów, kopie do i z GPU są równoległe, a potok do enkodera ma większy bufor. Wszystko to
-  sprawdza porównanie klatek przed enkoderem ze starą drogą i ze źródłem (różnica 0).
-  `hve render --stages` pokazuje czasy etapów, `--spec` przyjmuje dowolne ustawienia eksportu.
-- Przejścia: przejście widać na całej wysokości klipu, z narysowaną krzywą.
-  Przeciąganie w górę i w dół pod paskiem przejścia zmienia krzywą (w górę szybciej na
-  początku, w dół wolniej), dla obrazu i dźwięku, w podglądzie i w eksporcie; wartość jest też
-  w Effect Controls i w MCP (`bend`). Shift przy przeciąganiu krawędzi przejścia przenosi ruch
-  na drugą krawędź od chwili wciśnięcia, a puszczony zostawia ją tam, gdzie doszła.
-- Podgląd trymowania: przy trymowaniu, ripple, roll, slip, slide i krawędziach przejść
-  Program pokazuje klatkę w punkcie przeciąganego uchwytu, przy roll, slip, slide i
-  przejściach dwa obrazy obok siebie. Po puszczeniu wraca do głowicy. Oba przełączniki są w
-  menu Widok.
+- NTSC and VHS effect (`hve.ntsc`): a GPU port of zhuker/ntsc, a real deformation of the signal
+  (composite encoding and decoding, ringing, noise, VHS tape filters), not an overlay. Best on
+  an adjustment layer over the whole edit. Presets `broadcast`, `vhs` and `vhs_lp`, noise drawn
+  from a seed and the frame number, so preview and export look the same.
+- Faster export without changing a single sample: a clip with no effects that already has the
+  pixel layout of the output file (the same subsampling, the same depth, matrix and range, the
+  same size) goes from the decoder straight to the encoder in Y'CbCr, so the render is identical
+  to the source bit for bit (before, it went through RGB and back). Layers fully covered by an
+  opaque clip that overhangs the frame are not decoded or computed in export (the same result
+  bit for bit, and a project with four 4K tracks renders several to over ten times faster).
+  10-bit video goes from the decoder to the graphics card in half the bytes, copies to and from
+  the GPU run in parallel, and the pipeline to the encoder has a larger buffer. All of this is
+  checked by comparing frames before the encoder with the old path and with the source
+  (difference 0). `hve render --stages` shows the timing of the stages, `--spec` takes any
+  export settings.
+- Transitions: a transition is visible over the full height of the clip, with its curve drawn.
+  Dragging up and down under the transition bar changes the curve (up is faster at the start,
+  down is slower), for picture and sound, in preview and in export; the value is also in Effect
+  Controls and in MCP (`bend`). Shift while dragging a transition edge moves the motion onto the
+  other edge from the moment of pressing, and when released leaves that edge where it got to.
+- Trim preview: when trimming, rippling, rolling, slipping, sliding and dragging transition
+  edges, Program shows the frame at the point of the dragged handle; for roll, slip, slide and
+  transitions, two pictures side by side. After you release, it returns to the playhead. Both
+  switches are in the View menu.
 
 ## 0.19.19 (2026-11-05)
 
-- Odtwarzanie z przewidywaniem klatek: Program liczy z wyprzedzeniem, które klatki
-  źródła pokaże w najbliższych sekundach (Time Remap, rewers, nesty, interpolacja, J/K/L i
-  shuttle do 50x) i dekoduje je według GOP, kilkoma dekoderami naraz (także na drugiej
-  karcie graficznej), każdą na swój czas.
-  Obraz idzie za dźwiękiem: spóźniona klatka nie zatrzymuje go na długo, a szybki shuttle
-  pokazuje klatki kluczowe. `hve play --rate` mierzy dowolną prędkość, `--legacy` starą drogę.
+- Playback with frame prediction: the editor works out ahead which source frames it will show in
+  the next few seconds (Time Remap, reverse, nests, interpolation, J/K/L and shuttle up to 50x)
+  and decodes them by GOP, with several decoders at once (also on a second graphics card), each
+  frame on its own deadline.
+  The picture follows the sound: a late frame does not hold it up for long, and a fast shuttle
+  shows keyframes. `hve play --rate` measures any speed, `--legacy` the old path.
 
 ## 0.19.18 (2026-11-05)
 
-- Layouty pracy: oprócz dotychczasowego układu wybierasz w Preferencjach (i przełączasz w
-  locie) układ z klawiszami, gestami i panelami znanymi z innych programów: Premier (Premiere
-  Pro), Leonardo (strona Edit w DaVinci Resolve, ze stronami Media i Edit), LasVegas (VEGAS
-  Pro), Edison (EDIUS), Mozart (Media Composer), Cupertino (Final Cut Pro) i Studio (Pro
-  Tools). Każdy layout ma własną mapę klawiszy do edycji w edytorze skrótów, własne narzędzia
-  i przestrzenie robocze, a projekt zostaje ten sam: zmiana layoutu nie zmienia osi czasu.
-- Zmienne wtapianie maski jak w After Effects: narzędzie Wtapianie maski pod G na
-  monitorze Program dodaje punkt kliknięciem w ścieżkę i od razu ustawia jego promień na
-  zewnątrz albo do środka (jeden krok cofania), Shift trzyma punkt w miejscu, Alt i
-  przeciągnięcie w bok zmienia napięcie, Ctrl i klik albo Delete usuwa punkt. Granica
-  wtapiania jest przerywaną linią, przy przeciąganym punkcie widać promień. Punkt na
-  środku prostego boku działa teraz dokładnie tam, granice wewnętrzna i zewnętrzna
-  przechodzą płynnie przez ścieżkę, punkt przeciągnięty na ścieżkę ściąga do niej
-  wtapianie (punkt o promieniu 0 z kliknięcia bez przeciągania nadal nic nie zmienia, więc
-  starsze projekty wyglądają tak samo), Hold, kąt narożnika i takie ściągnięcie wychodzą
-  w renderze ostro, a nowe i usuwane punkty trafiają do wszystkich klatek ścieżki, także
-  o innej liczbie wierzchołków, w tym samym miejscu na ścieżce. Effect Controls pokazuje liczbę
-  punktów z resetem, MCP `add_mask` i `set_mask` przyjmują `feather_points`. W layoutach,
-  w których G, Q albo V znaczą coś innego (Mozart, Edison, LasVegas, Studio, Leonardo,
-  Cupertino), litera zostaje przy layoucie, dopóki nie wybierzesz narzędzia maski.
-- Shuttle monitorów: szare etykiety na końcach paska pokazują zakres (−8.00× i +8.00×), a rolka
-  nad paskiem zmienia go co 0.1× (z Shift co 1×) od 1.00× do 50.00×. Kreski idą za zakresem.
-  Rolka działa także w trakcie trzymania gałki, gdziekolwiek jest kursor, a prędkość od razu
-  idzie za gałką w nowym zakresie. Zakres zostaje w preferencjach użytkownika, nie w projekcie,
-  i jest ten sam we wszystkich layoutach. Na wąskim monitorze etykiety się skracają albo
-  chowają, pełny zakres jest w podpowiedzi. Ctrl z rolką dalej powiększa. Powyżej 20× obraz
-  idzie w pełnej prędkości, a dźwięk taśmy płynnie cichnie i wraca poniżej 20×. J i L nie
-  zwalniają już szybszego przewijania z paska.
-- Effect Controls: widoczny nagłówek kolumn Właściwość i Wartość z dzielnikiem, który
-  się przeciąga, a wartości wszystkich wierszy (liczby, pary X i Y, kolory, listy, pola wyboru,
-  kąty, tekst) zaczynają się na dzielniku z jednostką zaraz za liczbą. Efekty, grupy parametrów
-  i wartości zaznacza się kliknięciem, Ctrl, Shift albo prostokątem, kopiuje Ctrl+C, wkleja
-  Ctrl+V (także na kilka zaznaczonych klipów naraz, z kluczami w tym samym czasie od początku
-  klipu) i usuwa Delete, także z menu kontekstowego.
-- Podgląd szybciej: przełącznik „Bez interpolacji klatek w podglądzie” w pasku Programu i
-  w menu Widok. Program, przewijanie i odtwarzanie pokazują wtedy klatkę źródła bez mieszania
-  i Pixel Motion, a eksport i klatki dla agentów zostają jak w projekcie. Na Programie widać
-  odznakę.
-- Render podglądu In do Out (menu Sekwencja; Premier `Enter`, Cupertino, Leonardo i Mozart
-  `Ctrl+Alt+R`, LasVegas `Shift+M`, Edison `Alt+Shift+Q`, Studio `Alt+Shift+R`): klatki
-  zakresu liczą się w tle jak w eksporcie i potem grają płynnie, także z Pixel Motion i Time
-  Remap. Pasek renderu na osi pokazuje je na zielono, a pamięć ma limit RAM i dysku, wiek i
-  przycisk Wyczyść w Preferencjach.
-- Praca w tle w pasku stanu: wskaźnik z listą zadań, postępem, anulowaniem i licznikami Pixel
-  Motion.
-- Materiał 10-bitowy SDR (DJI, iPhone HEVC) bez efektów koloru dekoduje się przy odtwarzaniu
-  lżej; ze scopes, podziałem przed i po, LUT albo korekcją koloru zostaje pełna głębia, eksport
-  bez zmian.
-- Eksport nie zapisuje już czarnej klatki, gdy dekoder nie zdąży: klatka, która się spóźnia,
-  dostaje nowy dekoder na procesorze i więcej czasu, a jeśli i tak nie przyjdzie, eksport staje
-  z komunikatem, który plik i która klatka zawiodły. Tak samo warstwa web, która się nie
-  renderuje, i media offline. Eksport 4K HEVC 10-bit nie dekoduje już dalej, niż mieści
-  pamięć klatek (wcześniej przepychał potrzebne klatki z pamięci i szukał ich od nowa), a
-  klatki robione przez Pixel Motion nie są dekodowane drugi raz w rozmiarze warstwy. Na czas
-  eksportu prerender Pixel Motion w edytorze czeka, żeby nie zabierał GPU eksportowi.
-  Eksport ma własne dekodery, których podgląd nie zabiera, a po eksporcie się zamykają;
-  anulowanie działa od razu także wtedy, gdy eksport czeka na spóźnioną klatkę.
-- Layout Studio dla pracy jak w Pro Tools: tryby edycji Shuffle, Slip, Spot i Grid (F1 do F4),
-  narzędzia Grabber, Trim, Selector i Pencil, nudge, presety zoomu i Commands Focus. Ścieżka
-  audio pokazuje klipy, pas automatyki głośności albo panoramy lub pasy ujęć, w których
-  kliknięcie gra ujęcie, a przeciągnięcie kompuje fragment. Tryby automatyki Touch, Latch,
-  Write i Trim zapisują ruch tłumika jako jeden krok cofania. Mikser dostał w Studio wysyłki,
-  VCA, panner obiektu i odsłuch binauralny. Nowe panele ADR (cue ze znaczników, trzy beepy,
-  streamer na obrazie, nagrywanie cue w pętli z ocenianymi ujęciami) i Foley (arkusz cue,
-  ścieżki na kategorie, nagrywanie przebiegów).
-- Dwuklik na sekwencji w panelu Projekt otwiera jej oś czasu we wszystkich layoutach: zakładka,
-  która ją pokazuje, wychodzi na wierzch (także z innego okna), a gdy jej nie ma, nowa staje
-  obok pozostałych zakładek osi czasu. Dwuklik na neście otwiera go tak samo w zakładce osi
-  czasu, Alt+dwuklik wchodzi w niego w miejscu jak dotąd. Dwuklik w środek klipu otwiera go
-  także wtedy, gdy trafia w linię krycia albo przychodzi zaraz po kliknięciu, które klip
-  zaznaczyło.
-- Wymiana z programami audio: import i eksport AAF dla Pro Tools (klipy z zapasem, gain
-  klipu, zanikania i przenikania, automatyka głośności i panoramy ścieżek, markery), projektów
-  REAPER `.rpp` (ścieżki, elementy, zanikania, obwiednie głośności i panoramy, markery i
-  regiony, tempo i metrum, elementy MIDI) oraz plików MIDI `.mid` jako sekwencji ze ścieżkami
-  MIDI i mapą tempa. Każdy import cofa jedno Ctrl+Z.
-- Czas muzyczny na osi: przełącznik Takty zamienia linijkę na takty i miary, pokazuje pas
-  tempa z punktami, rampami i zmianami metrum oraz siatkę, do której przyciągają gesty (takty,
-  miary, podziały do 1/32 i triole). Każda zmiana tempa to jedno Ctrl+Z. Ścieżka audio może
-  podążać za tempem i zachować wysokość dźwięku: klipy rozciąga Signalsmith Stretch, a eksport
-  brzmi tak samo jak odtwarzanie. Klip MIDI albo audio można powtórzyć jako pattern na taktach.
-- Nagrywanie wielościeżkowe: nowy panel Nagrywanie. Uzbrajasz dowolnie wiele ścieżek audio,
-  każdą z jej wejściem (kanał albo para) z jednego lub kilku urządzeń WASAPI, i nagrywasz je
-  naraz. Punch-in i punch-out między punktami In i Out z rozbiegiem, nagrywanie w pętli, w
-  którym każde okrążenie jest ujęciem tego samego klipu do przełączania w panelu, odsłuch
-  wejścia przez mikser ścieżki z jej efektami. Nagranie trafia na próbkę, na której zostało
-  zagrane: opóźnienia mierzone przez sterownik, deklarowane i ręczne przesunięcie w
-  Preferencjach. Cały przebieg to jedno Ctrl+Z. ASIO czeka na umowę licencyjną ze Steinbergiem.
-- MIDI: ścieżki MIDI grają przez instrumenty VST3 i CLAP co do próbki, a eksport brzmi tak
-  samo jak odtwarzanie. Nowy panel Edytor MIDI z piano roll (rysowanie, przesuwanie, długość,
-  dynamika, kwantyzacja z siłą i swingiem) i edytorem krokowym perkusji; każdy gest to jedno
-  Ctrl+Z. Pliki MIDI (format 0 i 1) z mapą tempa, wejścia urządzeń MIDI i wejście sidechain
-  dla wtyczek.
-- Miks obiektowy: ścieżka audio może być obiektem z pozycją w pokoju albo azymutem, elewacją
-  i odległością, z automatyką. Mikser renderuje obiekty metodą ITU-R BS.2127 do stereo, 5.1,
-  7.1, 7.1.2, 7.1.4 i 9.1.6, a odtwarzanie brzmi tak samo jak eksport.
-- Odsłuch słuchawkowy: szersza sekwencja może grać binauralnie na wyjściu stereo (model głowy,
-  bez zewnętrznych danych HRTF).
-- ADM BWF: zapis i odczyt plików BW64 z metadanymi ADM (bed i obiekty z ruchem), formatu,
-  który przyjmuje Dolby Atmos Renderer, Pro Tools i Resolve Fairlight. Import rozpoznaje
-  kanały bedu po głośnikach, więc bed w kolejności BS.2051 i na dowolnych torach trafia na
-  właściwe kanały. Na razie z poziomu biblioteki, polecenia w menu przyjdą osobno.
-- Głośność do emisji: presety ATSC A/85 (-24 LKFS, -2 dBTP) i Netflix (-27 LKFS mierzone na
-  samym dialogu, -2 dBTP) obok EBU R128 i platform. Pomiar w mikserze pokazuje głośność
-  dialogu i jego udział w programie oraz werdykt, czy mix spełnia wybraną normę. Dialog
-  wykrywa lokalny detektor mowy, więc wynik jest zgodny z metodą, nie certyfikowany.
-- Mikser gra wysyłki do szyn aux (przed i za tłumikiem, z poziomem i panoramą w automatyce),
-  tłumiki VCA i sidechain: kompresor na muzyce może ściszać ją pod dialogiem. Każda gałąź
-  trzyma opóźnienie wtyczek co do próbki, a odtwarzanie brzmi tak samo jak eksport.
-- Automatyka tłumika w trybach Touch, Latch, Write i Trim: cały przejazd to jedna zmiana w
-  historii, którą cofa jedno Ctrl+Z.
-- Bounce ścieżki do pliku WAV i zamrażanie ścieżki: zamrożona ścieżka gra z pliku, póki się nie
-  zmieni.
-- Szyny do 16 kanałów: 7.1.2, 7.1.4 i 9.1.6 grają pełne, z downmixem do 7.1, 5.1 i stereo.
+- Work layouts: besides the existing layout, you choose in Preferences (and switch on the fly) a
+  layout with the keys, gestures and panels known from other programs: Premier (Premiere Pro),
+  Leonardo (the Edit page of DaVinci Resolve, with the Media and Edit pages), LasVegas (VEGAS
+  Pro), Edison (EDIUS), Mozart (Media Composer), Cupertino (Final Cut Pro) and Studio (Pro
+  Tools). Each layout has its own key map to edit in the shortcut editor, its own tools and
+  workspaces, and the project stays the same: changing the layout does not change the timeline.
+- Variable mask feather like in After Effects: the Mask Feather tool under G on the Program
+  monitor adds a point with a click on the path and at once sets its radius outward or inward
+  (one undo step). Shift keeps the point in place, Alt and a sideways drag change the tension,
+  Ctrl and a click or Delete removes the point. The feather boundary is a dashed line, and the
+  radius is visible next to the point you drag. A point in the middle of a straight side now
+  works exactly there, the inner and outer boundaries pass smoothly through the path, and a
+  point dragged onto the path pulls the feather in to it (a point with radius 0 from a click
+  without a drag still changes nothing, so older projects look the same). Hold, the corner
+  angle and such a pull-in come out sharp in the render, and new and removed points go into all
+  keyframes of the path, also ones with a different number of vertices, at the same place on
+  the path. Effect controls shows the number of points with a reset, and the MCP tools
+  `add_mask` and `set_mask` take `feather_points`. In layouts where G, Q or V mean something else
+  (Mozart, Edison, LasVegas, Studio, Leonardo, Cupertino), the letter stays with the layout
+  until you pick the mask tool.
+- Monitor shuttle: grey labels at the ends of the bar show the range (−8.00× and +8.00×), and
+  the wheel over the bar changes it by 0.1× (by 1× with Shift) from 1.00× to 50.00×. The ticks
+  follow the range. The wheel also works while you hold the knob, wherever the cursor is, and
+  the speed at once follows the knob in the new range. The range is kept in the user's
+  preferences, not in the project, and is the same in all layouts. On a narrow monitor the
+  labels shorten or hide, and the full range is in the tooltip. Ctrl with the wheel still zooms.
+  Above 20× the picture runs at full speed, and the tape sound fades out smoothly and comes back
+  below 20×. J and L no longer slow down a faster shuttle set from the bar.
+- Effect controls: a visible Property and Value column header with a divider you can drag, and
+  the values of all rows (numbers, X and Y pairs, colors, lists, checkboxes, angles, text)
+  start at the divider, with the unit right after the number. Effects, parameter groups and
+  values are selected with a click, Ctrl, Shift or a rectangle, copied with Ctrl+C, pasted with
+  Ctrl+V (also onto several selected clips at once, with keyframes at the same time from the
+  clip start) and deleted with Delete, also from the context menu.
+- Faster preview: a "No frame blending in the preview" switch in the Program bar and in the View
+  menu. Program, scrubbing and playback then show the source frame without blending and Pixel
+  Motion, while the export and the frames for agents stay as in the project. A badge is visible
+  on Program.
+- Render preview In to Out (Sequence menu; Premier `Enter`, Cupertino, Leonardo and Mozart
+  `Ctrl+Alt+R`, LasVegas `Shift+M`, Edison `Alt+Shift+Q`, Studio `Alt+Shift+R`): the frames of
+  the range are computed in the background like in an export and then play smoothly, also with
+  Pixel Motion and Time Remap. The render bar on the timeline shows them in green, and the
+  cache has a RAM and disk limit, an age and a Clear button in Preferences.
+- Background work in the status bar: an indicator with a list of jobs, progress, cancel and
+  Pixel Motion counters.
+- 10-bit SDR footage (DJI, iPhone HEVC) without color effects decodes lighter during playback;
+  with scopes, the before and after split, a LUT or color correction it keeps full depth, and
+  the export is unchanged.
+- Export no longer writes a black frame when a decoder does not keep up: a frame that is late
+  gets a new decoder on the CPU and more time, and if it still does not arrive, the export
+  stops with a message saying which file and which frame failed. The same goes for a web layer
+  that does not render, and for offline media. 4K HEVC 10-bit export no longer decodes further
+  ahead than frame memory holds (before, it pushed needed frames out of memory and looked for
+  them again), and frames made by Pixel Motion are not decoded a second time at the layer size.
+  During an export the Pixel Motion pre-render in the editor waits, so that it does not take the
+  GPU from the export. Export has its own decoders that the preview does not take away, and they
+  close after the export; cancel works at once, also when the export is waiting for a late
+  frame.
+- The Studio layout for working like in Pro Tools: Shuffle, Slip, Spot and Grid edit modes (F1
+  to F4), Grabber, Trim, Selector and Pencil tools, nudge, zoom presets and Commands Focus. An
+  audio track shows clips, a volume or pan automation lane, or take lanes in which a click
+  plays the take and a drag comps a section. The Touch, Latch, Write and Trim automation modes
+  record the fader movement as one undo step. In Studio the mixer gets sends, VCAs, an object
+  panner and binaural monitoring. New ADR panel (cues from markers, three beeps, a streamer over
+  the picture, loop recording of cues with rated takes) and Foley panel (cue sheet, tracks per
+  category, recording passes).
+- A double click on a sequence in the Project panel opens its timeline in every layout: the tab
+  that shows it comes to the front (also from another window), and when there is none, a new
+  one appears next to the other timeline tabs. A double click on a nest opens it the same way in
+  a timeline tab, and Alt+double click steps into it in place as before. A double click in the
+  middle of a clip opens it also when it lands on the opacity line or comes right after a click
+  that selected the clip.
+- Interchange with audio programs: AAF import and export for Pro Tools (clips with handles, clip
+  gain, fades and crossfades, volume and pan automation of tracks, markers), REAPER `.rpp`
+  projects (tracks, items, fades, volume and pan envelopes, markers and regions, tempo and
+  meter, MIDI items) and MIDI `.mid` files as sequences with MIDI tracks and a tempo map. Each
+  import is undone by one Ctrl+Z.
+- Musical time on the timeline: a Bars switch turns the ruler into bars and beats, shows a tempo
+  lane with points, ramps and meter changes, and a grid that gestures snap to (bars, beats,
+  divisions down to 1/32 and triplets). Each tempo change is one Ctrl+Z. An audio track can
+  follow the tempo and keep its pitch: Signalsmith Stretch stretches the clips, and the export
+  sounds the same as playback. A MIDI or audio clip can be repeated as a pattern on bars.
+- Multitrack recording: a new Recording panel. You arm any number of audio tracks, each with its
+  own input (a channel or a pair) from one or several WASAPI devices, and record them at once.
+  Punch in and punch out between the In and Out points with pre-roll, loop recording in which
+  each lap is a take of the same clip that you switch in the panel, and input monitoring
+  through the track's mixer with its effects. A recording lands on the sample it was played on:
+  the latencies measured by the driver and the declared ones, and a manual offset in
+  Preferences. The whole pass is one Ctrl+Z. ASIO is waiting for a license agreement with
+  Steinberg.
+- MIDI: MIDI tracks play through VST3 and CLAP instruments to the sample, and the export sounds
+  the same as playback. A new MIDI Editor panel with a piano roll (drawing, moving, length,
+  velocity, quantization with strength and swing) and a step editor for drums; each gesture is
+  one Ctrl+Z. MIDI files (format 0 and 1) with a tempo map, MIDI device inputs and a side chain
+  input for plugins.
+- Object mixing: an audio track can be an object with a position in the room, or with an
+  azimuth, elevation and distance, with automation. The mixer renders objects with ITU-R BS.2127
+  to stereo, 5.1, 7.1, 7.1.2, 7.1.4 and 9.1.6, and playback sounds the same as the export.
+- Headphone monitoring: a wider sequence can play binaurally on a stereo output (a head model,
+  no external HRTF data).
+- ADM BWF: writing and reading BW64 files with ADM metadata (bed and objects with movement), a
+  format that Dolby Atmos Renderer, Pro Tools and Resolve Fairlight accept. Import recognizes
+  the bed channels by speaker, so a bed in BS.2051 order or on any layout lands on the right
+  channels. For now from the library only, menu commands will come separately.
+- Broadcast loudness: presets ATSC A/85 (-24 LKFS, -2 dBTP) and Netflix (-27 LKFS measured on
+  the dialog alone, -2 dBTP) next to EBU R128 and the platforms. The measurement in the mixer
+  shows the dialog loudness and its share of the programme, and a verdict on whether the mix
+  meets the chosen standard. Dialog is found by a local speech detector, so the result follows
+  the method but is not certified.
+- The mixer plays sends to aux buses (pre and post fader, with level and pan in automation), VCA
+  faders and side chain: a compressor on the music can duck it under the dialog. Each branch
+  keeps plugin latency to the sample, and playback sounds the same as the export.
+- Fader automation in Touch, Latch, Write and Trim modes: the whole pass is one change in the
+  history, undone by one Ctrl+Z.
+- Bounce of a track to a WAV file and track freeze: a frozen track plays from the file until it
+  changes.
+- Buses of up to 16 channels: 7.1.2, 7.1.4 and 9.1.6 play in full, with downmix to 7.1, 5.1 and
+  stereo.
 
 ## 0.19.9 (2026-11-04)
 
-- Source: kliknięcie albo przeciągnięcie paska pod obrazem skacze od razu w to miejsce, także
-  na końcu bardzo długiego klipu. Przewijanie z dźwiękiem jak taśma jest teraz pod Ctrl.
-- Project: Del usuwa zaznaczone klipy, sekwencje i folder (pyta najpierw, z polem „Pytaj
-  następnym razem”), F2 zmienia nazwę.
-- Project: foldery i sekwencje wyglądają jak klipy, w tej samej liście i tej samej siatce.
-  Folder otwiera się dwuklikiem.
-- „Pokaż w projekcie” z osi czasu otwiera folder z klipem i zaznacza go.
-- Układ okien: panel upuszczony na przycisku przy krawędzi doku staje obok całego układu.
-  Chwytak na prawym końcu paska zakładek przenosi całą grupę naraz.
-- „Pokaż na osi czasu” nie otwiera drugiej zakładki dla sekwencji, z której główna oś weszła
-  do zagnieżdżenia: główna zakładka wraca do niej w górę.
-- Project: „Zastąp materiał…” podmienia plik klipu wszędzie, gdzie jest użyty (ten sam klip,
-  nowe źródło, jedno Ctrl+Z).
-- Project: F2 zmienia nazwę w miejscu, na samej nazwie, bez okna. Enter albo kliknięcie obok
-  zapisuje, Esc zostawia starą.
-- Maski jak w After Effects: wiele masek na klipie z nazwą, kolorem i kolejnością, tryby
-  Brak, Dodaj, Odejmij, Część wspólna, Rozjaśnij, Przyciemnij, Różnica, przełącznik
-  Odwrócona, a do tego ścieżka, wtapianie (X i Y), krycie i rozszerzenie z klatkami kluczowymi.
-- Maski rysuje się na monitorze Program: prostokąt, zaokrąglony prostokąt, elipsa, wielokąt
-  i gwiazda (Q), pióro z dodawaniem, usuwaniem i zamianą wierzchołków oraz zmiennym
-  wtapianiem (G), swobodne przekształcenie (Ctrl+T). Skróty jak w After Effects: M, MM, F,
-  TT, Ctrl+Shift+N, Ctrl+Shift+I, Ctrl+Shift+M, Ctrl+Shift+F, Ctrl+Shift+H.
-- Wtapianie maski z gładkim albo liniowym spadkiem i rozmycie ruchu maski. Podgląd i eksport
-  wyglądają tak samo.
-- Agent AI dodaje i zmienia maski przez MCP (add_mask, set_mask, move_mask, remove_mask).
-- Klip połączony przesuwany razem z rodzicem albo podpinany do innego klipu zabiera ze sobą
-  swój dźwięk i resztę połączonych części.
+- Source: a click or drag on the bar under the picture jumps straight to that spot, also at the
+  end of a very long clip. Tape-style scrubbing with sound is now under Ctrl.
+- Project: Del removes the selected clips, sequences and folder (it asks first, with an "Ask
+  next time" box), F2 renames.
+- Project: folders and sequences look like clips, in the same list and the same grid. A folder
+  opens with a double click.
+- "Reveal in Project" from the timeline opens the folder with the clip and selects it.
+- Window layout: a panel dropped on the button at the edge of the dock lands next to the whole
+  layout. The grip at the right end of the tab bar moves the whole group at once.
+- "Reveal in Timeline" does not open a second tab for the sequence that the main timeline
+  entered as a nest: the main tab goes back up to it.
+- Project: "Replace Footage…" swaps the file of a clip everywhere it is used (the same clip, a
+  new source, one Ctrl+Z).
+- Project: F2 renames in place, right on the name, without a window. Enter or a click elsewhere
+  saves, Esc keeps the old name.
+- Masks like in After Effects: many masks on a clip with a name, color and order, the modes
+  None, Add, Subtract, Intersect, Lighten, Darken and Difference, an Inverted switch, and on top
+  of that a path, feather (X and Y), opacity and expansion with keyframes.
+- Masks are drawn on the Program monitor: rectangle, rounded rectangle, ellipse, polygon and
+  star (Q), a pen with adding, removing and converting vertices and a variable width feather
+  (G), free transform (Ctrl+T). Shortcuts as in After Effects: M, MM, F, TT, Ctrl+Shift+N,
+  Ctrl+Shift+I, Ctrl+Shift+M, Ctrl+Shift+F, Ctrl+Shift+H.
+- Mask feather with a smooth or linear falloff, and motion blur of the mask. Preview and export
+  look the same.
+- The AI agent adds and changes masks over MCP (`add_mask`, `set_mask`, `move_mask`,
+  `remove_mask`).
+- A connected clip moved together with its parent, or attached to another clip, takes its sound
+  and the rest of its linked parts along.
 
 ## 0.19.5 (2026-11-03)
 
-Szybszy eksport, licencje przy każdym elemencie filmu, nowa przeglądarka warstw web i agent AI
-pracujący w tle na dowolnym projekcie.
+Faster export, licenses on every element of a film, a new web layers browser and an AI agent
+working in the background on any project.
 
-Eksport:
+Export:
 
-- Kolory przy eksporcie liczy karta graficzna: klatki trafiają do FFmpeg od razu w formacie
-  kodeka, więc do FFmpeg idzie 2 do 2,7 raza mniej danych i niczego już nie konwertuje. Jakość
-  obrazu zostaje ta sama.
-- Kolejne klatki są odczytywane z karty graficznej z wyprzedzeniem, a zapis do kodeka idzie osobnym
-  wątkiem. Dekodery źródeł przygotowują następne klatki wcześniej. Pętla eksportu UHD H.264 skróciła
-  się na naszej stacji z 29,6 do 23,5 s, HD z 14,9 do 11,4 s.
-- ProRes bez kanału alfa przy szybkościach Szybko i Zrównoważona używa szybszego kodera ProRes:
-  4K ProRes HQ liczy się w edytorze około 20 klatek na sekundę zamiast 5,5. Pliki są większe (o
-  28 do 72%), a jakość obrazu zostaje bardzo wysoka. Szybkość Jakość i ProRes 4444 z alfą zostają
-  przy dotychczasowym koderze.
-- NVENC przy szybkości Zrównoważona używa presetu p5: na teście 4K około 40 klatek na sekundę
-  zamiast 20. Jakość i Najmniejszy plik zostają przy p7.
-- Okno eksportu pokazuje szybkość kodera także dla ProRes.
+- Colors are computed on the graphics card at export: frames go to FFmpeg at once in the format
+  of the codec, so 2 to 2.7 times less data goes to FFmpeg and it converts nothing. Picture
+  quality stays the same.
+- The next frames are read back from the graphics card ahead of time, and writing to the codec
+  runs on a separate thread. Source decoders prepare the next frames earlier. The UHD H.264
+  export loop went from 29.6 to 23.5 s on our workstation, HD from 14.9 to 11.4 s.
+- ProRes without an alpha channel at the Fast and Balanced speeds uses a faster ProRes encoder:
+  4K ProRes HQ is computed in the editor at about 20 frames per second instead of 5.5. The files
+  are larger (by 28 to 72%), and picture quality stays very high. The Quality speed and ProRes
+  4444 with alpha stay on the existing encoder.
+- NVENC at the Balanced speed uses the p5 preset: about 40 frames per second instead of 20 in a
+  4K test. Quality and Smallest file stay on p7.
+- The export window shows the encoder speed for ProRes too.
 
-Oś czasu:
+Timeline:
 
-- Przełączenie na zakładkę osi innej sekwencji od razu pozwala ją edytować. Wcześniej zakładka
-  reagowała dopiero po drugim kliknięciu.
-- Zoom osi (klawisze, Ctrl i Alt z kółkiem, suwak) trzyma głowicę na środku widoku. Wyłączysz to w
-  Preferencjach.
-- Własne kursory dla każdego narzędzia na osi i pokazywanie, co zrobi kliknięcie. Żyletka rysuje
-  linię cięcia przez wszystkie klipy, które przetnie. Przycinanie, Ripple, Roll i Rate pokazują
-  nawiasy na punkcie edycji i podświetlają krawędzie, które się zmienią. Slip pokazuje, o ile można
-  przesunąć źródło, a Slide krawędzie sąsiadów. Zaznaczanie ścieżki i Tekst pokazują, co obejmą.
-- Markery przeciągasz na linijce (z przyciąganiem, Alt je wyłącza, Esc anuluje). Panel Markery
-  podświetla bieżący marker podczas odtwarzania i przewija do niego.
-- Kliknięcie w pustym miejscu ścieżki i zaznaczanie ramką nie przesuwają już głowicy. Przesuwa ją
-  tylko linijka i linia głowicy.
-- Przeciągany klip przyciąga się także do własnego początku i końca z chwili sprzed przeciągania.
-- Kopiuj i wklej od nowa: schowek pamięta ścieżki, wklejenie niczego nie nadpisuje (całość ląduje
-  na pierwszych wolnych ścieżkach, w razie potrzeby powstają nowe), a Ctrl+Shift+V wkleja z
-  przesunięciem. Wklejone klipy są zaznaczone, a głowica staje na ich końcu.
-- Klawisze zoomu działają na panel pod kursorem albo ostatnio klikany (Effect Controls, monitory),
-  a w pozostałych przypadkach na oś.
-- Drugie kliknięcie w zaznaczoną lukę odznacza ją.
-- Linijka jest wyższa (42 zamiast 28 punktów), z większą głowicą i znacznikami markerów.
-- Lift i Extract działają tylko przy ustawionych In i Out, a przyciski mówią, czego brakuje. Pełny
-  zakres jest mocniej podświetlony na osi, a po wycięciu pojawia się komunikat, ile i z ilu
-  ścieżek wycięto.
-- Alt z przeciąganiem klucza głośności albo krycia: uchwyty Béziera rosną razem z przeciągnięciem,
-  zamiast od razu skakać do 100%.
+- Switching to the tab of another sequence's timeline lets you edit it at once. Before, the tab
+  reacted only after a second click.
+- Timeline zoom (keys, Ctrl and Alt with the wheel, slider) keeps the playhead in the middle of
+  the view. You can turn this off in Preferences.
+- Own cursors for every timeline tool, and a preview of what a click will do. Razor draws a cut
+  line through all the clips it will cut. Trim, Ripple, Roll and Rate show brackets at the edit
+  point and highlight the edges that will change. Slip shows how far the source can be moved,
+  and Slide the edges of the neighbors. Track select and Type show what they will cover.
+- Markers can be dragged on the ruler (with snapping, Alt turns it off, Esc cancels). The
+  Markers panel highlights the current marker during playback and scrolls to it.
+- A click in an empty part of a track and rubber-band selection no longer move the playhead.
+  Only the ruler and the playhead line move it.
+- A dragged clip also snaps to its own start and end from before the drag.
+- Copy and paste redone: the clipboard remembers tracks, pasting overwrites nothing (everything
+  lands on the first free tracks, new ones are created when needed), and Ctrl+Shift+V pastes
+  with an offset. Pasted clips are selected, and the playhead stops at their end.
+- Zoom keys act on the panel under the cursor or the one clicked last (Effect controls,
+  monitors), and otherwise on the timeline.
+- A second click on a selected gap deselects it.
+- The ruler is taller (42 instead of 28 points), with a larger playhead and marker flags.
+- Lift and Extract work only when In and Out are set, and the buttons say what is missing. The
+  full range is highlighted more strongly on the timeline, and after a cut a message says how
+  much was cut and from how many tracks.
+- Alt while dragging a volume or opacity key: the Bézier handles grow with the drag instead of
+  jumping to 100% at once.
 
-Projekt:
+Project:
 
-- Polecenia z menu kontekstowego panelu Projekt działają na całym zaznaczeniu: jedna zmiana w
-  historii, liczba w nazwie polecenia i informacja o pominiętych elementach. Wiersze sekwencji
-  zaznaczasz z Ctrl i Shift.
-- „Pokaż na osi czasu” otwiera wszystkie sekwencje używające zaznaczonego medium. Aktywna zostaje
-  ta z największą liczbą trafień, pozostałe mają jasnozłoty odcień do pierwszego kliknięcia.
-- Nowy panel Kolejka proxy (Okno > Wyjście), otwierany z paska stanu: anulowanie, ponawianie,
-  pokazanie pliku i usuwanie z listy.
-- Pokaż w Eksploratorze zaznacza plik także wtedy, gdy ścieżka ma spację (wcześniej otwierał
-  Dokumenty). Gdy pliku już nie ma, otwiera najbliższy istniejący folder.
-- Interpolacja klatek dla zaznaczenia: w menu klipu, zaraz pod Prędkość / Czas trwania, jedno
-  polecenie dla wszystkich zaznaczonych klipów wideo, ze stanem mieszanym, gdy klipy mają różne
-  tryby.
+- Commands from the context menu of the Project panel act on the whole selection: one change in
+  the history, a count in the name of the command and a note about skipped items. Select
+  sequence rows with Ctrl and Shift.
+- "Reveal in Timeline" opens all sequences that use the selected media. The one with the most
+  hits stays active, the others have a light gold tint until the first click.
+- A new Proxy queue panel (Window > Output), opened from the status bar: cancel, retry, show the
+  file and remove from the list.
+- Show in Explorer selects the file also when the path has a space (before, it opened
+  Documents). When the file is gone, it opens the nearest existing folder.
+- Frame interpolation for a selection: in the clip menu, right below Speed / Duration, one
+  command for all selected video clips, with a mixed state when the clips have different modes.
 
-AI Assets:
+AI assets:
 
-- Panel jest prawdziwym generatorem: rodzaj, wieloliniowy opis, karty referencji z miniaturami i
-  wybór modelu. Galeria używa tej samej siatki i listy co panel Projekt (suwak wielkości, Ctrl z
-  kółkiem, kolumny wypełniają szerokość), a kafelki nie skaczą po najechaniu. Podgląd ruchem po
-  najechaniu zostaje.
+- The panel is a real generator: kind, a multi-line description, reference cards with
+  thumbnails and a model choice. The gallery uses the same grid and list as the Project panel
+  (size slider, Ctrl with the wheel, columns fill the width), and the tiles do not jump on
+  hover. Motion preview on hover stays.
 
-Efekty, kolor i warstwy web:
+Effects, color and web layers:
 
-- Jedna przeglądarka w panelu Warstwy web: warstwy projektu, wbudowane i biblioteka w jednym
-  widoku, bez zakładek. Wyszukiwanie obejmuje wszystko, po lewej drzewo (Źródło i kategorie z
-  podkategoriami), filtry tagów jako chipy. Widok siatki i listy, suwak wielkości, podgląd ruchem
-  po najechaniu, plakietki (proporcje, alfa, pętla, źródło, problemy), podwójne kliknięcie kładzie
-  na osi, przeciągnięcie upuszcza na oś.
-- Biblioteka komponentów web ma 455 pozycji w 26 kategoriach: nowe wykresy (słupkowe, liniowe,
-  udziałowe, wskaźniki, przepływy i specjalne), mapy, infografiki i komponenty 3D.
-- Rozmycie ruchu zawartości warstw web: przełącznik w Effect Controls rozmywa ruch wewnątrz
-  strony, nie tylko ruch samej warstwy. Zamknięcie migawki (domyślnie 180°) i liczba próbek (domyślnie
-  8) są parametrami z kluczami. Strony, które trzymają stan w czasie (animacje, liczniki), dostają
-  ostrzeżenie zamiast cichego braku efektu.
-- Warstwy web szybciej pokazują klatki: kilka przeglądarek w tle zamiast jednej, a podczas
-  odtwarzania klatki przed głowicą są przygotowywane z wyprzedzeniem. Na teście z sześcioma
-  warstwami 1080p liczba renderów na sekundę wzrosła z 32 do 65.
-- Uchwyty punktów efektów na monitorze Program: środek maski, punkt ostrości Camera Lens Blur,
-  środek okna w korekcji wtórnej i punkt efektu Controls przeciągasz bezpośrednio na obrazie.
-  Przełącznik edycji bezpośredniej jest w pasku monitora, między timecodem a menu skali.
-- Widok grupowy w Effect Controls: przy kilku zaznaczonych klipach z tym samym efektem parametry
-  są pokazane razem (przełącznik „Każdy klip | Wszystkie klipy”), wartości różne między klipami to
-  „mieszane”, a podgląd celu podświetla klipy, które zmieni dane pole. Parametry można łączyć w
-  grupy klipów.
-- Interpolacja RIFE przy 4K na DirectML nie daje już pionowych smug w trybie Pixel Motion. Obraz
-  dużych klatek jest liczony w nakładających się pasach, a źle policzone klatki z cache zostaną
-  przeliczone.
-- Liczby, które po zaokrągleniu są zerem, nie pokazują już minusa (na przykład „-0,00 px/s” pod
-  wykresem klucza).
+- One browser in the Web layers panel: project layers, built-in ones and the library in a single
+  view, without tabs. Search covers everything, with a tree on the left (Source and categories
+  with subcategories) and tag filters as chips. Grid and list views, a size slider, motion
+  preview on hover, badges (aspect, alpha, loop, source, problems), a double click places it on
+  the timeline, a drag drops it on the timeline.
+- The web component library has 455 items in 26 categories: new charts (bar, line, share,
+  gauges, flows and special), maps, infographics and 3D components.
+- Motion blur of web layer content: a switch in Effect controls blurs the motion inside the
+  page, not only the motion of the layer itself. The shutter angle (180° by default) and the
+  number of samples (8 by default) are parameters with keyframes. Pages that keep state over
+  time (animations, counters) get a warning instead of a silent absence of the effect.
+- Web layers show frames faster: several browsers in the background instead of one, and during
+  playback the frames ahead of the playhead are prepared in advance. In a test with six 1080p
+  layers, renders per second rose from 32 to 65.
+- Effect point handles on the Program monitor: the mask center, the focus point of Camera Lens
+  Blur, the window center in secondary correction and the point of the Controls effect can be
+  dragged directly on the picture. The direct editing switch is in the monitor bar, between the
+  timecode and the scale menu.
+- Group view in Effect controls: with several selected clips that share an effect, the
+  parameters are shown together (a "Per clip | All clips" switch), values that differ between
+  clips are "mixed", and the target preview highlights the clips that a given field will
+  change. Parameters can be linked into clip groups.
+- RIFE interpolation at 4K on DirectML no longer produces vertical streaks in Pixel Motion mode.
+  The picture of large frames is computed in overlapping bands, and badly computed frames from
+  the cache will be recomputed.
+- Numbers that round to zero no longer show a minus (for example "-0.00 px/s" under the keyframe
+  graph).
 
-Czas i pola liczbowe:
+Time and number fields:
 
-- Wszystkie pola czasu to jeden składnik: zatwierdzają się Enterem, Tabem, utratą fokusu i
-  kliknięciem poza polem (Esc anuluje), wolne przeciąganie przesuwa o ułamki klatki, a wyświetlają
-  czas w wybranym trybie (Ctrl z kliknięciem przełącza: timecode, klatki, sekundy). Pole czasu ma
-  teraz także trwanie przejścia, limit długości w AI Wstępny montaż, długość In do Out na monitorze
-  Program i okno eksportu.
-- Długie nazwy presetów eksportu kończą się wielokropkiem, a pełna nazwa jest w dymku.
+- All time fields are one component: they commit with Enter, Tab, loss of focus and a click
+  outside the field (Esc cancels), slow dragging moves by fractions of a frame, and they show
+  time in the chosen mode (Ctrl with a click switches: timecode, frames, seconds). A time field
+  is now also used for the transition duration, the length limit in AI Rough cut, the In to Out
+  length on the Program monitor and the export window.
+- Long export preset names end with an ellipsis, and the full name is in a tooltip.
 
-Dźwięk:
+Sound:
 
-- Monitor Source gra dźwięk: odtwarzanie, J/K/L i tył, pętla In/Out, przewijanie w trakcie gry,
-  jak na monitorze Program. Przeciąganie paska Source i timecodu przewija dźwięk jak taśmę.
-- Fader Master w Audio Mixerze: regulacja od -96 do +15 dB z podwójnym kliknięciem na 0 dB, jeden
-  krok cofania na przeciągnięcie. Obejmuje odtwarzanie, eksport, pomiar głośności i zagnieżdżone
-  sekwencje.
+- The Source monitor plays sound: playback, J/K/L and backwards, In/Out loop, scrubbing during
+  play, like on the Program monitor. Dragging the Source bar and the timecode scrubs the sound
+  like tape.
+- Master fader in the Audio mixer: adjustment from -96 to +15 dB with a double click to 0 dB,
+  one undo step per drag. It covers playback, export, loudness measurement and nested
+  sequences.
 
-Licencje:
+Licenses:
 
-- Licencje przy każdym elemencie (plik, wtyczka, font, warstwa web, komponent, referencja,
-  generator, efekt). Projekt ma typ pracy: prywatny, niekomercyjny, komercyjny (domyślnie), dla
-  klienta albo emisja. Każdy element dostaje werdykt: w porządku, obowiązek, ostrożnie, warunek
-  niespełniony, nieznane albo kolizja. Okno Licencje opisuje każdy typ pracy.
-- Obok wyeksportowanego filmu powstają plik z pełnym zrzutem licencji (`NAZWA.LICENSE.txt`) i lista
-  uznań do opisu albo napisów końcowych (`NAZWA.ATTRIBUTIONS.txt`). Oba można wyłączyć w
-  Preferencjach, a eksport roboczy agenta ich nie tworzy.
-- Tryb ubiegania się o licencję: dla każdego elementu pokazuje, u kogo i o co poprosić. Szkic
-  prośby to tylko plik w folderze projektu, nic nie jest wysyłane.
-- Agent AI nie może zwiększyć użycia elementu zablokowanego (nowy klip, kopia, dłuższy albo
-  szybszy), a eksport końcowy, wysyłka i publikacja są sprawdzane przed pytaniem o zgodę i jeszcze
-  raz po niej. Deklaracje i typ pracy zmieniasz tylko Ty. To pomoc, nie porada prawna: raporty
-  mówią wprost, czego nie obejmują.
+- Licenses on every element (file, plugin, font, web layer, component, reference, generator,
+  effect). A project has a work type: private, non-commercial, commercial (the default), for a
+  client or broadcast. Each element gets a verdict: fine, obligation, caution, condition not
+  met, unknown or conflict. The Licences window describes each work type.
+- Next to an exported film come a file with a full license snapshot (`NAME.LICENSE.txt`) and a
+  list of credits for the description or end titles (`NAME.ATTRIBUTIONS.txt`). Both can be
+  turned off in Preferences, and the agent's draft export does not create them.
+- License request mode: for each element it shows whom to ask and for what. A draft of the
+  request is only a file in the project folder, nothing is sent.
+- The AI agent cannot increase the use of a blocked element (a new clip, a copy, longer or
+  faster), and the final export, sending and publishing are checked before asking for consent
+  and once more after it. Only you change the declarations and the work type. This is an aid,
+  not legal advice: the reports say plainly what they do not cover.
 
-Agent AI (MCP):
+AI agent (MCP):
 
-- Agent pracuje na dowolnym projekcie w tle i nie przełącza okna programu: projekt jest
-  kontekstem sesji agenta, a okno i agenci na tym samym folderze dzielą jedną historię. Projekty w
-  tle mają autozapis i zwalniają się po 30 minutach ciszy.
-- Po przekazaniu do okna (`show_editor`) trwające eksporty dokańczają się w tle i `export_status`
-  dalej o nich mówi. Gdy działają inne zadania (transkrypcja, analiza), okno czeka na nie albo
-  je anuluje na wyraźne polecenie.
-- `export_status` podaje upływ czasu, szacowany koniec i klatki na sekundę, a z `wait` czeka do
-  końca eksportu. Bez zadania wymienia wszystkie eksporty sesji.
-- `normalize_audio` ma limity: największe wzmocnienie, bramkę ciszy i maksymalny szczyt (domyślnie
-  -1 dBTP, mierzony jako true peak). Wynik mówi, które klipy ograniczono i dlaczego.
-- Lokalny Whisper ma limity czasu na klip, a nieudany klip nie zatrzymuje całego zadania. Ciche
-  fragmenty, stopki napisów i typowe zmyślone frazy nad ciszą są usuwane z transkrypcji.
-- `render_frame` czeka do 30 s na warstwy, które się jeszcze ładują, zamiast oddać niepełną
-  klatkę, a przy niepełnej mówi dlaczego.
-- `edit` przyjmuje nazwy ścieżek (`V1`, `A1`) i pliki z poleceniami, zwraca identyfikatory
-  zagnieżdżonych obiektów, a `write_component` akceptuje opcje wyliczeniowe jako zwykłe teksty.
-- Tryb Recenzja: przycisk „Zmień z agentem” na środku dolnego paska. Włączasz go, mówisz i
-  pokazujesz kursorem, co zmienić, a po wyłączeniu program przekazuje to agentowi jako jedną
-  wytyczną. Ramka w oknach programu świeci zgodnie z poziomem mikrofonu.
+- The agent works on any project in the background and does not switch the program's window: the
+  project is the context of the agent's session, and the window and agents on the same folder
+  share one history. Projects in the background autosave and are released after 30 minutes of
+  silence.
+- After handover to the window (`show_editor`), running exports finish in the background and
+  `export_status` still reports them. When other jobs run (transcription, analysis), the window
+  waits for them or cancels them on an explicit command.
+- `export_status` gives the elapsed time, the estimated end and frames per second, and with
+  `wait` it waits until the export ends. Without a job it lists all exports of the session.
+- `normalize_audio` has limits: the largest gain, a silence gate and a maximum peak (-1 dBTP by
+  default, measured as true peak). The result says which clips were limited and why.
+- Local Whisper has time limits per clip, and a failed clip does not stop the whole job. Silent
+  passages, subtitle credits and typical made-up phrases over silence are removed from the
+  transcript.
+- `render_frame` waits up to 30 s for layers that are still loading instead of returning an
+  incomplete frame, and when the frame is incomplete it says why.
+- `edit` accepts track names (`V1`, `A1`) and files with commands, returns identifiers of
+  nested objects, and `write_component` accepts enum options as plain text.
+- Review mode: a "Change with agent" button in the middle of the bottom bar. You turn it on,
+  speak and point with the cursor at what to change, and when you turn it off the program hands
+  this to the agent as one guideline. The frame in the program windows glows according to the
+  microphone level.
 
-Instalacja:
+Installation:
 
-- Aktualizacja instalatorem przechodzi także wtedy, gdy jakiś program trzyma pliki HEXART Video
-  Edit, na przykład sesja agenta AI połączona przez MCP z załadowanymi bibliotekami FFmpeg. Zajęte
-  pliki czekają obok nowych i znikają przy następnej instalacji albo starcie programu, gdy nic ich
-  już nie używa.
-- Deinstalator usuwa też bibliotekę komponentów i pobrane aktualizacje.
+- Updating with the installer succeeds also when some program holds HEXART Video Edit files, for
+  example an AI agent session connected over MCP with the FFmpeg libraries loaded. Busy files
+  wait next to the new ones and disappear at the next install or program start, when nothing
+  uses them anymore.
+- The uninstaller also removes the component library and downloaded updates.
 
-Okna i układ:
+Windows and layout:
 
-- Okna dialogowe, w tym Preferencje i Licencje, mieszczą się w małych ekranach (1280x720 i mniej)
-  z przyciskami zawsze w zasięgu. Okna mierzą własny pasek tytułu i ramkę, a na środku zostawiają
-  margines u góry i na dole. Otwierają się od razu w dobrym miejscu, bez skoku po pierwszej klatce.
-- Preferencje i ustawienia mają jedne kolumny etykiet i pól w każdej sekcji, a zawinięte chipy
-  („Panele, które się rozszerzają”, „Ustawienia domyślne”) nie zasłaniają sąsiednich pól.
-- Inteligentne poszerzanie paneli czyta zamiar kursora: martwa strefa przy krawędziach, liczy się
-  tylko czas spędzony głęboko i powoli w grupie, kursor wracający do grupy z miejscem niczego nie
-  zabiera, a kliknięcie albo kółko biorą miejsce od razu. Zmiana zakładki w grupie nie składa jej z
-  powrotem. Nowe ustawienia „Opóźnienie przejęcia” i „Martwe pole przy krawędzi” w Preferencjach >
-  Interfejs.
-- Gdy zakładki grupy się nie mieszczą, przycisk „+N” zostaje przypięty z lewej, lista oznacza
-  ukryte zakładki, a krawędzie bledną tam, gdzie coś jest ukryte. Paski przewijania są widoczne,
-  gdy treść wystaje, i jaśnieją po najechaniu.
+- Dialog windows, including Preferences and Licences, fit small screens (1280x720 and smaller) with
+  the buttons always within reach. Windows measure their own title bar and frame, and leave a
+  margin at the top and bottom in the center. They open in the right place at once, without a
+  jump after the first frame.
+- Preferences and settings have single columns of labels and fields in every section, and
+  wrapped chips ("Panels that expand", "Default settings") no longer cover the neighboring
+  fields.
+- Smart panel expanding reads the intent of the cursor: a dead zone at the edges, only time
+  spent deep and slowly in a group counts, a cursor returning to a group that has room takes
+  nothing away, and a click or the wheel take room at once. Changing a tab in a group does not
+  collapse it back. New settings "Delay before taking over" and "Dead zone at the edges" in
+  Preferences > Interface.
+- When the tabs of a group do not fit, the "+N" button stays pinned on the left, the list marks
+  hidden tabs, and the edges fade where something is hidden. Scroll bars are visible when the
+  content overflows and brighten on hover.
 
 ## 0.19.0 (2026-10-30)
 
-Poprawki po drugim teście z montażystą i nowe uwagi do interfejsu.
+Fixes after the second test with an editor and new notes on the interface.
 
-Okna i układ:
+Windows and layout:
 
-- Nic nie wychodzi poza ekran: okna, dialogi, menu, listy rozwijane i dymki mieszczą się w
-  ekranie (także 1280x720), długa treść się przewija, a tytuł i przyciski zostają widoczne.
-- Okna AI osobno: Agent, Prośby o zgodę, Analiza, Szukaj w materiałach, Wstępny montaż oraz
-  Rotoskopia i ścieżki to osobne panele. Menu Okno ma kategorie (Montaż, Efekty i grafika, Kolor,
-  Dźwięk i tekst, AI, Wyjście), a otwarty panel ma złotą ikonę.
-- Zakładki doku: złoty pasek nie zostaje na zakrytej zakładce, a gdy zakładki się nie mieszczą,
-  przycisk na końcu paska pokazuje pozostałe.
-- Przeciąganie między panelami: efekt z panelu Efekty na Effect Controls, na monitor Program i na
-  klip, presety efektów, efekty w stosie (zmiana kolejności, na inny klip: przenosi, z Ctrl
-  kopiuje).
-- Inteligentne poszerzanie paneli: przełącznik w górnym pasku obok Workspace (na start
-  wyłączony, także w Preferencjach > Interfejs). Grupa paneli pod kursorem po chwili bierze
-  miejsce sąsiadów; Twój układ zostaje bazą, a ręczne przesunięcie krawędzi ustawia nową.
-- Ustawienia projektu mają własne okno (Plik > Ustawienia projektu), Preferencje nie powtarzają
-  już sekcji Interfejs.
+- Nothing goes off the screen: windows, dialogs, menus, drop-down lists and tooltips fit on the
+  screen (1280x720 too), long content scrolls, and the title and buttons stay visible.
+- AI windows separately: Agent, Approval requests, Analysis, Search media, Rough cut and
+  Rotoscoping and stems are separate panels. The Window menu has categories (Editing, Effects
+  and graphics, Color, Audio and text, AI, Output), and an open panel has a gold icon.
+- Dock tabs: the gold bar does not stay on a covered tab, and when the tabs do not fit, a button
+  at the end of the bar shows the rest.
+- Dragging between panels: an effect from the Effects panel onto Effect controls, onto the
+  Program monitor and onto a clip, effect presets, effects in the stack (change of order; onto
+  another clip: moves, with Ctrl copies).
+- Smart panel expanding: a switch in the top bar next to Workspace (off at first, also in
+  Preferences > Interface). After a moment, the group of panels under the cursor takes room from
+  its neighbors; your layout stays the base, and moving an edge by hand sets a new one.
+- Project settings have their own window (File > Project settings), and Preferences no longer
+  repeat the Interface section.
 
-Projekt:
+Project:
 
-- Suwak wielkości w trybie listy i siatki (także Ctrl + kółko). Siatka zawsze wypełnia szerokość
-  panelu.
-- Podgląd pod kursorem przewija klip ruchem w poziomie (Projekt i AI Assets).
+- A size slider in list and grid mode (also Ctrl + wheel). The grid always fills the width of
+  the panel.
+- A preview under the cursor scrubs the clip with a horizontal movement (Project and AI assets).
 
-Oś czasu:
+Timeline:
 
-- Każda sekwencja może mieć własną zakładkę osi czasu (menu sekwencji w Projekcie i klipu
-  zagnieżdżonego), a głowica idzie przez zagnieżdżenia.
-- Pasy nad najwyższą ścieżką wideo i pod najniższą ścieżką audio: upuszczony tam klip tworzy nową
-  ścieżkę. Na dole „+” dodaje ścieżkę wideo i audio, a „−” usuwa puste.
-- Ostatnia klatka filmstripu na końcu klipu to naprawdę ostatnia klatka klipu.
-- Podmiana klipu: klip z Projektu upuszczony z Alt na klip osi podmienia go (jak Replace w
-  Premiere), Shift+Alt z synchronizacją czasu źródła.
-- Markery na osi: najechanie je podświetla, kliknięcie zaznacza jak w panelu Markery, prawy
-  przycisk otwiera ich menu.
-- Panel narzędzi ma stałą szerokość i stały rozmiar ikon.
-- Rolka nad ścieżkami może przewijać oś w poziomie (Preferencje).
-- Przewijanie z dźwiękiem jak taśma: jog/shuttle i Ctrl z przeciąganiem głowicy grają płynnie, z
-  wysokością idącą za prędkością, bez trzasków przy zmianie kierunku i zatrzymaniu.
+- Every sequence can have its own timeline tab (the menu of a sequence in Project and of a
+  nested clip), and the playhead goes through nests.
+- Lanes above the top video track and below the bottom audio track: a clip dropped there creates
+  a new track. At the bottom "+" adds a video and audio track, and "−" removes the empty ones.
+- The last filmstrip frame at the end of a clip is truly the last frame of the clip.
+- Replacing a clip: a clip from Project dropped with Alt onto a clip on the timeline replaces it
+  (like Replace in Premiere), Shift+Alt with source time sync.
+- Markers on the timeline: hovering highlights them, a click selects like in the Markers panel,
+  right click opens their menu.
+- The tools panel has a fixed width and a fixed icon size.
+- The wheel over the tracks can scroll the timeline horizontally (Preferences).
+- Tape-style scrubbing with sound: jog/shuttle and Ctrl with a playhead drag play smoothly, with
+  the pitch following the speed, without clicks when changing direction and stopping.
 
-Efekty, kolor i warstwy web:
+Effects, color and web layers:
 
-- Lista efektów to drzewo z chowanymi gałęziami i sortowaniem (polskie litery na swoim miejscu),
-  z presetami efektów jako osobną gałęzią.
-- Wysokość wykresów w Effect Controls zmieniasz chwytem krawędzi, a krzywa głośności klipu ma
-  widoczne uchwyty Béziera.
-- Ujemna skala w Effect Controls odbija obraz w tej osi, jak w After Effects.
-- Z-depth z Video Depth Anything ze stałym zakresem głębi w czasie i efekt Camera Lens Blur.
-- Tryby mieszania liczone poprawnie: Multiply, Darken i pozostałe nie zaciemniają tła sekwencji,
-  a Add i Screen wyglądają różnie.
-- Warstwy web nie pokazują już migających resztek starych klatek po zmianie bez klucza, a
-  rozmycie ruchu działa także wewnątrz strony.
-- Biblioteka komponentów web w panelu Warstwy web (pierwsze komponenty), parametry z danymi JSON i
-  edytor danych.
-- Podgląd sekwencji Rec.709 (monitor, NDI, `render_frame`) ma te same kolory co eksport. Mapowanie
-  tonów podglądu SDR działa już tylko w sekwencjach HDR, więc szczyt monitora masteringowego nie
-  przyciemnia i nie ściska świateł klipów SDR.
-- Listy rozwijane nie skaczą przy najechaniu, a wektoroskop ma wyższą rozdzielczość.
+- The effects list is a tree with collapsible branches and sorting (Polish letters sorted
+  correctly), with effect presets as a separate branch.
+- You change the height of graphs in Effect controls by dragging an edge, and the clip volume
+  curve has visible Bézier handles.
+- A negative scale in Effect controls flips the picture on that axis, like in After Effects.
+- Z-depth from Video Depth Anything with a constant depth range over time, and the Camera Lens
+  Blur effect.
+- Blend modes computed correctly: Multiply, Darken and the others do not darken the background
+  of the sequence, and Add and Screen look different.
+- Web layers no longer show flickering leftovers of old frames after a change without a
+  keyframe, and motion blur works inside the page too.
+- The web component library in the Web layers panel (the first components), parameters with JSON
+  data and a data editor.
+- The preview of a Rec.709 sequence (monitor, NDI, `render_frame`) has the same colors as the
+  export. SDR preview tone mapping now works only in HDR sequences, so the peak of the
+  mastering display no longer dims and compresses the highlights of SDR clips.
+- Drop-down lists do not jump on hover, and the vectorscope has a higher resolution.
 
-Dźwięk:
+Sound:
 
-- Submiksy z własnym łańcuchem efektów: ścieżka idzie na Master albo na submiks. Podziałki dB
-  przy suwakach w Audio Mixerze.
-- Efekty w łańcuchu ścieżki i submiksu: kolejność zmieniasz przeciąganiem, przeciągnięcie na
-  inny pasek przenosi efekt z ustawieniami, z Ctrl kopiuje.
-- 5.1 i 7.1: panorama surround, osobny center i LFE na ścieżce i na klipie, ścieżki
-  wielokanałowe na osi i eksport wielościeżkowy z ustawieniami zaawansowanymi.
-- Stemy filmowe w panelu AI i w `separate_stems`: dialog, muzyka i efekty, a także muzyka z
-  efektami, głos i reszta oraz sześć stemów (z gitarą i pianinem). Nowy silnik CASS (Bandit v2
-  i DBS-TIGER); ostatni stem bierze resztę, więc stemy sumują się do źródła.
-- Transkrypcje słów, które idą za montażem: lokalny Whisper (darmowy, offline, instalowany w
-  Preferencjach > Transkrypcja) albo ElevenLabs Scribe (płatny, z mówcami, po wycenie).
+- Submixes with their own effect chain: a track goes to Master or to a submix. dB scales next to
+  the faders in the Audio mixer.
+- Effects in the chain of a track and a submix: you change the order by dragging, dragging onto
+  another bar moves the effect with its settings, with Ctrl it copies.
+- 5.1 and 7.1: surround pan, a separate center and LFE on a track and on a clip, multichannel
+  tracks on the timeline and multitrack export with advanced settings.
+- Film stems in the AI panel and in `separate_stems`: dialog, music and effects, also music with
+  effects, voice and the rest, and six stems (with guitar and piano). A new CASS engine (Bandit
+  v2 and DBS-TIGER); the last stem takes the rest, so the stems add up to the source.
+- Word transcripts that follow the edit: local Whisper (free, offline, installed in Preferences
+  > Transcription) or ElevenLabs Scribe (paid, with speakers, after a quote).
 
-Praca razem online:
+Work together online:
 
-- Sesja trwa bez gospodarza: goście pracują dalej, gdy host wyjdzie albo zamknie program, a media
-  raz pobrane zostają.
-- Po restarcie program proponuje „Wróć do sesji online” jednym kliknięciem.
-- Przy udostępnianiu ustalasz, czy goście mogą zapraszać kolejne osoby.
-- Przesyłanie mediów mieści się w limitach serwera: odmowy serwera kończą się odczekaniem i
-  ponowieniem, postęp jest na każdy plik, a okno sesji z długą listą plików mieści się w ekranie.
+- The session continues without the host: guests keep working when the host leaves or closes the
+  program, and media downloaded once stay.
+- After a restart, the program offers "Back to the online session" with one click.
+- When sharing, you decide whether guests may invite more people.
+- Media upload fits the server limits: server refusals end in a wait and a retry, progress is
+  shown per file, and the session window with a long list of files fits the screen.
 
-Agent i program:
+Agent and program:
 
-- Eksport do HXC, kodeka HEXART: presety „HXC” i „HXC bezstratny” w grupie montażowej, dźwięk w
-  pliku `.hxc.m4a` obok. To plik pośredni dla HEXART Video Edit (inne programy go nie otworzą), nie
-  plik dla klienta. Plik `.hxc` można zaimportować z powrotem jak każde media.
-- Podłączenie agenta AI z programu: Preferencje > Agent pokazują, czy Claude Code i Claude
-  Desktop są na komputerze i czy widzą program, a przycisk „Podłącz” wpisuje właściwe polecenie
-  (także dla kopii rozpakowanej z zipa). Konfiguracja Claude Desktop dostaje kopię zapasową, a
-  inne serwery i ustawienia zostają bez zmian. W Claude Code wybierasz zakres: wszystkie projekty
-  albo jeden folder (jego `.mcp.json`), z przeniesieniem między nimi, a dla wolących poprosić
-  Claude jest gotowe polecenie do wklejenia. Z terminala: `hve agent status|connect|disconnect`.
-- Kreator przy pierwszym uruchomieniu: język, folder projektów, podłączenie agenta,
-  automatyczne aktualizacje i zgłoszenia błędów. Można go pominąć; wraca z menu Pomoc.
-- Instalator jest też w zipie: uruchomiony z rozpakowanego folderu instaluje te pliki.
-- `hve mcp --connect` kończy się razem ze swoim klientem i nie zostawia procesów.
-- Zgłoszenie błędu może mieć zrzut okna programu (pole „Dołącz zrzut ekranu”, domyślnie
-  wyłączone): miniatura, duży podgląd i „Zrób ponownie”. HEXART przechowuje zrzut prywatnie,
-  nie jest publikowany.
-- Okno „Licencje i komponenty” wymienia modele stemów filmowych i ich licencje.
+- Export to HXC, the HEXART codec: "HXC" and "HXC lossless" presets in the editing group, with
+  the sound in an `.hxc.m4a` file next to it. This is an intermediate file for HEXART Video Edit
+  (other programs will not open it), not a file for the client. An `.hxc` file can be imported
+  back like any media.
+- Connecting the AI agent from the program: Preferences > Agent shows whether Claude Code and
+  Claude Desktop are on the computer and whether they see the program, and the "Connect" button
+  writes the right command (also for a copy unpacked from the zip). The Claude Desktop
+  configuration gets a backup, and other servers and settings stay unchanged. In Claude Code you
+  choose the scope: all projects or one folder (its `.mcp.json`), with a move between them, and
+  for those who prefer to ask Claude, there is a ready command to paste. From the terminal:
+  `hve agent status|connect|disconnect`.
+- First start wizard: language, projects folder, agent connection, automatic updates and bug
+  reports. You can skip it; it comes back from the Help menu.
+- The installer is also in the zip: run from the unpacked folder, it installs those files.
+- `hve mcp --connect` ends together with its client and leaves no processes behind.
+- A bug report can include a screenshot of the program window (the "Attach a screenshot" box,
+  off by default): a thumbnail, a large preview and "Retake". HEXART keeps the screenshot
+  privately, it is not published.
+- The "Licences and components" window lists the film stem models and their licenses.
 
 ## 0.18.1 (2026-10-29)
 
-- Okno „Licencje i komponenty” z listą składników programu i ich licencjami. Przeznaczenie
-  projektu (komercyjne albo prywatne) w ustawieniach projektu; eksport mówi, gdy projekt używa
-  składnika dozwolonego tylko do użytku niekomercyjnego, i prosi o jedno potwierdzenie.
-- Pełne teksty licencji, umowa licencyjna i informacje o prawach w paczce.
-- Program nie zamyka się już zaraz po starcie, gdy panel Fonty był otwarty z pobranym fontem.
+- The "Licences and components" window with a list of the components of the program and their
+  licenses. The purpose of a project (commercial or private) in the project settings; the export
+  says when a project uses a component allowed only for non-commercial use, and asks for one
+  confirmation.
+- Full license texts, the license agreement and rights information in the package.
+- The program no longer closes right after start when the Fonts panel was open with a downloaded
+  font.
 
 ## 0.18.0 (2026-10-29)
 
-Poprawki po pierwszym teście z montażystą.
+Fixes after the first test with an editor.
 
-Linki do współpracy:
+Collaboration links:
 
-- Kliknięcie linku `hve://` w przeglądarce otwiera program (instalator rejestruje link, a
-  zainstalowany program naprawia rejestrację przy starcie). Gdy edytor już działa, link trafia do
-  otwartego okna, które wychodzi na wierzch z wypełnionym formularzem dołączania. Dołączenie
-  zawsze potwierdzasz sam.
-- Linki wklejone z czatu albo maila działają także bez `https://`, z tekstem dookoła, z `%23`
-  zamiast `#` i z dopisanym ukośnikiem. Uszkodzony link mówi, co jest nie tak.
+- Clicking an `hve://` link in a browser opens the program (the installer registers the link,
+  and the installed program repairs the registration at start). When the editor is already
+  running, the link goes to the open window, which comes to the front with the join form filled
+  in. You always confirm joining yourself.
+- Links pasted from a chat or an email also work without `https://`, with text around them, with
+  `%23` instead of `#` and with an added slash. A damaged link says what is wrong.
 
-Praca razem online:
+Work together online:
 
-- Link do podglądu daje tryb tylko do oglądania: zmiany nie znikają już po cichu. Okno
-  udostępniania pokazuje najpierw link do edycji.
-- Projekt otwiera się u gościa od razu, a pliki dociągają się w tle z postępem (najpierw te przy
-  głowicy) i podmieniają same.
-- „Śledź” (prawy przycisk na etykiecie głowicy innej osoby albo lista osób): głowica,
-  odtwarzanie, powiększenie i przewijanie osi, sekwencja i aktywny monitor idą za tą osobą, dopóki
-  nie przerwiesz (Esc, kliknięcie albo własna akcja).
-- W sesji online Ctrl+Z cofa najnowszą zmianę wspólnej historii, czyjąkolwiek, a komunikat mówi,
-  czyja to była zmiana. Cofanie nie gubi już zmian współpracowników. Schowek zostaje osobisty.
-- Dwie osoby o tej samej nazwie rozróżnia kolor i krótki kod przy nazwie.
-- Plik > „Otwórz link do wspólnego projektu…” i przycisk w oknie projektów; link można też po
-  prostu wkleić (Ctrl+V poza polami tekstowymi).
-- Klipy jeszcze niepobrane mają znacznik z postępem wysyłania albo pobierania.
+- A view link gives a view-only mode: changes no longer disappear silently. The sharing window
+  shows the edit link first.
+- The project opens for a guest at once, and the files download in the background with progress
+  (first the ones at the playhead) and replace themselves.
+- "Follow" (right button on another person's playhead label, or the list of people): the
+  playhead, playback, zoom and scrolling of the timeline, the sequence and the active monitor
+  follow that person until you interrupt (Esc, a click or an action of your own).
+- In an online session Ctrl+Z undoes the newest change of the shared history, whoever's it is,
+  and the message says whose change it was. Undo no longer loses the changes of collaborators.
+  The clipboard stays personal.
+- Two people with the same name are told apart by a color and a short code next to the name.
+- File > "Open shared project link…" and a button in the projects window; you can also simply
+  paste the link (Ctrl+V outside text fields).
+- Clips that are not downloaded yet have a marker with the progress of uploading or downloading.
 
-Oś czasu i przejścia:
+Timeline and transitions:
 
-- Uchwyty przejść: krawędź zmienia długość tylko po swojej stronie, z Alt obie
-  naraz, środek przesuwa całe przejście wzdłuż cięcia. Kursor pokazuje tryb.
-- Część przejścia poza materiałem źródłowym jest zakreskowana, a podpowiedź mówi, ilu klatek
-  brakuje z każdej strony.
-- Ctrl+D ma jedną zasadę: zaznaczone sąsiednie klipy dostają przejście tylko między sobą, jeden
-  zaznaczony klip na cięciu najbliższym głowicy, bez zaznaczenia na cięciu pod głowicą. Jedno
-  naciśnięcie nigdy nie dodaje dwóch przejść.
-- Krótkie przejścia ze starszych projektów znowu pokazują nazwę.
-- Rolka nad linijką czasu przesuwa głowicę o klatkę, Shift o 5 klatek.
+- Transition handles: an edge changes the length only on its own side, with Alt both at once,
+  the middle moves the whole transition along the cut. The cursor shows the mode.
+- The part of a transition outside the source material is hatched, and the tooltip says how many
+  frames are missing on each side.
+- Ctrl+D has one rule: selected adjacent clips get a transition only between themselves, one
+  selected clip gets it on the cut nearest the playhead, and with no selection it goes on the
+  cut under the playhead. One press never adds two transitions.
+- Short transitions from older projects show their name again.
+- The wheel over the time ruler moves the playhead by one frame, with Shift by 5 frames.
 
-Monitory:
+Monitors:
 
-- Powiększenie 10 do 400% działa w Program i Source (100% to piksel obrazu na piksel ekranu),
-  przesuwanie środkowym przyciskiem albo narzędziem Rączka (H), Ctrl + rolka powiększa wokół
-  kursora, podwójne kliknięcie menu powiększenia albo Backslash wraca do dopasowania.
-- Rolka nad monitorem: klatka po klatce, Shift o 5 klatek.
-- Jog/shuttle pod przyciskami transportu: chwytasz suwak, wychylenie to prędkość i kierunek (do
-  8x), puszczenie zatrzymuje. J/L zmieniają prędkość bez przeskoku.
+- Zoom from 10 to 400% works in Program and Source (100% is one picture pixel per screen
+  pixel), panning with the middle button or the Hand tool (H), Ctrl + wheel zooms around the
+  cursor, a double click on the zoom menu or Backslash returns to fit.
+- The wheel over a monitor: frame by frame, with Shift by 5 frames.
+- Jog/shuttle under the transport buttons: you grab the slider, the deflection is the speed and
+  direction (up to 8x), releasing stops. J/L change the speed without a jump.
 
-Klatki kluczowe:
+Keyframes:
 
-- Przeciągana klatka kluczowa idzie za kursorem (Shift przyciąga do głowicy i innych kluczy, Esc
-  anuluje), całe przeciągnięcie to jedna zmiana w historii i nie uruchamia odtwarzania.
-- W edytorze wykresu przeciągany klucz zabiera pozostałe zaznaczone.
-- Głowicę w panelu Effect Controls można chwycić i przewijać.
+- A dragged keyframe follows the cursor (Shift snaps to the playhead and other keys, Esc
+  cancels), the whole drag is one change in the history and does not start playback.
+- In the graph editor a dragged key takes the other selected keys along.
+- The playhead in the Effect controls panel can be grabbed and scrubbed.
 
 Audio:
 
-- Przebieg na osi pokazuje głośność klipu (także klucze i wyciszenie), na żywo przy
-  przeciąganiu; przester ma czerwoną końcówkę.
-- „Normalizuj audio…” w menu klipu: do szczytu dBFS albo głośności LUFS, każdy klip osobno albo
-  wszystkie razem, z podglądem zmiany i jedną zmianą w historii. To samo dla agenta w MCP.
+- The waveform on the timeline shows the clip volume (also keys and mute), live while dragging;
+  clipping has a red end.
+- "Normalize audio…" in the clip menu: to a peak in dBFS or a loudness in LUFS, each clip
+  separately or all together, with a preview of the change and one change in the history. The
+  same for the agent in MCP.
 
-Projekt i pliki:
+Project and files:
 
-- Nazwa projektu wynika z folderu albo z dialogu tworzenia; „Projekt bez nazwy” już się nie
-  pojawia. „Zapisz jako” ma ten sam dialog nazwy i miejsca i nie gubi mediów.
-- Przeciągnięcie klipu na „+” w panelu Projekt (albo „Nowa sekwencja z klipu”) tworzy sekwencję z
-  ustawieniami klipu: rozmiar, klatkaż, HDR i audio.
-- Plik > „Zbierz pliki…” kopiuje wszystkie media do folderu projektu (identyczne pliki raz).
-  Opcjonalne kopiowanie przy imporcie w preferencjach.
+- The project name comes from the folder or from the create dialog; "Untitled project" no
+  longer appears. "Save as" has the same dialog for name and place and does not lose media.
+- Dragging a clip onto "+" in the Project panel (or "New sequence from clip") creates a sequence
+  with the settings of the clip: size, frame rate, HDR and audio.
+- File > "Collect files…" copies all media to the project folder (identical files once).
+  Optional copying on import in the preferences.
 
-Eksport:
+Export:
 
-- Filmy z dźwiękiem mają zawsze wszystkie klatki i dźwięk dokładnie tak długi jak obraz (wcześniej
-  bywało o klatkę mniej, np. w MXF).
+- Films with sound always have all the frames and sound exactly as long as the picture (before,
+  it could be one frame short, for example in MXF).
 
-Pamięć podręczna:
+Cache:
 
-- Ustawienia > Pamięć podręczna: wybór folderu cache (np. na innym dysku). Zmiana działa od
-  następnego uruchomienia: fonty i generacje przechodzą do nowego folderu, podglądy i klatki
-  Pixel Motion ze starego znikają.
-- Podglądy (miniatury galerii, przebiegi audio) mają limit rozmiaru (domyślnie 5 GB) i wieku
-  (domyślnie 30 dni bez użycia); najdawniej używane znikają same. „Wyczyść podglądy” usuwa je od
-  razu.
-- Miniatury i filmstripy zapisują się jako WebP zamiast PNG: kilka razy mniej miejsca na dysku.
+- Settings > Cache: choose the cache folder (for example on another disk). The change works from
+  the next start: fonts and generations move to the new folder, previews and Pixel Motion frames
+  in the old one disappear.
+- Previews (gallery thumbnails, audio waveforms) have a limit of size (5 GB by default) and age
+  (30 days without use by default); the least recently used disappear by themselves. "Clear
+  previews" removes them at once.
+- Thumbnails and filmstrips are saved as WebP instead of PNG: several times less disk space.
 
-Proxy w kodeku HXC:
+Proxies in the HXC codec:
 
-- Nowy format proxy HXC (kodek HEXART): menu Widok „Utwórz proxy HXC zaznaczonych mediów”.
-  Szorowanie bez czekania (każda klatka osobno), mniejszy podgląd dekoduje tylko potrzebną
-  rozdzielczość, dekodowanie na karcie graficznej. Dźwięk proxy obok, w pliku `.m4a`.
-- Proxy gra samo, gdy oryginału nie ma na dysku (także dźwięk), a po włączeniu w preferencjach
-  także dla ciężkich źródeł (ProRes, DNx, RAW, powyżej UHD). „Wyłącz proxy zaznaczonych mediów”
-  zdejmuje proxy z wybranych mediów.
-- Folder proxy ma limit i wiek w preferencjach (domyślnie 50 GB, 60 dni), pokazany rozmiar i
-  przycisk „Usuń nieużywane proxy”; proxy otwartego projektu nigdy nie znikają.
+- A new HXC proxy format (the HEXART codec): the View menu "Create HXC proxies of selected
+  media". Scrubbing without waiting (every frame separately), a smaller preview decodes only the
+  needed resolution, decoding on the graphics card. The proxy sound is next to it, in an `.m4a`
+  file.
+- A proxy plays by itself when the original is not on the disk (also the sound), and when
+  turned on in the preferences, also for heavy sources (ProRes, DNx, RAW, above UHD). "Turn off
+  proxies of selected media" removes the proxy from the chosen media.
+- The proxy folder has a limit and an age in the preferences (50 GB and 60 days by default), a
+  displayed size and a "Remove unused proxies" button; the proxies of the open project never
+  disappear.
 
 ## 0.17.0 (2026-10-29)
 
-Okna na wszystkich monitorach i workspaces:
+Windows on every monitor and workspaces:
 
-- Każdy panel można wypiąć do osobnego okna systemu i przenieść na dowolny monitor: przeciągnij
-  kartę poza okno albo wybierz „Wypnij do osobnego okna” (cała grupa: „Wypnij grupę do osobnego
-  okna”) w menu karty. W oknie może być wiele kart i podziałów, jak w głównym.
-- Karty przenoszą się między oknami przeciąganiem: nad grupą innego okna pokazują się te same
-  przyciski co w doku (do grupy albo na jej bok). Zamknięcie okna przypina jego panele z
-  powrotem do okna głównego; menu karty ma też „Przypnij do głównego okna” i „Przypnij całe okno
-  do głównego”, a menu Okno „Przypnij wszystkie okna do głównego”.
-- Skróty klawiszowe i skupienie paneli działają w wypiętych oknach.
-- Program zapamiętuje układ wszystkich okien: miejsce, rozmiar, maksymalizację i monitor. Gdy
-  monitora już nie ma albo okno wypadłoby poza ekrany, ląduje na monitorze głównym w tym samym
-  miejscu względem ekranu; zmiana skali (DPI) i rozdzielczości nie psuje układu.
-- Nowe menu Workspace obok wyboru projektu, z nazwą bieżącego: Montaż, Kolor, Audio i mikser,
-  Efekty i animacja, Napisy i tekst, AI i generacje, Recenzja. Przełączenie jednym kliknięciem,
-  workspace pamięta, jak go zostawiłeś. „Zapisz zmiany”, „Zapisz bieżący jako nowy…”, „Przywróć
-  zapisany układ”, „Przywróć domyślny preset”, zmiana nazwy i usuwanie własnych. Workspace
-  obejmuje okno główne i wszystkie wypięte okna na wszystkich ekranach; zapamiętany jest
-  ostatnio użyty.
+- Every panel can be undocked into a separate system window and moved to any monitor: drag the
+  tab out of the window or choose "Undock to its own window" (the whole group: "Undock the group
+  to its own window") in the tab menu. A window can hold many tabs and splits, like the main
+  one.
+- Tabs move between windows by dragging: over a group in another window the same buttons appear
+  as in the dock (into the group or onto its side). Closing a window docks its panels back in
+  the main window; the tab menu also has "Dock in the main window" and "Dock the whole window in
+  the main one", and the Window menu has "Dock every window in the main one".
+- Keyboard shortcuts and panel focus work in undocked windows.
+- The program remembers the layout of all windows: place, size, maximization and monitor. When a
+  monitor is gone or a window would fall off the screens, it lands on the main monitor in the
+  same place relative to the screen; a change of scale (DPI) and resolution does not break the
+  layout.
+- A new Workspace menu next to the project picker, showing the name of the current one: Editing,
+  Color, Audio and mixer, Effects and animation, Captions and text, AI and generation, Review.
+  Switching takes one click, and a workspace remembers how you left it. "Save changes", "Save
+  current as new…", "Reset to saved layout", "Restore the default preset", rename and delete for
+  your own. A workspace covers the main window and all undocked windows on all screens; the last
+  used one is remembered.
 
-Praca razem online przez link:
+Work together online through a link:
 
-- „Praca razem online”: „Zacznij udostępniać” daje link, z którym inne osoby pracują w tym
-  samym projekcie na żywo, także w jednej osi czasu; zmiany każdego, również agenta, widać u
-  wszystkich od razu. Osobny „Link do podglądu” daje dostęp tylko do oglądania.
-- Projekt jest szyfrowany od końca do końca. Pliki zaimportowane u jednej osoby same trafiają na
-  dysk pozostałych i zostają na serwerze najwyżej 24 godziny; ścieżki do plików są prywatne. Głowice innych osób są na osi czasu przygaszone na
-  błękitno.
+- "Work together online": "Start sharing" gives a link with which other people work live in the
+  same project, also in one timeline; the changes of everyone, including the agent, are seen by
+  all at once. A separate "Link to view" gives view-only access.
+- The project is encrypted end to end. Files imported by one person land on the disks of the
+  others by themselves and stay on the server for 24 hours at most; the paths to the files are
+  private. The playheads of other people are dimmed in blue on the timeline.
 
-Markery:
+Markers:
 
-- Edytor markera: nazwa, etykiety i opis. Opis to zwykły tekst albo, po przełączeniu na
-  JSON, dokument z rozmową z agentem i listą zadań do poprawek. Wszystko to także w narzędziach
-  MCP dla agenta. Eksport markerów do Premiere, EDL i OTIO bez zmian.
+- Marker editor: a name, labels and a description. The description is plain text or, after
+  switching to JSON, a document with a conversation with the agent and a list of tasks for
+  fixes. All of this also in the MCP tools for the agent. Export of markers to Premiere, EDL and
+  OTIO unchanged.
 
 ## 0.16.0 (2026-10-29)
 
-Automatyczne aktualizacje:
+Automatic updates:
 
-- Zainstalowany program sam sprawdza, czy na GitHubie jest nowa wersja (krótko po starcie i co 6
-  godzin), pobiera ją w tle, sprawdza sumę SHA-256 i numer wersji, a instaluje bez pytania, gdy
-  edytor się zamyka albo gdy serwer agenta w tle od 10 minut nic nie robi (potem sam wraca w nowej
-  wersji z tym samym projektem). Nieudana podmiana niczego nie psuje: pliki wracają na miejsce.
-- Na pasku stanu złoty przycisk „Aktualizacja X”: zamyka edytor (najpierw pyta o niezapisane
-  zmiany) i uruchamia go w nowej wersji.
-- Preferencje, sekcja Aktualizacje: „Aktualizuj automatycznie” (domyślnie włączone), numer wersji,
-  „Sprawdź teraz” i stan.
-- `hve update` aktualizuje z wiersza poleceń, `hve update --check` tylko sprawdza.
+- The installed program checks by itself whether there is a new version on GitHub (shortly after
+  start and every 6 hours), downloads it in the background, checks the SHA-256 sum and the
+  version number, and installs without asking when the editor closes or when the agent server
+  in the background has been idle for 10 minutes (then it comes back by itself in the new
+  version with the same project). A failed swap breaks nothing: the files go back in place.
+- A gold "Update X" button on the status bar: it closes the editor (asking about unsaved
+  changes first) and starts it in the new version.
+- Preferences, Updates section: "Update automatically" (on by default), the version number,
+  "Check now" and the status.
+- `hve update` updates from the command line, `hve update --check` only checks.
 
-Mikser audio i oś czasu dokończone:
+Audio mixer and timeline completed:
 
-- Mikser: wskaźniki szczytu L i P przy suwaku każdej ścieżki (po suwaku i balansie, z
-  przytrzymaniem i znacznikiem przesterowania jak na masterze).
-- 35 wbudowanych efektów audio z około 90 presetami: kompresor wielopasmowy (4 pasma, zwrotnice
-  Linkwitz-Riley, presety Stare radio, Krótkofalówka, Telefon, Zabawka, Radio AM, Megafon,
-  Broadcast, Podcast i inne), kompresor jednopasmowy, limiter, bramka, de-esser, kompresor
-  lampowy, dynamika; dolno-, górno-, pasmowo- i wieloprzepustowy, korektor parametryczny (7 pasm)
-  i graficzny (10 pasm), bas, sopran; pogłos studyjny (FDN) i pogłos przestrzenny (splot z
-  wygenerowanymi odpowiedziami 10 pomieszczeń albo z własnego pliku WAV, kanały 5.1 i 7.1);
-  delay, multitap, chorus i flanger, phaser; odszumianie, usuwanie przydźwięku; przester,
-  bitcrusher, wzmacniacz wokalu; narzędzia stereo i mastering; declicker (trzaski i trzeszczenie
-  płyty). Przester z nadpróbkowaniem (do 8x), limiter i maksymalizer z wyprzedzeniem i szczytem
-  rzeczywistym; ich opóźnienie jest kompensowane jak we wtyczkach. Plik odpowiedzi impulsowej
-  ze ścieżką względną do folderu projektu.
-- MCP: `list_effects` i `list_bus_effects` pokazują presety, nowe narzędzie `apply_effect_preset`
-  (jedna rewizja).
-- Presety w nagłówku efektu w Ustawieniach efektów: jeden krok cofania, parametry, których preset
-  nie zmienia, wracają do domyślnych. Wyszukiwarka efektów znajduje też po identyfikatorze
-  („multiband”).
-- Linie klatek kluczowych na klipach osi: głośność dla audio i krycie dla wideo, rozwijana lista w
-  nagłówku ścieżki wybiera dowolny parametr klipu, efektu na szynie ścieżki albo wtyczki (także
-  automatyzacja głośności i panoramy ścieżki). Ctrl i klik dodaje klucz, przeciąganie linii
-  podnosi cały odcinek, Alt i przeciągnięcie klucza robi Beziera (także w Ustawieniach efektów i
-  w edytorze wykresu), Alt i klik przełącza liniowy i automatyczny Bezier.
-- Lasso wyrażeń także między klipami, szynami ścieżek i masterem: `thisComp.track("A1")` i
-  `thisComp.master` z `effect()`, `effects` i `numEffects`; wskaźniki powiązań skaczą do szyny.
-- Prawy klik na klipie: „Rozwiń audio ze źródła” i „Rozwiń wideo ze źródła” dokłada drugi
-  strumień na pierwszej wolnej ścieżce i łączy go z klipem.
-- Ścieżki zawsze wypełniają panel; Shift i plus albo minus nad osią delikatnie powiększa albo
-  zmniejsza wszystkie ścieżki; przeciągnięcie granicy między ścieżkami zmienia całą grupę
-  sprężyście (chwycona granica idzie za kursorem), środkowy separator dzieli wysokość między
-  wideo i audio proporcjonalnie.
-- Szerokość kolumny nagłówków przeciąga się za jej prawą krawędź (pamiętana), narożnik z nazwą
-  narzędzia i czasem końca zniknął, długie nazwy ścieżek kończą się wielokropkiem (pełna nazwa w
-  podpowiedzi).
-- Ctrl i klik na timecode przełącza timecode, numer klatki i sekundy; linijki osi i Ustawień
-  efektów pokazują to samo.
-- Każde pole liczbowe przyjmuje działania: `*2`, `+10%`, `/4`, `-=1.5`, `(1920-40)/2`, funkcje
-  (`round`, `min`, `max`, `clamp`, `db`), jednostki czasu w polach czasu (`+2s`, `-12f`,
-  `1:30`), przecinek dziesiętny.
-- Przejścia: rysowane nad oboma klipami z nazwą, krawędzie ciągną się we właściwą stronę
-  (wyśrodkowane rosną symetrycznie), Delete na zaznaczonym przejściu usuwa przejście, nie klip;
-  przejście wejściowe na cięciu, którego odtwarzanie i tak nie używa, nie jest już pokazywane.
+- Mixer: peak meters L and R next to the fader of every track (after the fader and balance, with
+  hold and an overload marker like on the master).
+- 35 built-in audio effects with about 90 presets: Multiband Compressor (4 bands, Linkwitz-Riley
+  crossovers, presets Old Radio, Walkie-Talkie, Telephone, Toy, AM Radio, Megaphone, Broadcast,
+  Podcast and others), a single-band compressor, a limiter, a gate, a de-esser, a tube
+  compressor, Dynamics; low-pass, high-pass, band-pass and all-pass filters, a Parametric EQ (7
+  bands) and a Graphic EQ (10 bands), Bass, Treble; Studio Reverb (FDN) and a spatial reverb
+  (convolution with generated responses of 10 rooms or from your own WAV file, 5.1 and 7.1
+  channels); delay, multitap, Chorus and Flanger, phaser; DeNoise, DeHummer; Distortion,
+  Bitcrusher, a vocal enhancer; stereo and mastering tools; a declicker (clicks and record
+  crackle). Distortion with oversampling (up to 8x), a limiter and a maximizer with look-ahead
+  and true peak; their latency is compensated like in plugins. An impulse response file with a
+  path relative to the project folder.
+- MCP: `list_effects` and `list_bus_effects` show presets, and a new tool `apply_effect_preset`
+  (one revision).
+- Presets in the effect header in Effect controls: one undo step, parameters that the preset
+  does not change go back to the defaults. The effect search also finds by identifier
+  ("multiband").
+- Keyframe lines on the clips of the timeline: volume for audio and opacity for video, a
+  drop-down list in the track header picks any parameter of a clip, of an effect on the track
+  bus or of a plugin (also volume and pan automation of the track). Ctrl and a click adds a key,
+  dragging the line lifts the whole segment, Alt and a drag of a key makes a Bézier (also in
+  Effect controls and in the graph editor), Alt and a click switches between linear and
+  automatic Bézier.
+- The expression pick whip also works between clips, track buses and the master:
+  `thisComp.track("A1")` and `thisComp.master` with `effect()`, `effects` and `numEffects`; the
+  link indicators jump to the bus.
+- Right click on a clip: "Expand audio from source" and "Expand video from source" add the
+  second stream on the first free track and link it to the clip.
+- Tracks always fill the panel; Shift and plus or minus over the timeline gently enlarges or
+  reduces all tracks; dragging the border between tracks resizes the whole group elastically
+  (the grabbed border follows the cursor), and the middle separator splits the height between
+  video and audio proportionally.
+- The width of the header column is dragged by its right edge (remembered), the corner with the
+  tool name and the end time is gone, and long track names end with an ellipsis (the full name
+  is in the tooltip).
+- Ctrl and a click on a timecode switches between timecode, frame number and seconds; the rulers
+  of the timeline and of Effect controls show the same.
+- Every number field accepts operations: `*2`, `+10%`, `/4`, `-=1.5`, `(1920-40)/2`, functions
+  (`round`, `min`, `max`, `clamp`, `db`), time units in time fields (`+2s`, `-12f`, `1:30`), a
+  decimal comma.
+- Transitions: drawn over both clips with a name, the edges stretch in the right direction
+  (centered ones grow symmetrically), Delete on a selected transition removes the transition,
+  not the clip; an incoming transition on a cut where playback does not use it anyway is no
+  longer shown.
 
 ## 0.15.0 (2026-10-28)
 
-Pierwsze wydanie publiczne: https://github.com/lazniak/hexart-video-edit (instalator jedną linią
-w PowerShell, FFmpeg w paczce).
+First public release: https://github.com/lazniak/hexart-video-edit (a one-line installer in
+PowerShell, FFmpeg in the package).
 
-- Zgłaszanie błędów z programu: Pomoc > Zgłoś błąd albo ikona w pasku menu. Opis tekstem albo
-  notatka głosowa do 3 minut, domyślnie dołączony log z ostatniej minuty (suwak od 10 s do
-  10 min, tekst do poprawienia) i informacje o urządzeniu, ścieżki i nazwa użytkownika ukryte.
-  Zgłoszenie trafia jako issue na GitHubie; nagranie przepisuje na tekst serwer HEXART
-  (ElevenLabs Scribe v2), samo nagranie nie jest publikowane. Gdy wysyłka się nie uda,
-  zgłoszenie zostaje zapisane na dysku.
-- Nigdy czarna klatka przy klipach na kilku ścieżkach wideo: dekoder, który padł w trakcie,
-  nie jest już brany za koniec pliku, chwilowa awaria nie zostawia dziury, za końcem pliku
-  monitor pokazuje ostatnią klatkę jak eksport, a warstwa bez obrazu jest trzymana, dopóki nie
-  przyjdzie klatka. Monitory nie dekodują warstw zasłoniętych w całości przez klip powyżej, więc
-  przewijanie i skoki po materiale 4K na kilku ścieżkach stoją wyraźnie krócej (skoki
-  kliknięciem bez zamrożeń, przewijanie w tę i z powrotem najwyżej 0,2 s).
-- Głowica na środku osi czasu, opcja w Preferencjach (domyślnie wyłączona): głowica stoi
-  pośrodku, a sekwencja przesuwa się pod nią przy odtwarzaniu, scrubie i przewijaniu. Druga
-  opcja: kółko myszy przybliża wokół głowicy, Shift i kółko przewija w poziomie, Alt i kółko
-  albo kółko nad nagłówkami przewija ścieżki.
-- Przewijanie i kliki w pauzie bez czarnych klatek i bez przycięć UI: wątek UI nie czeka
-  już na koniec procesu FFmpeg (do 0,8 s przy 4K), po skoku monitor trzyma obraz tylko dla
-  warstwy bez niczego, klatki zastępcze z całego zakresu klipu, seek w pauzie dekoduje klatkę
-  i 3 następne, sesje, o które głowica już nie pyta, stają, a wokół zatrzymanej głowicy
-  dekoduje się podgląd ±3 s. Nowy pomiar `hve scrub`.
-- Zoom osi czasu kotwiczy się na głowicy.
-- FFmpeg dołączony do paczki (9.0.2); program szuka go najpierw obok siebie.
+- Bug reporting from the program: Help > Report a bug or an icon in the menu bar. A description
+  in text or a voice note up to 3 minutes, a log from the last minute attached by default
+  (a slider from 10 s to 10 min, text you can edit) and device information, with paths and the
+  user name hidden. The report arrives as an issue on GitHub; the HEXART server turns the
+  recording into text (ElevenLabs Scribe v2), and the recording itself is not published. When
+  sending fails, the report is kept on the disk.
+- Never a black frame with clips on several video tracks: a decoder that died midway is no
+  longer taken for the end of the file, a momentary failure leaves no hole, past the end of the
+  file the monitor shows the last frame like the export, and a layer without a picture is held
+  until a frame arrives. The monitors do not decode layers fully covered by a clip above, so
+  scrubbing and jumps on 4K footage on several tracks stall clearly less (jumps by click
+  without freezes, scrubbing back and forth at most 0.2 s).
+- Playhead in the middle of the timeline, an option in Preferences (off by default): the
+  playhead stands in the middle, and the sequence moves under it during playback, scrubbing and
+  scrolling. A second option: the mouse wheel zooms around the playhead, Shift and wheel scroll
+  horizontally, Alt and wheel or the wheel over the headers scroll the tracks.
+- Scrubbing and clicks while paused without black frames and without UI stutter: the UI thread no
+  longer waits for the end of the FFmpeg process (up to 0.8 s at 4K), after a jump the monitor
+  holds the picture only for a layer with nothing, placeholder frames from the whole range of
+  the clip, a seek while paused decodes the frame and the 3 next ones, sessions that the
+  playhead no longer asks for stop, and a ±3 s preview is decoded around a stopped playhead. A
+  new measurement `hve scrub`.
+- Timeline zoom is anchored on the playhead.
+- FFmpeg bundled in the package (9.0.2); the program looks for it next to itself first.
 
 ## 0.14.0 (2026-10-26)
 
-Pierwsze wydanie z tagiem. Zawiera wszystko, co powstało do tej pory.
+First release with a tag. It contains everything that was made so far.
 
-Nowe od ostatniej wersji testowej (25.10):
+New since the last test version (25.10):
 
-- Wyrażenia w pełnym JavaScript: silnik QuickJS-ng z API obiektów, zmienne
-  sekwencji, `hve.vars` i `hve.publish` w warstwach web, edytor wyrażeń z kolorowaniem,
-  podpowiedziami i pomocą sygnatur, panel Zmienne, dokumentacja z menu Pomoc (PL, EN),
-  narzędzia MCP `validate_expression`, `evaluate_expression`, `expression_docs`.
-- Sekwencje zagnieżdżone: zagnieżdżanie obrazu i dźwięku z zapasem materiału,
-  spłaszczanie bez zmiany wyniku albo odmowa z powodem, otwieranie zagnieżdżeń, ścieżka powrotu.
-- Nagrywanie lektora z mikrofonu prosto na oś czasu: REC w pasku osi (Shift+R),
-  odliczanie, żywa fala, start od punktu In albo głowicy, naprawa ujęć po awarii.
-- Effect Controls i Time Remapping jak w After Effects, Pixel Motion, panel Narzędzia w doku.
-- Eksport profesjonalny: formaty, 79 presetów, podgląd In/Out, kontrole przed eksportem,
-  QSV sprawdzony na sprzęcie Intel, poprawione argumenty AMF, wszystkie presety dostępne dla agentów.
-- Własna ikona aplikacji (kadr z głowicą).
-- Audio: utrata urządzenia albo zawieszony sterownik nie blokują silnika.
-- FFmpeg i dekodery RAW zawsze podają powód zakończenia.
+- Expressions in full JavaScript: the QuickJS-ng engine with an object API, sequence variables,
+  `hve.vars` and `hve.publish` in web layers, an expression editor with coloring, hints and
+  signature help, a Variables panel, documentation from the Help menu (PL, EN), MCP tools
+  `validate_expression`, `evaluate_expression`, `expression_docs`.
+- Nested sequences: nesting picture and sound with spare material, flattening without changing
+  the result or a refusal with a reason, opening nests, a path back.
+- Recording a voice-over from a microphone straight onto the timeline: REC in the timeline bar
+  (Shift+R), a countdown, a live waveform, a start from the In point or the playhead, repair of
+  takes after a crash.
+- Effect controls and Time Remapping like in After Effects, Pixel Motion, a Tools panel in the
+  dock.
+- Professional export: formats, 79 presets, an In/Out preview, checks before export, QSV
+  verified on Intel hardware, corrected AMF arguments, all presets available to agents.
+- A custom application icon (a frame with a playhead).
+- Audio: loss of a device or a hung driver does not block the engine.
+- FFmpeg and RAW decoders always report the reason for ending.
 
-Wcześniej: oś czasu od wciśnięcia myszy, przeciąganie z systemem, HDR według norm,
-korekcja koloru jak w DaVinci Resolve, biblioteka warstw web i MCP, odtwarzanie co
-do klatki z pracą w tle, serwer agenta w tle i przełącznik projektów.
+Earlier: the timeline from the mouse press, dragging with the system, HDR according to the
+standards, color correction like in DaVinci Resolve, a web layers library and MCP, frame-exact
+playback with work in the background, the agent server in the background and a project switcher.

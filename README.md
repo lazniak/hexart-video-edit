@@ -1,128 +1,8 @@
 # HEXART Video Edit
 
-[Polski](#polski) | [English](#english)
+[English](#english) | [Polski](#polski)
 
-Pobierz / Download: [najnowsze wydanie / latest release](https://github.com/lazniak/hexart-video-edit/releases/latest)
-
----
-
-## Polski
-
-HEXART Video Edit to edytor wideo dla Windows. Ma oś czasu, korekcję koloru, efekty z wyrażeniami w JavaScript, warstwy web, sekwencje zagnieżdżone, nagrywanie lektora i eksport z gotowymi presetami. Agent AI, na przykład Claude Code, edytuje ten sam projekt co Ty, w tej samej osi czasu i z tą samą historią cofania.
-
-To repozytorium nie zawiera kodu źródłowego. Są tu gotowe wydania, instalator, informacje o wersjach i zgłoszenia błędów. Program jest bezpłatny (freeware), licencja w [LICENSE.txt](LICENSE.txt).
-
-### Wymagania
-
-- Windows 10 albo 11, 64-bit.
-- Karta graficzna z DirectX 12.
-- RAM: 16 GB wystarczy do FullHD, do 4K zalecane 32 GB.
-- Do zakodowania eksportu sprzętowo przydaje się karta NVIDIA (NVENC), AMD (AMF) albo Intel (QSV). Bez nich program koduje procesorem.
-- Chrome albo Edge, jeśli używasz warstw web (opcjonalnie).
-- FFmpeg jest w paczce, nic nie musisz doinstalowywać.
-
-### Instalacja
-
-Jedna linia w PowerShell:
-
-```powershell
-irm https://github.com/lazniak/hexart-video-edit/releases/latest/download/install.ps1 | iex
-```
-
-Instalator pobiera najnowszy zip z GitHub Releases, sprawdza sumę SHA-256, pyta, gdzie zainstalować program (Enter = `%LOCALAPPDATA%\Programs\HEXART Video Edit`), i zakłada skróty w menu Start: program i jego odinstalowanie. Program jest też w Ustawieniach, Aplikacje, a prawy klik na nim w menu Start daje „Odinstaluj”. Zapyta, czy włączyć autostart serwera agenta i czy zarejestrować MCP w Claude Code. Nie potrzebuje uprawnień administratora.
-
-Opcje (zamiast jednej linii):
-
-```powershell
-& ([scriptblock]::Create((irm https://github.com/lazniak/hexart-video-edit/releases/latest/download/install.ps1))) -Version 0.15.0 -Desktop -Autostart -Mcp
-```
-
-| Opcja | Co robi |
-|---|---|
-| `-Version x.y.z` | konkretna wersja zamiast najnowszej |
-| `-Desktop` | dodatkowo skrót na pulpicie |
-| `-Autostart` / `-NoAutostart` | włącza bez pytania / nie pyta |
-| `-Mcp` / `-NoMcp` | rejestruje MCP w Claude Code bez pytania / nie pyta |
-| `-Yes` | nie pyta o nic, bierze odpowiedzi domyślne |
-| `-InstallDir` | folder instalacji bez pytania (folder z innymi plikami albo cały dysk dostaje podfolder `HEXART Video Edit`) |
-
-Ręcznie: pobierz `hexart-video-edit-<wersja>-windows-x64.zip` z [Releases](https://github.com/lazniak/hexart-video-edit/releases), rozpakuj do dowolnego folderu i uruchom `hexart-video-edit.exe`. Obok zipa leży plik `.sha256` do sprawdzenia: `Get-FileHash plik.zip -Algorithm SHA256`. Przy pierwszym uruchomieniu krótki kreator ustawia język, folder projektów i podłącza agenta AI. Rozpakowaną kopię zainstalujesz później instalatorem, który jest w zipie: `powershell -ExecutionPolicy Bypass -File install.ps1` w tym folderze (instaluje pliki z folderu, nic nie pobiera).
-
-Gdzie są ustawienia: Pomoc, „Otwórz folder ustawień” (ścieżka jest też w „O programie”). Wszystkie kopie programu na komputerze dzielą jedne ustawienia, chyba że kopia jest przenośna: plik `portable.txt` obok `hexart-video-edit.exe` sprawia, że trzyma ona ustawienia, kroki pierwszego uruchomienia i cache w folderze `data` obok siebie i ma własny port agenta. Kopia uruchomiona z innego folderu sama raz zapyta, czy użyć wspólnych ustawień, czy zostać osobno.
-
-### Aktualizacja
-
-Od wersji 0.16.0 program aktualizuje się sam: krótko po starcie i co kilka godzin sprawdza, czy jest nowe wydanie, pobiera je w tle, sprawdza sumę SHA-256 i instaluje, gdy zamykasz edytor (albo gdy serwer agenta w tle nic nie robi). Gdy nowa wersja czeka, na pasku stanu jest przycisk „Aktualizacja X”, który od razu uruchamia program ponownie. Wyłączysz to w Preferencjach, sekcja Aktualizacje. Z wiersza poleceń: `hve update` (albo `hve update --check`).
-
-Ręcznie: uruchom ten sam instalator jeszcze raz. Zamknie program i serwer agenta w tle (jeśli działają), zostawi kopię poprzednich plików jako `*.exe.old` i podmieni pliki. Twoje projekty i ustawienia zostają. Sesję Claude Code uruchom po aktualizacji od nowa.
-
-### Pierwsze kroki
-
-1. Uruchom HEXART Video Edit z menu Start. Utwórz projekt (wybierz pusty folder).
-2. Przeciągnij pliki wideo, audio i obrazy do panelu mediów.
-3. Przeciągnij klip na oś czasu. Tnij, przesuwaj, dodawaj efekty i przejścia.
-4. Eksport: wybierz preset (YouTube, ProRes, DNxHR, sekwencja PNG, HDR i inne).
-5. Dokumentacja jest w menu Pomoc w programie.
-
-Linia poleceń: `hve.exe --help` w folderze instalacji. `hve new`, `hve import`, `hve render` i inne działają bez okna programu.
-
-### Agent AI i MCP (Claude Code, Claude Desktop)
-
-Program ma wbudowany serwer MCP. Agent widzi oś czasu, media i historię, a każda jego zmiana jest osobną rewizją, którą cofniesz zwykłym Ctrl+Z.
-
-Najprościej z programu: Preferencje, sekcja Agent, „Podłącz” przy Claude Code albo Claude Desktop (to samo w kreatorze pierwszego uruchomienia, menu Pomoc). Program sam wpisuje polecenie z właściwą ścieżką, także dla kopii rozpakowanej z zipa. Claude Desktop dostaje wpis w `claude_desktop_config.json` (z kopią poprzedniego pliku, inne serwery zostają) i trzeba go potem całkiem zamknąć (także z zasobnika) i uruchomić ponownie. W Claude Code wybierasz zakres: wszystkie projekty (wpis w głównej konfiguracji Claude Code) albo jeden folder (plik `.mcp.json` w tym folderze, główna konfiguracja bez zmian); „Przenieś tutaj” zmienia zakres. Wolisz poprosić Claude? Program daje gotowe polecenie do wklejenia. Z terminala: `hve agent status`, `hve agent connect claude-desktop`, `hve agent connect claude-code` (z `--folder <folder>` tylko dla jednego folderu).
-
-Ręcznie w Claude Code (instalator robi to za Ciebie, jeśli się zgodzisz):
-
-```powershell
-claude mcp add --scope user hexart-video-edit -- "%LOCALAPPDATA%\Programs\HEXART Video Edit\hve.exe" mcp --connect
-```
-
-`hve mcp --connect` łączy Claude Code z serwerem agenta na porcie 47960. Jeśli okno programu nie jest otwarte, serwer startuje sam w tle (`hexart-video-edit.exe --background`) i trzyma projekt, więc sesja agenta nie traci kontekstu, gdy zamkniesz okno. Chcesz, żeby serwer wstawał po zalogowaniu? Zaznacz autostart w instalatorze albo w ustawieniach programu. Zatrzymanie: `hve mcp --stop`. Stan: `hve mcp --status`.
-
-Zapłacone i zewnętrzne akcje (generowanie, transkrypcja, wysyłka, publikacja, kasowanie plików, długie eksporty) czekają na Twoje potwierdzenie w oknie programu. Agent sam ich nie zatwierdzi.
-
-### Warto zainstalować OpenRouter MCP
-
-[OpenRouter MCP](https://github.com/lazniak/OpenRouter-MCP) odblokowuje pełnię możliwości edytora: generowanie obrazów i wideo przez AI prosto na oś czasu. To osobny, lokalny program HEXART (Windows 10/11, Node.js 24+, konto OpenRouter). Daje:
-
-- generowanie obrazów i wideo z wyceną przed zapłatą: widzisz cenę, model i parametry, a dopiero Twoje potwierdzenie uruchamia płatne wywołanie,
-- osobne klucze API na projekt z limitem wydatków na każdym kluczu, statystyki kosztów i możliwość rotacji kluczy,
-- katalog modeli aktualizowany na bieżąco, z dokumentacją parametrów każdego modelu,
-- pamięć Twojego gustu i strategii cena/jakość, żeby kolejne propozycje trafiały lepiej,
-- działa tylko na Twoim komputerze (127.0.0.1), klucze są szyfrowane.
-
-Bez niego edytor działa w pełni, tylko bez generowania AI. Instalacja i konfiguracja: opis w [repozytorium OpenRouter MCP](https://github.com/lazniak/OpenRouter-MCP).
-
-### Zgłaszanie błędów z programu
-
-W programie jest przycisk zgłoszenia błędu. Opisujesz problem tekstem albo nagraniem głosowym. Zgłoszenie trafia tu jako publiczny issue.
-
-- Nagranie głosowe jest zamieniane na tekst na serwerze HEXART. Samo nagranie nie jest publikowane, w issue ląduje tylko transkrypcja.
-- Log i informacje o urządzeniu (wersja programu, Windows, karta graficzna, pamięć) widzisz i możesz poprawić albo skasować przed wysłaniem. Nic nie idzie bez Twojego kliknięcia.
-- Ponieważ issue jest publiczny, nie wpisuj w nim haseł, kluczy ani danych klientów.
-
-Możesz też zgłosić błąd ręcznie: [nowy issue](https://github.com/lazniak/hexart-video-edit/issues/new/choose) (formularz pyta o wersję, kroki, oczekiwany i faktyczny wynik oraz log).
-
-### Prywatność
-
-- Projekty, media i ustawienia zostają na Twoim dysku. Program nie wysyła statystyk użycia i sam nie sprawdza aktualizacji.
-- Połączenia sieciowe uruchamiasz Ty: pobranie czcionki z Google Fonts, pobranie modelu Pixel Motion, transkrypcja (ElevenLabs, Twoim kluczem), wysyłka pliku przez transfer.hexart.io, generowanie przez OpenRouter MCP, zgłoszenie błędu. Płatne i zewnętrzne akcje wymagają potwierdzenia w programie.
-- Serwer MCP słucha tylko na 127.0.0.1 i wymaga tokenu.
-- Zgłoszenie błędu jest publiczne, szczegóły wyżej.
-
-### Licencja i komponenty
-
-Program: [LICENSE.txt](LICENSE.txt) (freeware, bez prawa do redystrybucji i inżynierii wstecznej). W paczce jest FFmpeg na licencji GPL v3 uruchamiany jako osobny proces. Źródło i licencje komponentów: [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt) w paczce.
-
-Dekoder RED R3D nie jest w paczce. Dekoder Blackmagic RAW (`hve-braw.exe`) korzysta ze środowiska Blackmagic RAW zainstalowanego w systemie.
-
-### Linki
-
-- Zmiany: [CHANGELOG.md](CHANGELOG.md)
-- Bezpieczeństwo: [SECURITY.md](SECURITY.md)
-- Błędy i pomysły: [Issues](https://github.com/lazniak/hexart-video-edit/issues)
-- HEXART: [hexart.pl](https://hexart.pl)
+Download / Pobierz: [latest release / najnowsze wydanie](https://github.com/lazniak/hexart-video-edit/releases/latest)
 
 ---
 
@@ -242,4 +122,124 @@ The RED R3D decoder is not in the package. The Blackmagic RAW decoder (`hve-braw
 - Changes: [CHANGELOG.md](CHANGELOG.md)
 - Security: [SECURITY.md](SECURITY.md)
 - Bugs and ideas: [Issues](https://github.com/lazniak/hexart-video-edit/issues)
+- HEXART: [hexart.pl](https://hexart.pl)
+
+---
+
+## Polski
+
+HEXART Video Edit to edytor wideo dla Windows. Ma oś czasu, korekcję koloru, efekty z wyrażeniami w JavaScript, warstwy web, sekwencje zagnieżdżone, nagrywanie lektora i eksport z gotowymi presetami. Agent AI, na przykład Claude Code, edytuje ten sam projekt co Ty, w tej samej osi czasu i z tą samą historią cofania.
+
+To repozytorium nie zawiera kodu źródłowego. Są tu gotowe wydania, instalator, informacje o wersjach i zgłoszenia błędów. Program jest bezpłatny (freeware), licencja w [LICENSE.txt](LICENSE.txt).
+
+### Wymagania
+
+- Windows 10 albo 11, 64-bit.
+- Karta graficzna z DirectX 12.
+- RAM: 16 GB wystarczy do FullHD, do 4K zalecane 32 GB.
+- Do zakodowania eksportu sprzętowo przydaje się karta NVIDIA (NVENC), AMD (AMF) albo Intel (QSV). Bez nich program koduje procesorem.
+- Chrome albo Edge, jeśli używasz warstw web (opcjonalnie).
+- FFmpeg jest w paczce, nic nie musisz doinstalowywać.
+
+### Instalacja
+
+Jedna linia w PowerShell:
+
+```powershell
+irm https://github.com/lazniak/hexart-video-edit/releases/latest/download/install.ps1 | iex
+```
+
+Instalator pobiera najnowszy zip z GitHub Releases, sprawdza sumę SHA-256, pyta, gdzie zainstalować program (Enter = `%LOCALAPPDATA%\Programs\HEXART Video Edit`), i zakłada skróty w menu Start: program i jego odinstalowanie. Program jest też w Ustawieniach, Aplikacje, a prawy klik na nim w menu Start daje „Odinstaluj”. Zapyta, czy włączyć autostart serwera agenta i czy zarejestrować MCP w Claude Code. Nie potrzebuje uprawnień administratora.
+
+Opcje (zamiast jednej linii):
+
+```powershell
+& ([scriptblock]::Create((irm https://github.com/lazniak/hexart-video-edit/releases/latest/download/install.ps1))) -Version 0.15.0 -Desktop -Autostart -Mcp
+```
+
+| Opcja | Co robi |
+|---|---|
+| `-Version x.y.z` | konkretna wersja zamiast najnowszej |
+| `-Desktop` | dodatkowo skrót na pulpicie |
+| `-Autostart` / `-NoAutostart` | włącza bez pytania / nie pyta |
+| `-Mcp` / `-NoMcp` | rejestruje MCP w Claude Code bez pytania / nie pyta |
+| `-Yes` | nie pyta o nic, bierze odpowiedzi domyślne |
+| `-InstallDir` | folder instalacji bez pytania (folder z innymi plikami albo cały dysk dostaje podfolder `HEXART Video Edit`) |
+
+Ręcznie: pobierz `hexart-video-edit-<wersja>-windows-x64.zip` z [Releases](https://github.com/lazniak/hexart-video-edit/releases), rozpakuj do dowolnego folderu i uruchom `hexart-video-edit.exe`. Obok zipa leży plik `.sha256` do sprawdzenia: `Get-FileHash plik.zip -Algorithm SHA256`. Przy pierwszym uruchomieniu krótki kreator ustawia język, folder projektów i podłącza agenta AI. Rozpakowaną kopię zainstalujesz później instalatorem, który jest w zipie: `powershell -ExecutionPolicy Bypass -File install.ps1` w tym folderze (instaluje pliki z folderu, nic nie pobiera).
+
+Gdzie są ustawienia: Pomoc, „Otwórz folder ustawień” (ścieżka jest też w „O programie”). Wszystkie kopie programu na komputerze dzielą jedne ustawienia, chyba że kopia jest przenośna: plik `portable.txt` obok `hexart-video-edit.exe` sprawia, że trzyma ona ustawienia, kroki pierwszego uruchomienia i cache w folderze `data` obok siebie i ma własny port agenta. Kopia uruchomiona z innego folderu sama raz zapyta, czy użyć wspólnych ustawień, czy zostać osobno.
+
+### Aktualizacja
+
+Od wersji 0.16.0 program aktualizuje się sam: krótko po starcie i co kilka godzin sprawdza, czy jest nowe wydanie, pobiera je w tle, sprawdza sumę SHA-256 i instaluje, gdy zamykasz edytor (albo gdy serwer agenta w tle nic nie robi). Gdy nowa wersja czeka, na pasku stanu jest przycisk „Aktualizacja X”, który od razu uruchamia program ponownie. Wyłączysz to w Preferencjach, sekcja Aktualizacje. Z wiersza poleceń: `hve update` (albo `hve update --check`).
+
+Ręcznie: uruchom ten sam instalator jeszcze raz. Zamknie program i serwer agenta w tle (jeśli działają), zostawi kopię poprzednich plików jako `*.exe.old` i podmieni pliki. Twoje projekty i ustawienia zostają. Sesję Claude Code uruchom po aktualizacji od nowa.
+
+### Pierwsze kroki
+
+1. Uruchom HEXART Video Edit z menu Start. Utwórz projekt (wybierz pusty folder).
+2. Przeciągnij pliki wideo, audio i obrazy do panelu mediów.
+3. Przeciągnij klip na oś czasu. Tnij, przesuwaj, dodawaj efekty i przejścia.
+4. Eksport: wybierz preset (YouTube, ProRes, DNxHR, sekwencja PNG, HDR i inne).
+5. Dokumentacja jest w menu Pomoc w programie.
+
+Linia poleceń: `hve.exe --help` w folderze instalacji. `hve new`, `hve import`, `hve render` i inne działają bez okna programu.
+
+### Agent AI i MCP (Claude Code, Claude Desktop)
+
+Program ma wbudowany serwer MCP. Agent widzi oś czasu, media i historię, a każda jego zmiana jest osobną rewizją, którą cofniesz zwykłym Ctrl+Z.
+
+Najprościej z programu: Preferencje, sekcja Agent, „Podłącz” przy Claude Code albo Claude Desktop (to samo w kreatorze pierwszego uruchomienia, menu Pomoc). Program sam wpisuje polecenie z właściwą ścieżką, także dla kopii rozpakowanej z zipa. Claude Desktop dostaje wpis w `claude_desktop_config.json` (z kopią poprzedniego pliku, inne serwery zostają) i trzeba go potem całkiem zamknąć (także z zasobnika) i uruchomić ponownie. W Claude Code wybierasz zakres: wszystkie projekty (wpis w głównej konfiguracji Claude Code) albo jeden folder (plik `.mcp.json` w tym folderze, główna konfiguracja bez zmian); „Przenieś tutaj” zmienia zakres. Wolisz poprosić Claude? Program daje gotowe polecenie do wklejenia. Z terminala: `hve agent status`, `hve agent connect claude-desktop`, `hve agent connect claude-code` (z `--folder <folder>` tylko dla jednego folderu).
+
+Ręcznie w Claude Code (instalator robi to za Ciebie, jeśli się zgodzisz):
+
+```powershell
+claude mcp add --scope user hexart-video-edit -- "%LOCALAPPDATA%\Programs\HEXART Video Edit\hve.exe" mcp --connect
+```
+
+`hve mcp --connect` łączy Claude Code z serwerem agenta na porcie 47960. Jeśli okno programu nie jest otwarte, serwer startuje sam w tle (`hexart-video-edit.exe --background`) i trzyma projekt, więc sesja agenta nie traci kontekstu, gdy zamkniesz okno. Chcesz, żeby serwer wstawał po zalogowaniu? Zaznacz autostart w instalatorze albo w ustawieniach programu. Zatrzymanie: `hve mcp --stop`. Stan: `hve mcp --status`.
+
+Zapłacone i zewnętrzne akcje (generowanie, transkrypcja, wysyłka, publikacja, kasowanie plików, długie eksporty) czekają na Twoje potwierdzenie w oknie programu. Agent sam ich nie zatwierdzi.
+
+### Warto zainstalować OpenRouter MCP
+
+[OpenRouter MCP](https://github.com/lazniak/OpenRouter-MCP) odblokowuje pełnię możliwości edytora: generowanie obrazów i wideo przez AI prosto na oś czasu. To osobny, lokalny program HEXART (Windows 10/11, Node.js 24+, konto OpenRouter). Daje:
+
+- generowanie obrazów i wideo z wyceną przed zapłatą: widzisz cenę, model i parametry, a dopiero Twoje potwierdzenie uruchamia płatne wywołanie,
+- osobne klucze API na projekt z limitem wydatków na każdym kluczu, statystyki kosztów i możliwość rotacji kluczy,
+- katalog modeli aktualizowany na bieżąco, z dokumentacją parametrów każdego modelu,
+- pamięć Twojego gustu i strategii cena/jakość, żeby kolejne propozycje trafiały lepiej,
+- działa tylko na Twoim komputerze (127.0.0.1), klucze są szyfrowane.
+
+Bez niego edytor działa w pełni, tylko bez generowania AI. Instalacja i konfiguracja: opis w [repozytorium OpenRouter MCP](https://github.com/lazniak/OpenRouter-MCP).
+
+### Zgłaszanie błędów z programu
+
+W programie jest przycisk zgłoszenia błędu. Opisujesz problem tekstem albo nagraniem głosowym. Zgłoszenie trafia tu jako publiczny issue.
+
+- Nagranie głosowe jest zamieniane na tekst na serwerze HEXART. Samo nagranie nie jest publikowane, w issue ląduje tylko transkrypcja.
+- Log i informacje o urządzeniu (wersja programu, Windows, karta graficzna, pamięć) widzisz i możesz poprawić albo skasować przed wysłaniem. Nic nie idzie bez Twojego kliknięcia.
+- Ponieważ issue jest publiczny, nie wpisuj w nim haseł, kluczy ani danych klientów.
+
+Możesz też zgłosić błąd ręcznie: [nowy issue](https://github.com/lazniak/hexart-video-edit/issues/new/choose) (formularz pyta o wersję, kroki, oczekiwany i faktyczny wynik oraz log).
+
+### Prywatność
+
+- Projekty, media i ustawienia zostają na Twoim dysku. Program nie wysyła statystyk użycia i sam nie sprawdza aktualizacji.
+- Połączenia sieciowe uruchamiasz Ty: pobranie czcionki z Google Fonts, pobranie modelu Pixel Motion, transkrypcja (ElevenLabs, Twoim kluczem), wysyłka pliku przez transfer.hexart.io, generowanie przez OpenRouter MCP, zgłoszenie błędu. Płatne i zewnętrzne akcje wymagają potwierdzenia w programie.
+- Serwer MCP słucha tylko na 127.0.0.1 i wymaga tokenu.
+- Zgłoszenie błędu jest publiczne, szczegóły wyżej.
+
+### Licencja i komponenty
+
+Program: [LICENSE.txt](LICENSE.txt) (freeware, bez prawa do redystrybucji i inżynierii wstecznej). W paczce jest FFmpeg na licencji GPL v3 uruchamiany jako osobny proces. Źródło i licencje komponentów: [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt) w paczce.
+
+Dekoder RED R3D nie jest w paczce. Dekoder Blackmagic RAW (`hve-braw.exe`) korzysta ze środowiska Blackmagic RAW zainstalowanego w systemie.
+
+### Linki
+
+- Zmiany: [CHANGELOG.pl.md](CHANGELOG.pl.md)
+- Bezpieczeństwo: [SECURITY.md](SECURITY.md)
+- Błędy i pomysły: [Issues](https://github.com/lazniak/hexart-video-edit/issues)
 - HEXART: [hexart.pl](https://hexart.pl)
