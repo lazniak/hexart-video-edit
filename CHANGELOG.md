@@ -2,6 +2,17 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.41 (2026-11-17)
+
+- Poprawka: materiał 10- i 12-bitowy (ProRes, DNxHR, HEVC, XAVC) ma w klatkach Pixel
+  Motion, w eksporcie ze zmianą rozmiaru i na monitorze w pełnej głębi te same poziomy co w
+  eksporcie 1:1. Dotąd takie klatki były minimalnie inne: cienie o około 1,7 kodu z 1023 wyżej
+  i światła niżej, a przy 12 bitach i materiale z alfą całość o 0,4 % ciemniejsza, więc klatka
+  liczona mogła migotać obok klatki źródła. Kanał alfa materiału 10-bitowego sięga teraz pełnej
+  nieprzezroczystości (było 99,9 %). To samo przy dekodowaniu na karcie graficznej NVIDIA,
+  także dla materiału w pełnym zakresie. Klatki Pixel Motion i render In do Out takich klipów
+  policzą się raz od nowa.
+
 ## 0.19.40 (2026-11-17)
 
 - Stabilizacja działa na sekwencji położonej na osi i czytanej jako klip natywny
