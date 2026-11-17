@@ -2,6 +2,33 @@
 
 Notatki o wersjach są po polsku. / Release notes are written in Polish.
 
+## 0.19.40 (2026-11-17)
+
+- Stabilizacja działa na sekwencji położonej na osi i czytanej jako klip natywny
+  (Interpretacja sekwencji: Klip natywny): kamera jest analizowana z klatek samej sekwencji,
+  po analizach stabilizowanych klipów w jej środku. Gdy potem zmienisz coś w środku sekwencji,
+  nic nie analizuje się samo: stabilizacja używa dalej starej analizy, wiersz efektu pokazuje
+  na czerwono „Sekwencja zmieniona”, a nową analizę zaczyna dopiero przycisk
+  „Analizuj ponownie” (jedna zmiana, do cofnięcia). Cofnięcie zmian w sekwencji przywraca
+  stan gotowy bez liczenia. Eksport takiej sekwencji nie czeka i nie analizuje: okno eksportu
+  mówi na czerwono, że pójdzie stara analiza. Sekwencja czytana jako nest nie ma własnych
+  klatek, więc efekt podpowiada zmianę interpretacji. Agent widzi stan `changed` w
+  `camera_status`. Gdy klatka sekwencji nie wyrenderuje się w całości (plik w środku jest
+  offline, warstwa jeszcze się wczytuje), analiza kończy się błędem z numerem klatki i nic
+  z niej nie zostaje zapisane, zamiast analizować planszę zastępczą.
+- Stabilizacja (D155, SV3.1): ujęcie, w którym kamera obraca się daleko przy mocnym
+  wygładzeniu i kadrowaniu „tylko stabilizacja”, potrafiło w całości wrócić do obrazu
+  źródła (korekcja dochodziła do swojej granicy na wielu klatkach, a obliczenie okna nie
+  kończyło się w limicie kroków). Teraz takie okno dostaje najlepszą ścieżkę mieszczącą się w
+  granicach, a źródło zostaje tylko wtedy, gdy nie ma żadnej.
+- Analiza kamery (D155, SV3.1): para klatek, w której obraz nie rusza się jak jeden obrót
+  (kamera jedzie w stronę sceny), dostaje prędkość z punktów śledzonych przez sąsiednie pary,
+  gdy z obu stron ma pary zmierzone, zamiast zgadniętej z sąsiadów. W naszych pomiarach na
+  ujęciu z najazdem zostaje po stabilizacji 0,86 drgań źródła (było 0,89), przy wygładzeniu
+  90 % 0,89 (było 0,95); na ujęciu z przelotem i szarpnięciami bez poprawy (1,09 wobec 1,07).
+  Większości par bez pomiaru to nie obejmuje, bo w szarpnięciach brakuje śledzonych punktów.
+  Zapisane analizy powstają od nowa przy pierwszym użyciu. Ślad kamery dla agenta oznacza
+  takie pary flagą `chained`, a `hve stab solve` pokazuje, co solver zrobił z zapisaną analizą.
 ## 0.19.39 (2026-11-16)
 
 - Rozmycie obiektywu (Camera Lens Blur) ma naturalne krawędzie. Rozmyty pierwszy plan
