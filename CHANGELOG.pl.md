@@ -2,6 +2,25 @@
 
 Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
+## 0.19.45 (2026-11-19)
+
+- FFmpeg: paczka zawiera FFmpeg 9.0.2 zbudowany przez HEXART z publicznych skryptów
+  FFmpeg-Builds, zamiast gotowego buildu gyan.dev. W folderze `ffmpeg\` leżą: spis bibliotek tego
+  buildu z rewizją, pochodzeniem i licencją (`BUILD-README-HEXART.txt`), teksty licencji bibliotek
+  (`LICENSES-LIBRARIES.txt`) i `SOURCE.txt` z adresem źródeł. Źródła buildu:
+  https://hve.hexart.io/source/.
+- Zestaw formatów FFmpeg: import, eksport, dekodowanie sprzętowe i narzędzia AI działają jak
+  dotąd (te same testy przechodzą na obu buildach). W nowym buildzie nie ma: odczytu płyt
+  DVD-Video, napisów teletekstu, kodeków codec2, LC3, JPEG XS i EVC, koderów GSM, iLBC, Speex,
+  AMR-WB i MP3 „shine” (dekodowanie GSM, iLBC, Speex i AMR zostaje, MP3 nadal koduje LAME), muxera
+  `caca` ani filtrów `bs2b`, `drawvg`, `flite`, `ladspa`, `lensfun`, `qrencode`, `quirc`,
+  `sofalizer` i `whisper` (transkrypcja w programie ich nie używa). Dochodzą: koder HEVC Kvazaar,
+  dekoder SVG, wejście VapourSynth i filtr `lv2`. Program nie używał żadnej z usuniętych pozycji;
+  zmiana dotyczy tylko własnych poleceń `ffmpeg` uruchamianych z folderu programu.
+- Umowa licencyjna 1.1 (obowiązuje od 19 listopada 2026 r.): § 7 ust. 3 opisuje FFmpeg jako
+  kompilację przygotowaną przez HEXART ze spisem bibliotek w tym samym folderze, a ust. 4 i 6
+  podają nowy adres źródeł, https://hve.hexart.io/source/. Reszta umowy bez zmian.
+
 ## 0.19.44 (2026-11-18)
 
 - Ekran startowy: nowy układ i animacja wejścia. Znak programu jest największym elementem
