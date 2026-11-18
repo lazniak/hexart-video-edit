@@ -2,6 +2,31 @@
 
 Polska wersja: [CHANGELOG.pl.md](CHANGELOG.pl.md).
 
+## 0.19.44 (2026-11-18)
+
+- Splash screen: a new layout and an entrance animation. The mark of the program is the
+  largest thing on the card; under it the name, the version and a hairline that shows progress;
+  the footer has the start step on the left and a small HEXART signature on the right, with its
+  full clear space and 48 px margins. The entrance takes 1.1 s and is built from the geometry of
+  the mark (the outline of the tile from its cut corner, clips from the left, the gold playhead,
+  the progress line); after that the screen is still. The splash never delays the editor: when
+  the main window is ready it shows at once and the card fades within about half a second. The
+  progress line never runs ahead of the work. With reduced motion set in the system the
+  animation is half as long and hides nothing.
+- NDI: the NDI output appears in the program only on a computer that has the NDI runtime.
+  Without it there is no item in the View menu, no row in the Info panel, no entry in the
+  Licences window and no `hve ndi` command. Where NDI is present, the menu item and the Info row
+  carry the NDI trademark statement and the address ndi.video. The What's new window leaves out
+  notes about NDI where it is not present.
+- WhatsApp: sending to WhatsApp appears only on a computer where the local WhatsApp Scrap
+  service is running. Without it the render queue has no recipients, caption, button or checkbox
+  for a send, an agent does not see the `send_whatsapp` tool, and the Licences window has no
+  entry. `server_status` lists the tools that are present in `integrations`; an agent that
+  connected before WhatsApp Scrap started has to reconnect to see `send_whatsapp`. Saved queues
+  and projects are unchanged, and so is the confirmation before a send. The What's new window
+  leaves out notes about WhatsApp where it is not present.
+- Licences window: the source address of a component and the repository of a library are links.
+
 ## 0.19.43 (2026-11-17)
 
 - Render queue: the thumbnail on a bar is larger (160x90 points on a wide panel) and as tall as

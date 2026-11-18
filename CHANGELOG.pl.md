@@ -2,6 +2,30 @@
 
 Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
+## 0.19.44 (2026-11-18)
+
+- Ekran startowy: nowy układ i animacja wejścia. Znak programu jest największym elementem
+  karty, pod nim nazwa, wersja i cienka linia postępu, w stopce krok uruchamiania po lewej i mały
+  podpis HEXART po prawej, z pełnym polem ochronnym i marginesami 48 px. Wejście trwa 1,1 s i
+  składa się z geometrii znaku (obrys płytki od ściętego rogu, klipy od lewej, złota głowica,
+  linia postępu), potem ekran stoi spokojnie. Ekran nie wydłuża startu: gdy okno edytora jest
+  gotowe, pokazuje się od razu, a karta znika w około pół sekundy. Linia postępu nigdy nie
+  wyprzedza pracy. Przy ograniczonym ruchu ustawionym w systemie animacja jest o połowę krótsza
+  i niczego nie ukrywa.
+- NDI: wyjście NDI pojawia się w programie tylko na komputerze, na którym jest środowisko
+  uruchomieniowe NDI. Bez niego nie ma pozycji w menu Widok, wiersza w panelu Info, wpisu w oknie
+  Licencje ani polecenia `hve ndi`. Tam, gdzie NDI jest, pozycja menu i wiersz Info niosą
+  informację o znaku towarowym NDI i adres ndi.video. Okno „Co nowego” pomija wpisy o NDI tam,
+  gdzie go nie ma.
+- WhatsApp: wysyłka na WhatsApp pojawia się tylko na komputerze, na którym działa lokalna
+  usługa WhatsApp Scrap. Bez niej kolejka renderu nie ma odbiorców, podpisu, przycisku ani pola
+  wyboru wysyłki, agent nie widzi narzędzia `send_whatsapp`, a okno Licencje nie ma wpisu.
+  `server_status` podaje w `integrations`, które narzędzia są obecne; agent połączony przed
+  uruchomieniem WhatsApp Scrap musi połączyć się ponownie, żeby zobaczyć `send_whatsapp`. Zapisane
+  kolejki i projekty zostają bez zmian, potwierdzenie przed wysyłką też. Okno „Co nowego” pomija
+  wpisy o WhatsApp tam, gdzie go nie ma.
+- Okno Licencje: adres źródła komponentu i repozytorium biblioteki są odnośnikami.
+
 ## 0.19.43 (2026-11-17)
 
 - Kolejka renderu: miniatura na pasku jest większa (160x90 punktów na szerokim panelu) i ma
