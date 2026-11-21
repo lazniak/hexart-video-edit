@@ -2,6 +2,22 @@
 
 Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
+## 0.19.47 (2026-11-21)
+
+- Nazwy projektów: `hve new` bez `--name` w folderze o nazwie, która nic nie mówi (`hve`,
+  `project`, `video` i podobne), nazywa projekt po folderze wyżej (`D:\Filmy\Gorilla\hve` to
+  „Gorilla”) i mówi o tym. Folder zbiorczy (`Projekty`, `Dokumenty`, `Pulpit`) nazwy nie daje.
+  Podane `--name` wygrywa zawsze.
+- Agent, nazwy projektów: przewodnik mówi, że każdy projekt ma własną nazwę, która mówi, czym
+  jest film. `project_info` i `list_recent_projects` zwracają `name_note` z gotowym poleceniem
+  `rename_project`, gdy nazwa jest ogólna albo pusta. `list_recent_projects` podaje własną nazwę
+  projektu (`name`), nazwę folderu (`folder`) i `generic_name: true` przy nazwie ogólnej.
+  `open_project` znajduje ostatni projekt po nazwie folderu, a potem po nazwie projektu; nazwę
+  wspólną dla kilku projektów odrzuca z listą ich folderów.
+- Menu ostatnich projektów pokazuje nazwę projektu zamiast nazwy folderu. Nazwa ogólna w tym
+  menu, na liście projektów agentów w tle i w oknie Projekty ma przed sobą folder wyżej
+  („Gorilla / hve”), więc istniejące projekty da się odróżnić bez zmiany ich plików.
+
 ## 0.19.46 (2026-11-21)
 
 - Komponenty web, kroje z manifestu: rodziny Google Fonts z pola `fonts` trafiają do projektu przy

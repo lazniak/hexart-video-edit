@@ -2,6 +2,23 @@
 
 Polska wersja: [CHANGELOG.pl.md](CHANGELOG.pl.md).
 
+## 0.19.47 (2026-11-21)
+
+- Project names: `hve new` without `--name` in a folder whose name says nothing (`hve`,
+  `project`, `video` and alike) names the project after the folder above (`D:\Films\Gorilla\hve`
+  becomes "Gorilla") and says so. A folder that holds many works (`Projects`, `Documents`,
+  `Desktop`) gives no name. A given `--name` always wins.
+- Agent, project names: the guide says that every project has a name of its own that tells what
+  the film is. `project_info` and `list_recent_projects` return `name_note` with a ready
+  `rename_project` command when the name is generic or empty. `list_recent_projects` gives the
+  project's own name (`name`), the folder's name (`folder`) and `generic_name: true` for a
+  generic name. `open_project` finds a recent project by its folder's name, then by the project's
+  name; a name several projects share is refused with the list of their folders.
+- The recent projects menu shows the project's name in place of the folder's name. A generic name
+  in that menu, in the list of background agents' projects and in the Projects window has the
+  folder above in front of it ("Gorilla / hve"), so existing projects can be told apart without
+  changing their files.
+
 ## 0.19.46 (2026-11-21)
 
 - Web components, fonts from the manifest: Google Fonts families named in the `fonts` field of a
