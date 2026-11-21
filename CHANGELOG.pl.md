@@ -2,6 +2,42 @@
 
 Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
+## 0.19.46 (2026-11-21)
+
+- Komponenty web, kroje z manifestu: rodziny Google Fonts z pola `fonts` trafiają do projektu przy
+  każdym zapisie komponentu (`write_component`: z pamięci podręcznej krojów, a z argumentem
+  `download_fonts: true` także z pobrania; bez niego narzędzie niczego nie pobiera) i strona
+  dostaje je bez własnego `@font-face`. Rodzina, której nie ma, to ostrzeżenie `font_missing` w
+  `write_component` i `validate_component`, a diagnostyka strony (`preview_component`) mówi, który
+  krój zastąpił brakujący. Krój, który pojawi się później (panel Kroje, inna sesja), sam
+  przeładowuje komponent i jego klatki.
+- Kroje Google Fonts: rodzina trafia do pamięci podręcznej w całości albo wcale (przerwane
+  pobieranie nie zostawia połowy odmian, także z panelu Kroje). Pliki krojów są pobierane tylko z
+  `https://fonts.gstatic.com`, bez przekierowań. Pliki zmiennych krojów w nazwach Google
+  (`Inter-VariableFont_opsz,wght.ttf`, `Roboto[wdth,wght].ttf`) i odmiany `Oblique` mają właściwą
+  wagę i pochylenie zamiast sztucznego pogrubienia.
+- Agent, parametry komponentów: typ parametru `string` jest czytany jako `text`, a przewodnik
+  `web-components` ma tabelę wszystkich typów parametrów. `manifest_patch` zmienia jeden parametr
+  albo grupę po `id` (zmiana pól, dodanie, usunięcie) bez wysyłania całej listy; literówka w id
+  kończy się błędem z listą id zamiast dopisania wpisu.
+- Agent, `get_words`: `group: "sentence"` zwraca jeden krótki wiersz na zdanie (`start`, `end`,
+  `text`, `word_count`, `track`, mówca) zamiast wszystkich słów, więc cała piosenka albo wywiad
+  mieści się w jednej odpowiedzi. Zdanie, w którym przez co najmniej 2 s nic nie brzmi, dostaje
+  ostrzeżenie i pole `gap` z zakresem ciszy, w obu trybach.
+- Agent, `edit`: `add_sequence` działa bez `id` i w formie krótkiej (wystarczy `name`; opcjonalnie
+  `width`, `height`, `rate` i `tracks`, np. `"video:KADRY"`), a wynik wymienia dodane sekwencje i
+  ścieżki. Polecenia biorą dokładną nazwę sekwencji zamiast id, także dodanej wcześniej w tej
+  samej partii. `result: "counts"` zwraca liczby zamiast list id przy bardzo dużych partiach.
+  `place` przyjmuje `motion` (pozycja, skala, obrót, także z klatkami kluczowymi) w tym samym
+  poleceniu.
+- Sekwencja dodana bez formatu bierze format pierwszego klipu wideo także wtedy, gdy sekwencja i
+  klip przychodzą w tej samej edycji (`add_sequence` i `place` agenta w jednej partii): rozmiar,
+  tempo, kolor wyjścia i dźwięk, w jednym kroku cofania. Wcześniej taka sekwencja zostawała przy
+  domyślnym formacie projektu.
+- Agent: opisy `add_web_layer` (komponent 1080p na sekwencji 4K skaluje się z rozmiaru
+  projektowego) i `import_storyboard` (ujęcie bez obrazu to zaślepka, nie plansza tekstowa) mówią
+  to wprost.
+
 ## 0.19.45 (2026-11-19)
 
 - FFmpeg: paczka zawiera FFmpeg 9.0.2 zbudowany przez HEXART z publicznych skryptów

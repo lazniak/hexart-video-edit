@@ -2,6 +2,42 @@
 
 Polska wersja: [CHANGELOG.pl.md](CHANGELOG.pl.md).
 
+## 0.19.46 (2026-11-21)
+
+- Web components, fonts from the manifest: Google Fonts families named in the `fonts` field of a
+  component reach the project whenever the component is saved (`write_component`: from the font
+  cache, and with the argument `download_fonts: true` also by download; without it the tool
+  downloads nothing), and the page gets them without an `@font-face` of its own. A missing family
+  is the warning `font_missing` in `write_component` and `validate_component`, and the page
+  diagnostics (`preview_component`) say which font replaced it. A font that arrives later (the
+  Fonts panel, another session) reloads the component and its frames by itself.
+- Google Fonts: a family reaches the font cache whole or not at all (an interrupted download
+  leaves no half set of styles, also from the Fonts panel). Font files are fetched only from
+  `https://fonts.gstatic.com`, without redirects. Variable font files with Google's names
+  (`Inter-VariableFont_opsz,wght.ttf`, `Roboto[wdth,wght].ttf`) and `Oblique` styles get the right
+  weight and slant instead of a synthetic bold.
+- Agent, component parameters: the parameter type `string` is read as `text`, and the guide
+  `web-components` has a table of all parameter types. `manifest_patch` changes one parameter or
+  group by `id` (change fields, add, remove) without sending the whole list; a typo in an id ends
+  with an error that lists the ids instead of adding an entry.
+- Agent, `get_words`: `group: "sentence"` returns one short row per sentence (`start`, `end`,
+  `text`, `word_count`, `track`, speaker) instead of every word, so a whole song or interview
+  fits in one answer. A sentence in which nothing sounds for 2 s or more gets a warning and a
+  `gap` field with the silent stretch, in both modes.
+- Agent, `edit`: `add_sequence` works without an `id` and in a short form (a `name` is enough;
+  optional `width`, `height`, `rate` and `tracks` such as `"video:SHOTS"`), and the result lists
+  the added sequences and tracks. Commands take the exact name of a sequence in place of its id,
+  also of one added earlier in the same batch. `result: "counts"` returns numbers instead of id
+  lists for very large batches. `place` takes `motion` (position, scale, rotation, also with
+  keyframes) in the same command.
+- A sequence added without a format takes the format of its first video clip also when the
+  sequence and the clip come in the same edit (an agent's `add_sequence` and `place` in one
+  batch): size, frame rate, output colour and audio, in one undo step. Before, such a sequence
+  kept the project's default format.
+- Agent: the descriptions of `add_web_layer` (a 1080p component on a 4K sequence scales from its
+  design size) and `import_storyboard` (a shot without an image is a placeholder, not a text
+  board) say so directly.
+
 ## 0.19.45 (2026-11-19)
 
 - FFmpeg: the package now carries FFmpeg 9.0.2 built by HEXART from the public FFmpeg-Builds
