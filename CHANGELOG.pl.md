@@ -2,6 +2,25 @@
 
 Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
+## 0.19.48 (2026-11-22)
+
+- Agent, `find_items`: nowe narzędzie znajduje elementy osi czasu po nazwie albo po medium we
+  wszystkich sekwencjach projektu i podaje sekwencję, ścieżkę, id, początek i koniec każdego.
+  Klip, który leży w kilku sekwencjach, nie wymaga już czytania każdej osi osobno.
+- Agent, `replace_media`: nowe polecenie `edit` podkłada inny plik pod klip, który już leży na
+  osi. Zostają id, położenie, długość, prędkość, efekty z klatkami kluczowymi, maski, etykieta,
+  przejścia i połączenie. Domyślnie zmienia się też połączony dźwięk z tego samego źródła
+  (`linked: false` go zostawia). Polecenie odmawia, gdy nowe medium nie ma potrzebnego obrazu
+  albo dźwięku, albo jest za krótkie. Kontrola długości liczy prędkość i całą krzywą Time Remap,
+  a klip zapętlony przechodzi zawsze. Błąd w paczce podaje numer polecenia.
+- Agent, `project_info`: `detail: false` zwraca w całości tylko aktywną sekwencję, a pozostałe po
+  jednym wierszu. `sequence` wypisuje jedną wskazaną sekwencję. Pełna odpowiedź przy 8 i więcej
+  sekwencjach podpowiada obie możliwości.
+- Agent, `get_timeline`: `skip_disabled: true` pomija wyłączone elementy razem z ich efektami
+  i krzywymi Time Remap i podaje, ile elementów pominięto.
+- Instrukcja agenta na hve.hexart.io/docs opisuje nowe narzędzie, polecenie i parametry, po
+  polsku i po angielsku.
+
 ## 0.19.47 (2026-11-21)
 
 - Nazwy projektów: `hve new` bez `--name` w folderze o nazwie, która nic nie mówi (`hve`,

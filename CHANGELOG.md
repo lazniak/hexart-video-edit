@@ -2,6 +2,25 @@
 
 Polska wersja: [CHANGELOG.pl.md](CHANGELOG.pl.md).
 
+## 0.19.48 (2026-11-22)
+
+- Agent, `find_items`: a new tool finds timeline items by name or by media in every sequence of
+  the project and gives the sequence, track, id, start and end of each. A clip that lies in
+  several sequences no longer needs every timeline read one by one.
+- Agent, `replace_media`: a new `edit` command puts another file under a clip that already lies
+  on the timeline. The id, position, length, speed, effects with keyframes, masks, label,
+  transitions and link stay. By default the linked sound from the same source changes too
+  (`linked: false` leaves it). The command refuses when the new media lacks the picture or sound
+  the item plays, or is too short. The length check counts speed and the whole Time Remap curve,
+  and a looped clip always passes. An error in a batch names the number of the command.
+- Agent, `project_info`: `detail: false` returns only the active sequence in full and one row for
+  each other one. `sequence` lists the one named sequence. The full answer for 8 or more
+  sequences points at both options.
+- Agent, `get_timeline`: `skip_disabled: true` leaves out disabled items with their effects and
+  Time Remap curves and says how many were left out.
+- The agent manual at hve.hexart.io/docs describes the new tool, command and parameters, in
+  English and in Polish.
+
 ## 0.19.47 (2026-11-21)
 
 - Project names: `hve new` without `--name` in a folder whose name says nothing (`hve`,
