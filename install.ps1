@@ -102,7 +102,7 @@ $Publisher = 'HEXART sp. z o.o.'
 $HelpUrl = 'https://github.com/lazniak/hexart-video-edit'
 # What Move-Aside renames to <name>.old[.<6 hex>]; the app's own cleanup at start knows the
 # same names.
-$AsideNames = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'hve-decklink.exe', 'hve-r3d.exe', 'ffmpeg', 'library')
+$AsideNames = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'hve-decklink.exe', 'hve-r3d.exe', 'ffmpeg', 'library', 'blender')
 # Every entry the program keeps at the root of its folder (what an automatic update may rename
 # to <name>.old-<version>).
 $ProgramNames = $AsideNames + @('LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt', 'install.ps1', 'uninstall.ps1', 'licenses', 'update')
@@ -705,7 +705,7 @@ function Main {
             $others = @(Get-ChildItem -LiteralPath $InstallDir -Force -ErrorAction SilentlyContinue | Where-Object { -not (Get-ProgramBase $_.Name $own) })
             if ($others.Count -gt 0) {
                 $names = ($others | ForEach-Object { $_.Name }) -join ', '
-                Say "W folderze $InstallDir s\u0105 te\u017c inne pliki ($names): zostaj\u0105, ale foldery programu ffmpeg\, library\ i update\ s\u0105 podmieniane w ca\u0142o\u015bci." "The folder $InstallDir also holds other files ($names): they stay, but the program's folders ffmpeg\, library\ and update\ are replaced whole." 'warn'
+                Say "W folderze $InstallDir s\u0105 te\u017c inne pliki ($names): zostaj\u0105, ale foldery programu ffmpeg\, library\, blender\ i update\ s\u0105 podmieniane w ca\u0142o\u015bci." "The folder $InstallDir also holds other files ($names): they stay, but the program's folders ffmpeg\, library\, blender\ and update\ are replaced whole." 'warn'
             }
         }
         if (Test-Path -LiteralPath $InstallDir) { Stop-Hve $InstallDir }
@@ -718,9 +718,10 @@ function Main {
                 if (Test-Path -LiteralPath $target) { $moved += Move-Aside $target }
                 Copy-Item -LiteralPath $f.FullName -Destination $target -Force
             }
-            # Bundled FFmpeg (its DLLs belong together) and the web component library (read
-            # only, D58): each folder is replaced whole.
-            foreach ($name in @('ffmpeg', 'library')) {
+            # Bundled FFmpeg (its DLLs belong together), the web component library (read
+            # only, D58) and the Blender add-on (D181, its files are one version): each
+            # folder is replaced whole.
+            foreach ($name in @('ffmpeg', 'library', 'blender')) {
                 $dirSrc = Join-Path $src $name
                 if (-not (Test-Path -LiteralPath $dirSrc)) { continue }
                 $dirDst = Join-Path $InstallDir $name

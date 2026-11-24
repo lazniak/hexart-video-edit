@@ -2,6 +2,138 @@
 
 Polska wersja: [CHANGELOG.pl.md](CHANGELOG.pl.md).
 
+## 0.19.49 (2026-11-24)
+
+- Blender scenes as media: a `.blend` file comes into the project (by import or by dragging, also
+  without FFmpeg) as the scene it opens with and lies on the timeline as a video clip. The file
+  stays where it is. Rendering needs Blender 4.5 or newer installed: the program finds it by
+  itself, and the path can be named in Preferences, Media, the Blender section. The Program
+  monitor does not wait for Blender: until a frame is drawn it shows the nearest one it already
+  has, and a scene error is shown on a card together with the reason. Playback reads frames
+  ahead, and the cache bar shows what is ready. When the scene under the playhead is shown as
+  a preview, the monitor has a "Blender preview" badge. The Blender section of Preferences has
+  the program, the memory for scene frames, the number of Blenders in the background, the idle
+  time after which they close, the state and a "Clear" button. The background Blender starts at
+  the first use of a scene, not with the program.
+- Effect controls of a Blender scene clip: the camera (also cameras from markers and the camera
+  animation), view layer, world, background, preview engine and samples, preview size, render
+  engine, samples, denoise, motion blur, bit depth, view transform, look, exposure, gamma, frame
+  offset and rendering between frames, and collections. The parameters exposed in Blender lie in
+  the "Exposed properties" group. The values work like any other: keyframes, expressions and
+  undo, and a value outside the scene's range is reported. A value the scene no longer has stays
+  in the "Not in the scene" group, where it can be read and reset. A file with several scenes
+  has a scene choice (one revision). The section shows the state of the link with Blender and
+  says which parameters Blender has to render from the saved file (`not_live`). When the scene
+  has another frame range, frame rate or size in Blender than the medium, a note appears with an
+  "Update the medium" button: the clips stay where they are and keep their first frame, and the
+  whole change is one step in the history. "Read the scene again" asks Blender once more.
+- Working live with Blender: "Edit in Blender" in Effect controls opens the scene file in Blender
+  with a connection to HEXART Video Edit. The Blender Link add-on is in the program package, and
+  nothing has to be installed in Blender for this. Changes in the open Blender show on the
+  monitor as they happen (the "Live" state). In Blender, in the 3D view, the add-on panel has
+  a "Send to HEXART Video Edit" button: it adds the scene to the project and puts the clip at the
+  playhead, on the chosen video track, in one revision. The "Expose in HEXART Video Edit" command
+  in the context menu of a Blender field shows that property in the Effect controls of the clip.
+  The add-on has Polish texts when Blender runs in Polish.
+- The scripts of Blender files (drivers, rigs) are off by default. Trust is given only by the
+  "Trust the scripts of this file" button in Effect controls, confirmed in a window (Cancel is
+  the default). Trust applies to this computer and ends when the file changes. The exception:
+  a save of the file by a Blender connected to the program does not take it away. "Take back" is
+  in Effect controls and in the list in Preferences. A file without trust opens in Blender with
+  the automatic running of scripts switched off.
+- Export and "Render preview In to Out" render Blender scenes from the saved file at final
+  quality, with the engine, samples, bit depth and denoise of the clip. A scene error stops the
+  render and names the file and the reason. The export window has a row with the clips of
+  scenes, the engine and the samples. When the open Blender has unsaved changes, the window warns
+  and has a "Save in Blender" button, and the export renders the file as it was saved. Frames of
+  scenes at final quality also stay in the cache on disk (lossless WebP, 8-bit frames only), so
+  a second export of the same scene does not render it again. They count towards the previews
+  limit in Preferences and go away with "Clear previews". After a program update they are
+  rendered again. A change of a texture alone without saving the `.blend` file leaves the old
+  frame: saving the file or "Clear previews" helps.
+- A project with a Blender scene has file format 3: an older version of the program refuses to
+  open it with a message about a newer format, and projects without scenes are saved as before.
+  Other places treat a scene with care: "Collect files" does not copy it and says so in its
+  report, the Final Cut 7 XML export leaves out the scene clip with a note, and EDL writes it as
+  an AX event with the scene name in the comment. AI analysis leaves scenes out, and rotoscoping
+  refuses them. "Replace Footage" takes a `.blend` file, and replacing a scene with an ordinary
+  file removes the Blender parameters from the clips.
+- Agent, Blender tools: `add_blender_scene`, `set_blender_params` (values, keyframes and
+  expressions in one revision), `reset_blender_params`, `get_blender_params`, `blender_status`,
+  `blender_refresh` and `edit_in_blender`. `import_media` takes `.blend` files (at most 8 per
+  call, a folder does not collect them). The guide has a `blender` topic (resource
+  `hve://docs/blender`). `get_blender_params` shows the state of the scripts (`scripts`:
+  trusted, blocked, changed since trusted) and the `not_live` parameters. No tool gives or takes
+  back trust and none saves a Blender file. Answers give file names only, without paths. The
+  result of `export` carries `blender_scenes` and a warning about unsaved changes, and `export`
+  then asks the user for approval. The result of `render_frame` says for each scene in the frame
+  what quality it is (`quality`: `preview` or `final`) and where the picture comes from
+  (`source`: `live` or `file`). `blender_refresh` with `update_media: true` does the same as
+  "Update the medium".
+- Agent, `export` with `sequences` (ids, names or `all`, up to 500): a series of exports with
+  one preset, one after another, each sequence whole to its default file in `exports/`. The user
+  approves the whole list once (the approval names the sequences and the total time), and the
+  licences are checked before the export of each sequence. `export_status` with `batch` gives
+  the state of each sequence and the progress of the running export, `wait` waits for the whole
+  series, and `cancel_job` with the id of the series stops it. `check_frames` (in `export_status`
+  of a finished export or in a series) reads the written file and points at black frames, dips
+  in brightness, flashes and, with `empty_below`, nearly empty frames; a hard cut to a dark shot
+  is not counted as an error.
+- Agent, `project_info` and `add_track`: `project_info` with `detail: "ids"` gives every sequence
+  in one line (id, name, size, frames per second) and the bins as a count (`bins_count`); the
+  one-line descriptions of `detail: false` now carry the size and the frame rate too. `add_track`
+  with `if_missing: true` and `name` returns an existing track of that name and kind as it is
+  (`existing: true`, no revision), so a script can call it on every run.
+- Agent, `set_sequence_settings` and `render_frame`: `set_sequence_settings` changes only what is
+  given, and the settings left out stay (a new size no longer resets the background and the
+  output colour); `width`, `height` and `rate` may stand next to `op`, and `seqs` (a list or
+  `all`) changes several sequences at once. After a change of size the result gives `factor`,
+  `pixel_values`, `pixel_values_total` and `masked_items` with a warning, because values in
+  pixels and masks do not scale by themselves. `render_frame` returns `sequence` (id, name,
+  `from`) and warns when it took the active sequence in a project with many sequences.
+- Agent, `list_effects`: the new `query` finds an effect by words from the kind, the name and the
+  category (in English and in Polish, regardless of letter case and Polish diacritics) and by
+  preset ids and names, and `detail` (`ids`, `summary`, `params`, `full`) sets how much each
+  row says. A whole audio domain fits in a `summary` answer. A change of the default result:
+  whoever wants the former full row of the registry passes `detail: full`.
+- Agent, `normalize_audio` with `target: program`: brings the loudness of the whole programme to
+  `target_lufs` (default -14) under the ceiling `ceiling_dbtp` (default -1) in one revision,
+  without touching the clips. When the gain alone fits under the ceiling, the master fader
+  moves, and otherwise a `hve.hard_limiter` lands at the end of the master, its input corrected
+  after measuring the mix (`limiter`: `auto`, `always` or `off`). `measure_audio` with
+  `target_lufs` and `ceiling_dbtp` adds `gain_to_target`, `true_peak_after_db` and `fits_ceiling`
+  to the result.
+- The approval card (the window and the "Approval requests" panel) begins with the project the
+  request is about (name and folder) and with the agent session. When it is another project than
+  the one open in the window, there is a separate line with the text "This request is about
+  another project than the one open in this window". The notification about a request names the
+  project too.
+- Agent, web layers: `preview_component` with `items` makes one sheet of frames for several
+  layers at once (a row per layer, up to 24 items and 96 cells), and gives the parameter values
+  once per sheet, with only the differences in a frame (`values: false` leaves them out).
+  `write_component` with `copy_files` copies binary files (up to 64 files, 512 MiB each, 2 GiB
+  per call). The diagnostics of a layer go away at the first frame from changed files, also when
+  an editor or a copy on disk changed them. `debug_web` in `engine.components` gives the browser
+  tabs per component with an estimate of memory.
+- Keyframes: the keys of a mask path and of a grading curve that carry graph data (for example
+  after Easy Ease) now blend between keys instead of holding the value to the next key. In
+  existing projects such motion will start to show. Five numbers of the NTSC / VHS effect
+  (the preemphasis cutoff, the ringing pattern shift, and the point, phase and jitter of head
+  switching) have full keyframe curves.
+- LUT files (the LUT effect, the ".cube file" field): the monitor no longer waits for a file to
+  be read from disk, because the table is loaded in the background, while the export still waits
+  for the file. The memory for tables has a limit (up to 32 files and 256 MB). A LUT saved again
+  by a grading program is loaded after a few seconds, without restarting the program, and a file
+  that could not be read is tried again after a few seconds.
+- Agent, `set_bus_param`: keys of list, checkbox, text and file parameters on buses hold the
+  value to the next key, and the audio effects switch it in playback and in export from the
+  first mixer block after the key (for example the distortion mode or the denoise profile).
+  A convolution reverb builds the response of the next key ahead, up to 4 s before the key.
+  Parameters that set the latency of an effect (lookahead, oversampling, true peak, quality)
+  take no keys: the tool refuses with `edit_error` and gives the reason. `at` is ignored for
+  a parameter without keys. A project with such keys has file format 4 and will not open in an
+  older version, while other projects are saved as before.
+
 ## 0.19.48 (2026-11-22)
 
 - Agent, `find_items`: a new tool finds timeline items by name or by media in every sequence of

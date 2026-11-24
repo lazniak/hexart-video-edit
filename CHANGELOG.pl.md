@@ -2,6 +2,130 @@
 
 Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
+## 0.19.49 (2026-11-24)
+
+- Sceny Blendera jako materiał: plik `.blend` wchodzi do projektu (przez import albo przeciągnięcie,
+  także bez FFmpeg) jako scena, z którą się otwiera, i leży na osi jako klip wideo. Plik zostaje
+  na miejscu. Do renderu potrzebny jest zainstalowany Blender 4.5 albo nowszy: program szuka go
+  sam, a ścieżkę można wskazać w Preferencjach, Media, sekcja Blender. Monitor Program nie czeka
+  na Blendera: do czasu narysowania klatki pokazuje najbliższą, którą już ma, a błąd sceny
+  pokazuje na planszy razem z powodem. Odtwarzanie czyta klatki z wyprzedzeniem, a pasek pamięci
+  podręcznej pokazuje, co jest gotowe. Gdy pod głowicą leży scena pokazana jako podgląd, monitor
+  ma plakietkę „Podgląd Blendera”. W sekcji Blender w Preferencjach są: program, pamięć na klatki
+  scen, liczba Blenderów w tle, czas bezczynności, po którym się zamykają, stan i przycisk
+  „Wyczyść”. Blender w tle startuje przy pierwszym użyciu sceny, nie ze startem programu.
+- Effect Controls klipu sceny Blendera: kamera (także kamery z markerów i animacja kamery),
+  warstwa widoku, świat, tło, silnik i próbki podglądu, rozmiar podglądu, silnik renderu, próbki,
+  odszumianie, rozmycie ruchu, głębia bitowa, transformacja widoku, look, ekspozycja, gamma,
+  przesunięcie klatek i renderowanie między klatkami oraz kolekcje. Parametry wyprowadzone
+  w Blenderze leżą w grupie „Wyprowadzone właściwości”. Wartości działają jak każde inne:
+  klatki kluczowe, wyrażenia i cofanie, a wartość poza zakresem sceny jest zgłaszana. Wartość,
+  której scena już nie ma, zostaje w grupie „Poza sceną”, gdzie można ją odczytać i zresetować.
+  Plik z kilkoma scenami ma wybór sceny (jedna rewizja). Sekcja pokazuje stan łącza z Blenderem
+  i mówi, które parametry Blender musi renderować z zapisanego pliku (`not_live`). Gdy scena ma
+  w Blenderze inny zakres klatek, częstość albo rozmiar niż medium, pojawia się uwaga z przyciskiem
+  „Zaktualizuj medium”: klipy zostają na miejscu i zachowują pierwszą klatkę, a cała zmiana to
+  jeden krok w historii. „Odczytaj scenę ponownie” pyta Blendera jeszcze raz.
+- Praca na żywo z Blenderem: „Edytuj w Blenderze” w Effect Controls otwiera plik sceny w Blenderze
+  z połączeniem do HEXART Video Edit. Dodatek Blender Link jest w paczce programu i niczego nie
+  trzeba w tym celu instalować w Blenderze. Zmiany w otwartym Blenderze widać na monitorze
+  na bieżąco (stan „Na żywo”). W Blenderze, w widoku 3D, panel dodatku ma przycisk „Wyślij do HEXART
+  Video Edit”: dodaje scenę do projektu i kładzie klip na głowicy, na wskazanej ścieżce wideo,
+  w jednej rewizji. Polecenie „Wystaw do HEXART Video Edit” w menu kontekstowym pola Blendera
+  pokazuje tę właściwość w Effect Controls klipu. Dodatek ma polskie teksty, gdy Blender działa
+  po polsku.
+- Skrypty plików Blendera (sterowniki, rigi) są domyślnie wyłączone. Zaufanie nadaje tylko
+  przycisk „Ufam skryptom tego pliku” w Effect Controls, potwierdzony w oknie (domyślnie Anuluj).
+  Zaufanie dotyczy tego komputera i wygasa, gdy plik się zmieni. Wyjątek: zapis pliku przez
+  Blendera połączonego z programem zaufania nie odbiera. „Cofnij zaufanie” jest w Effect Controls
+  i na liście w Preferencjach. Plik bez zaufania otwiera się w Blenderze z wyłączonym
+  automatycznym uruchamianiem skryptów.
+- Eksport i „Renderuj podgląd In do Out” renderują sceny Blendera z zapisanego pliku w jakości
+  końcowej, według silnika, próbek, głębi i odszumiania klipu. Błąd sceny zatrzymuje render
+  i podaje plik oraz powód. Okno eksportu ma wiersz z klipami scen, silnikiem i próbkami.
+  Gdy otwarty Blender ma niezapisane zmiany, okno ostrzega i ma przycisk „Zapisz w Blenderze”,
+  a eksport renderuje plik tak, jak został zapisany. Klatki scen w jakości końcowej zostają też
+  w pamięci podręcznej na dysku (bezstratny WebP, tylko klatki 8-bitowe), więc drugi eksport tej
+  samej sceny nie renderuje jej od nowa. Wchodzą do limitu podglądów w Preferencjach i znikają
+  po „Wyczyść podglądy”. Po aktualizacji programu renderują się od nowa. Zmiana samej tekstury
+  bez zapisu pliku `.blend` zostawia starą klatkę: pomaga zapis pliku albo „Wyczyść podglądy”.
+- Projekt ze sceną Blendera ma format pliku 3: starsza wersja programu odmawia otwarcia
+  go z komunikatem o nowszym formacie, a projekty bez scen zapisują się jak dotąd. Inne miejsca
+  traktują scenę ostrożnie: „Zbierz pliki” jej nie kopiuje i mówi o tym w raporcie, eksport XML
+  Final Cut 7 pomija klip sceny z notatką, a EDL zapisuje go jako zdarzenie AX z nazwą sceny
+  w komentarzu. Analiza AI pomija sceny, rotoskopia ich odmawia. „Zastąp materiał” przyjmuje
+  `.blend`, a zamiana sceny na zwykły plik zdejmuje z klipów parametry Blendera.
+- Agent, narzędzia Blendera: `add_blender_scene`, `set_blender_params` (wartości, klatki kluczowe
+  i wyrażenia w jednej rewizji), `reset_blender_params`, `get_blender_params`, `blender_status`,
+  `blender_refresh` i `edit_in_blender`. `import_media` przyjmuje pliki `.blend` (najwyżej 8
+  na wywołanie, folder ich nie zbiera). Przewodnik ma temat `blender` (zasób `hve://docs/blender`).
+  `get_blender_params` pokazuje stan skryptów (`scripts`: zaufane, zablokowane, zmienione od
+  zaufania) i parametry `not_live`. Żadne narzędzie nie nadaje ani nie cofa zaufania i żadne nie
+  zapisuje pliku Blendera. Odpowiedzi podają same nazwy plików, bez ścieżek. Wynik `export`
+  niesie `blender_scenes` i ostrzeżenie o niezapisanych zmianach, a `export` pyta wtedy
+  użytkownika o zgodę. Wynik `render_frame` mówi dla każdej sceny w kadrze, jaka to jakość
+  (`quality`: `preview` albo `final`) i skąd pochodzi obraz (`source`: `live` albo `file`).
+  `blender_refresh` z `update_media: true` robi to samo co „Zaktualizuj medium”.
+- Agent, `export` z `sequences` (id, nazwy albo `all`, do 500): seria eksportów jednym presetem,
+  jeden po drugim, każda sekwencja w całości do domyślnego pliku w `exports/`. Użytkownik
+  zatwierdza całą listę raz (zgoda wymienia sekwencje i łączny czas), a licencje są sprawdzane
+  przed eksportem każdej sekwencji. `export_status` z `batch` podaje stan każdej sekwencji
+  i postęp trwającego eksportu, `wait` czeka na całą serię, a `cancel_job` z id serii ją zatrzymuje.
+  `check_frames` (w `export_status` gotowego eksportu albo w serii) czyta zapisany plik
+  i wskazuje czarne klatki, zapadnięcia jasności, błyski i, z `empty_below`, klatki prawie puste,
+  a twardego cięcia na ciemne ujęcie nie uznaje za błąd.
+- Agent, `project_info` i `add_track`: `project_info` z `detail: "ids"` podaje każdą sekwencję
+  w jednym wierszu (id, nazwa, rozmiar, klatki na sekundę), a katalogi jako liczbę (`bins_count`);
+  jednowierszowe opisy z `detail: false` mają teraz też rozmiar i częstotliwość klatek.
+  `add_track` z `if_missing: true` i `name` zwraca istniejącą ścieżkę o tej nazwie i rodzaju
+  bez zmian (`existing: true`, bez rewizji), więc skrypt może ją wołać przy każdym uruchomieniu.
+- Agent, `set_sequence_settings` i `render_frame`: `set_sequence_settings` zmienia tylko to, co
+  podano, a pominięte ustawienia zostają (nowy rozmiar nie zeruje już tła i koloru wyjścia);
+  `width`, `height` i `rate` mogą stać obok `op`, a `seqs` (lista albo `all`) zmienia kilka
+  sekwencji naraz. Po zmianie rozmiaru wynik podaje `factor`, `pixel_values`,
+  `pixel_values_total` i `masked_items` oraz ostrzeżenie, bo wartości w pikselach i maski nie
+  skalują się same. `render_frame` zwraca `sequence` (id, nazwa, `from`) i ostrzega, gdy wziął
+  aktywną sekwencję w projekcie z wieloma sekwencjami.
+- Agent, `list_effects`: nowe `query` znajduje efekt po słowach z rodzaju, nazwy i kategorii
+  (po angielsku i po polsku, bez rozróżniania wielkości liter i polskich znaków) oraz po id
+  i nazwach presetów, a `detail` (`ids`, `summary`, `params`, `full`) ustawia, ile mówi każdy
+  wiersz. Cała domena audio mieści się w odpowiedzi `summary`. Zmiana wyniku domyślnego: kto
+  chce dotychczasowy pełny wiersz rejestru, podaje `detail: full`.
+- Agent, `normalize_audio` z `target: program`: doprowadza głośność całego programu do
+  `target_lufs` (domyślnie -14) pod pułapem `ceiling_dbtp` (domyślnie -1) w jednej rewizji, bez
+  ruszania klipów. Gdy samo wzmocnienie mieści się pod pułapem, rusza tłumik mastera, a w przeciwnym
+  razie na końcu mastera ląduje `hve.hard_limiter` z wejściem poprawianym po pomiarze miksu
+  (`limiter`: `auto`, `always` albo `off`). `measure_audio` z `target_lufs` i `ceiling_dbtp`
+  dodaje do wyniku `gain_to_target`, `true_peak_after_db` i `fits_ceiling`.
+- Karta zgody (okno i panel „Prośby o zgodę”) zaczyna się od projektu, którego dotyczy prośba
+  (nazwa i folder), i od sesji agenta. Gdy to inny projekt niż otwarty w oknie, jest osobna linia
+  z tekstem „Ta prośba dotyczy innego projektu niż otwarty w tym oknie”. Powiadomienie o prośbie
+  też podaje projekt.
+- Agent, warstwy web: `preview_component` z `items` składa jeden arkusz klatek dla kilku warstw
+  naraz (wiersz na warstwę, do 24 elementów i 96 komórek), a wartości parametrów podaje raz na
+  arkusz, w klatce tylko różnice (`values: false` je pomija). `write_component` z `copy_files`
+  kopiuje pliki binarne (do 64 plików, 512 MiB każdy, 2 GiB na wywołanie). Diagnostyka warstwy
+  znika po pierwszej klatce z zmienionych plików, także gdy zmienił je edytor albo kopia na dysku.
+  `debug_web` w `engine.components` podaje karty przeglądarki na komponent z szacunkiem pamięci.
+- Klatki kluczowe: klucze ścieżki maski i krzywej gradacji, które mają dane wykresu (na przykład po
+  Easy Ease), mieszają się teraz między kluczami, zamiast trzymać wartość do następnego klucza.
+  W istniejących projektach taki ruch zacznie być widoczny. Pięć liczb efektu NTSC / VHS
+  (częstotliwość preemfazy, przesunięcie wzoru dzwonienia, punkt, faza i drganie przełączania
+  głowic) ma pełne krzywe klatek kluczowych.
+- Pliki LUT (efekt LUT, pole „Plik .cube”): monitor nie czeka już na odczyt pliku z dysku, bo
+  tabela wczytuje się w tle, a eksport nadal czeka na plik. Pamięć na tabele ma limit
+  (do 32 plików i 256 MB). LUT zapisany ponownie przez program do gradacji wczytuje się
+  po kilku sekundach, bez restartu programu, a plik, którego nie dało się odczytać, jest próbowany
+  ponownie po kilku sekundach.
+- Agent, `set_bus_param`: klucze parametrów typu lista, pole wyboru, tekst i plik na szynach
+  trzymają wartość do następnego klucza, a efekty audio przełączają ją w odtwarzaniu i w eksporcie
+  od pierwszego bloku miksu po kluczu (np. tryb zniekształcenia albo profil odszumiania). Pogłos
+  splotowy buduje odpowiedź następnego klucza z wyprzedzeniem, do 4 s przed kluczem. Parametry
+  ustalające opóźnienie efektu (wyprzedzenie, nadpróbkowanie, szczyt rzeczywisty, jakość) nie
+  przyjmują kluczy: narzędzie odmawia z `edit_error` i podaje powód. `at` jest pomijane dla
+  parametru bez kluczy. Projekt z takimi kluczami ma format pliku 4 i nie otworzy się
+  w starszej wersji, a pozostałe projekty zapisują się jak dotąd.
+
 ## 0.19.48 (2026-11-22)
 
 - Agent, `find_items`: nowe narzędzie znajduje elementy osi czasu po nazwie albo po medium we
