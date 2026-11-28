@@ -102,7 +102,7 @@ $Publisher = 'HEXART sp. z o.o.'
 $HelpUrl = 'https://github.com/lazniak/hexart-video-edit'
 # What Move-Aside renames to <name>.old[.<6 hex>]; the app's own cleanup at start knows the
 # same names.
-$AsideNames = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'hve-decklink.exe', 'hve-r3d.exe', 'ffmpeg', 'library', 'blender')
+$AsideNames = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'hve-decklink.exe', 'hve-r3d.exe', 'dxcompiler.dll', 'ffmpeg', 'library', 'blender')
 # Every entry the program keeps at the root of its folder (what an automatic update may rename
 # to <name>.old-<version>).
 $ProgramNames = $AsideNames + @('LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt', 'install.ps1', 'uninstall.ps1', 'licenses', 'update')
@@ -713,7 +713,8 @@ function Main {
 
         $moved = @()
         if (-not $inPlace) { try {
-            foreach ($f in @(Get-ChildItem -LiteralPath $src -File -Filter '*.exe')) {
+            # The programs and the shader compiler they load from their own folder (D194).
+            foreach ($f in @(Get-ChildItem -LiteralPath $src -File | Where-Object { $_.Extension -eq '.exe' -or $_.Name -eq 'dxcompiler.dll' })) {
                 $target = Join-Path $InstallDir $f.Name
                 if (Test-Path -LiteralPath $target) { $moved += Move-Aside $target }
                 Copy-Item -LiteralPath $f.FullName -Destination $target -Force

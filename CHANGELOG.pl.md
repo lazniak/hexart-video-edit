@@ -2,6 +2,215 @@
 
 Wersja angielska: [CHANGELOG.md](CHANGELOG.md).
 
+## 0.19.50 (2026-11-28)
+
+- Efekty, zniekształcenia: trzynaście nowych efektów w kategorii „Zniekształcenia i obiektyw” panelu
+  Efekty: Kafelkowanie (Motion Tile), Korekcja optyki (Optics Compensation), Lustro (Mirror),
+  Współrzędne biegunowe (Polar Coordinates), Wybrzuszenie (Bulge), Wir (Twirl), Kula (Spherize),
+  Fala (Wave Warp), Turbulencja (Turbulent Displace), Mapa przesunięć (Displacement Map),
+  Przesunięcie (Offset), Przekształcenie (Transform) i Przypięcie rogów (Corner Pin). Każdy ma od 3
+  do 6 presetów, a każdy parametr przyjmuje klatki kluczowe i wyrażenia. Brzegi mają cztery tryby:
+  przezroczysty, powtórzenie pikseli brzegu, odbicie i kafel. Efekty liczą w świetle liniowym i nie
+  pamiętają niczego między klatkami, więc podgląd daje ten sam obraz co eksport. Kafelkowanie i
+  Przypięcie rogów mogą powiększyć warstwę poza jej ramkę. Mapa przesunięć bierze mapę z materiału
+  projektu. Parametry będące punktem mają uchwyty na monitorze Program; rogi Przypięcia rogów i
+  przesunięcia w Turbulencji i w Przesunięciu jeszcze ich nie mają. Każdy efekt ma w panelu Efekty
+  ikonę i opis, a instrukcja ma o nich nową stronę.
+- Efekty, rozmycie: dziesięć nowych efektów w kategorii „Rozmycie i wyostrzanie”: Rozmycie
+  kierunkowe, Rozmycie radialne, Szybkie rozmycie pudełkowe, Rozmycie kanałów, Rozmycie sterowane
+  mapą, Rozmycie bilateralne, Inteligentne rozmycie, Maska wyostrzająca, Rozmycie zmienne i Mediana.
+  Rozmycie sterowane mapą bierze mapę z materiału projektu. Zasady jak wyżej: klatki kluczowe i
+  wyrażenia w każdym parametrze, cztery tryby krawędzi, światło liniowe, od 3 do 6 presetów, ikona i
+  opis, a podgląd w połowie rozmiaru daje ten sam obraz co eksport. W 1080p na RTX 2080 Ti efekt
+  zajmuje kilka milisekund na klatkę. Wyjątkiem jest Mediana o dużym promieniu: przy promieniu 20
+  około 23 klatek na sekundę w pełnej rozdzielczości. Instrukcja ma stronę z przykładowym obrazem
+  każdego efektu.
+- Efekty, poziomy i ton: trzynaście nowych efektów w kategorii „Kolor”: Poziomy (wspólne i osobno
+  dla kanałów), Jasność i kontrast, Ekspozycja, „Gamma, podstawa, wzmocnienie”, Grade, Ogranicznik,
+  Miękkie przycięcie, Cienie i światła, Auto poziomy, Auto kontrast, Auto kolor, Wyrównanie
+  histogramu i Kolory emisyjne. Parametry przyjmują klatki kluczowe i wyrażenia, efekty liczą w
+  świetle liniowym i mają od 3 do 6 presetów, ikonę i opis. Efekty automatyczne mierzą każdą klatkę
+  osobno, bez pamięci poprzednich, więc wynik nie zależy od kolejności renderu; pomiar idzie przed
+  Motion. Kolory emisyjne działają na jeden klip (BT.601 na gamma 2.4): dla wyjścia całego programu
+  służy warstwa korekcyjna. Histogramu na żywo w kontrolkach Poziomów jeszcze nie ma. Instrukcja ma
+  o tych efektach nową stronę.
+- Maski na monitorze Program: pasek monitora ma teraz zawsze narzędzia Zaznaczanie, Pióro, Kształt i
+  Wtapianie maski, z podpowiedzią (nazwa, skrót i jedno zdanie pomocy), a prawy przycisk otwiera
+  rodzinę narzędzia i przełączniki widoku. Po narysowaniu kształtu i po zamknięciu ścieżki pióra
+  wraca Zaznaczanie, a nowa maska zostaje zaznaczona, więc jej punkty można od razu przesuwać.
+  Otwartą ścieżkę kończy Enter z powrotem do Zaznaczania, a Esc zostawia Pióro. Każda widoczna,
+  niezablokowana maska pokazuje swoje punkty. Pierwszy klik w ścieżkę niezaznaczonej maski bierze
+  całą maskę i przeciągnięcie ją przesuwa; na zaznaczonej masce klik w odcinek bierze jego dwa
+  końce, klik w punkt ten punkt, a Shift dodaje i odejmuje. Ramka z pustego miejsca obrazu zaznacza
+  kilka punktów (Shift odwraca); gdy żadna maska nie jest zaznaczona, a przekształcanie klipu na
+  monitorze jest włączone, przeciągnięcie dalej przesuwa klip. Przytrzymanie bez ruchu niczego nie
+  zmienia, a przeciągnięcie to jeden krok cofania. Po kliknięciu w obraz strzałki przesuwają punkty
+  o piksel ekranu (z Shift o 10), Delete usuwa punkty, a dwuklik w maskę włącza przekształcanie
+  swobodne punktów. Dwuklik w przycisk kształtu robi maskę na całą warstwę. „+” przy maskach w
+  Ustawieniach efektów robi zaznaczony prostokąt na środku warstwy, w połowie jej rozmiaru. Punkt
+  łapie się dokładnie tam, gdzie jest narysowany, przy każdym powiększeniu, skali ekranu i
+  przekształceniu klipu.
+- Roto Brush: ta wersja ma silnik pod nadchodzący pędzel rotoskopii (model SAM 2.1): pociągnięcia
+  pędzla, śledzenie maski na sąsiednie klatki od klatki z pociągnięciem i pamięć masek na dysku.
+  Samego pędzla nie ma jeszcze w programie i nic się nie zmienia w interfejsie. Skrypt rotoskopii
+  się zmienił, więc zainstalowane środowisko rotoskopii raz poprosi o ponowną konfigurację: to
+  sprawdzenie modelu, bez pobierania.
+- Sceny Blendera: panel Projekt i oś czasu pokazują miniatury i pasek klatek scen. O małe klatki
+  program prosi łącze z Blenderem na końcu kolejki, a prośba wygasa, gdy kafel znika z ekranu; na
+  pasku klatek długiego klipu o render prosi tylko pierwsze pole. W Preferencjach, Media, sekcja
+  Blender, jest przycisk „Zainstaluj dodatek w Blenderze”: wskazany Blender sam pakuje dodatek
+  hve_link leżący obok programu i instaluje go, włączony, w swoich rozszerzeniach. Ten Blender ma
+  wtedy kartę HVE na pasku bocznym widoku 3D i może połączyć się z edytorem; inne wersje Blendera
+  potrzebują osobnej instalacji, a Blender starszy niż 4.5 dostaje odmowę przed startem. Instalacja
+  rusza tylko po kliknięciu, w tle, z limitem 120 s na każde polecenie. Render w tle działa bez
+  dodatku. Komunikat „Blender zatrzymał się … razy przy renderze tego obrazu” podaje teraz kod
+  wyjścia procesu albo mówi, że zerwało się połączenie. Wiersz wyjścia Blendera, który nie jest w
+  UTF-8 (na przykład ścieżka w stronie kodowej systemu), nie zatrzymuje już Blendera w tle.
+  Instrukcja ma stronę o scenach Blendera.
+- Właściwości plików, własne pola i historia promptu: panel Informacje ma sekcję „Właściwości” ze
+  wszystkim, co plik mówi o sobie (kontener, obraz, dźwięk, kolor, kamera i obiektyw, nagranie,
+  opis, produkcja, plik, generowanie), i z własnymi polami projektu. Plik czyta się w tle raz, do
+  pamięci podręcznej, nigdy do pliku projektu; ta pamięć wchodzi do limitu podglądów i znika po
+  „Wyczyść podglądy”. Plik, który nie odpowie na czas, nie jest czytany ponownie sam: służy do tego
+  przycisk „Odczytaj ponownie”. Podpowiedź przy nazwie mówi, skąd jest wartość. Dwuklik w wartość
+  pozwala wpisać własną nad wartość z pliku, a plik zostaje nietknięty; przy kilku zaznaczonych
+  plikach zmiana obejmuje wszystkie w jednym kroku cofania. „Nowe pole” definiuje własne pole
+  projektu (tekst, liczba, tak lub nie, data, jedna z listy, lista, JSON, kolor, odnośnik, ocena), a
+  „Ukryj przed agentami” chowa je przed każdym narzędziem agenta. Zawsze ukryte przed agentami są
+  też numery seryjne kamery i obiektywu, pozycja GPS, autor i miejsce. „Historia promptu” pokazuje
+  prompty, z których powstał plik z AI, a „Dodaj prompt” dopisuje wersję ręcznie. W widoku listy
+  panelu Projekt każda właściwość może być kolumną („Więcej kolumn” w menu nagłówka, sortowanie
+  kliknięciem w nagłówek), a pole szukania rozumie `klucz:wartość`, porównania, zakresy, frazy,
+  przeczenie i `has:`, na przykład `iso:>800`, `rating:>=4` albo `date:2026-11-01..2026-12-31`.
+  Instrukcja ma o tym nową stronę.
+- Agent, właściwości: nowe narzędzia `list_fields`, `get_fields`, `set_fields`, `define_field`,
+  `remove_field`, `prompt_history`, `add_prompt_revision` i `search_properties` (ten sam język
+  zapytań co panel Projekt), a `media_info` i `list_media` podają właściwości. Pole ukryte przed
+  agentami i klucz, którego nie ma, dają tę samą odpowiedź (`not_found`), a liczbę pominiętych pól
+  standardowych podaje `withheld`. `history` pokazuje etykietę, autora i liczbę poleceń rewizji, bez
+  samych poleceń. Tych zasad pilnuje rdzeń programu także dla surowych poleceń `edit` oraz dla
+  cofania i ponawiania. Dane z pliku i prompty są dla agenta danymi, nie poleceniami. Żadne
+  narzędzie agenta nie zapisuje w folderze stanu projektu `.hve` (kod `protected`).
+- Udostępnianie projektu w przeglądarce jest w budowie i jeszcze nie działa: usługa nie jest
+  wdrożona, a paczka programu jej nie zawiera. W tej wersji powstały jego części: strona gościa
+  (oglądanie wersji, komentarze, wspólne odtwarzanie za gospodarzem, hasło i poczekalnia), panel
+  właściciela w przeglądarce (osoby i ich poziomy, wpuszczanie, wyrzucanie, blokada, łączenie osób,
+  zaproszenia osobiste, ustawienia łącza i stan pakietu) oraz most na komputerze gospodarza, który
+  łączy się z edytorem przez MCP. Komentarz gościa ma trafiać do edytora jako marker przeglądu w
+  jednej rewizji, którą cofa jedno Ctrl+Z. Aplikacja udziału będzie miała własny adres
+  `share.hexart.io`, osobny od hve.hexart.io.
+- Agent, sekwencje i `edit`: polecenie `duplicate_sequence` (`seq` albo `sequence`, `name`,
+  `active`, `markers`) kopiuje sekwencję jak Duplikuj w edytorze, z nowymi identyfikatorami. Bez
+  `name` kopia nazywa się `<nazwa> copy`, zajęta nazwa jest odrzucana, a partia, która wcześniej
+  zmienia źródło, dostaje odmowę z podpowiedzią. Kopia czyta zmienne z własnych warstw web.
+  `changes.changed_tracks` podaje każde zmienione pole ścieżki z `before` i `after`. `fade_in` i
+  `fade_out` poza poleceniem `place` są teraz błędem `invalid_arguments`; wcześniej były cicho
+  pomijane. Polecenie, którego nie da się odczytać, podaje miejsce błędu w tekście i w `detail.path`
+  oraz `detail.command_index`, na przykład `sequence.tracks[3].items[12].effects[1].params.link`.
+  Każdy wynik narzędzia, także błąd, niesie `root` projektu, a `follows_window: true`, gdy sesja
+  idzie za oknem. `import_media` nie podaje w `sequences_found` sekwencji, której wszystkie pliki
+  wywołanie i tak wymienia.
+- Agent, wartości w `edit`: parametry efektów (`add_effect`, `add_bus_effect`, `effects` w `place`)
+  i przejść (`set_transition`, `transition_in` i `transition_out`) przyjmują zwykłą wartość
+  (`{"radius": 70}`, `"right"`) albo wartość z typem i są sprawdzane definicją: liczba zostaje w
+  zakresie, nieznany parametr dostaje listę znanych, a opcja przejścia spoza listy jest błędem z
+  listą opcji. Błąd nazywa polecenie i parametr. `place` z `freeze` trzyma jedną klatkę źródła przez
+  cały klip (`speed: 0` dostaje tę radę), `motion.position_pct` podaje pozycję w procentach kadru, a
+  `ease` kluczy przyjmuje nazwy, także `in`, `out` i `in_out`. `item.kind.media` przyjmuje nazwę
+  materiału, a `update_marker` przyjmuje `id` z `patch`. `edit` ostrzega, gdy późniejsze polecenie
+  tej samej partii kładzie coś na elemencie, który położyło wcześniejsze. `delete_items` z
+  `inside: true` bierze tylko elementy całe w zakresie. `remove_sequence` i `add_sequence` o tej
+  samej nazwie w jednej partii zostawiają odbudowaną sekwencję aktywną. `edit` z `batch` zapamiętuje
+  elementy, które zrobiło (etykieta w historii kończy się `[nazwa]`), a `delete_items` z `batch`
+  usuwa dokładnie te z nich, które jeszcze są, bez ruszania elementów użytkownika między nimi.
+- Agent, materiały i projekt: nowe narzędzie `refresh_media` czyta ponownie plik nadpisany w
+  miejscu, pod tym samym `med_`, w jednej rewizji. Klipy zachowują miejsce, długość i czasy źródła,
+  a `items_retimed` i `items_past_end` nazywają klipy, których zmiana dotyczy; `changed: true`
+  odświeża każdy materiał, którego plik się zmienił. `media_info` zgłasza `file_changed`, a
+  `import_media` wymienia w `same_file_as` plik, który już jest w projekcie. `list_media` przyjmuje
+  `result: "compact"`. `project_info` podaje `saved_file`, `saved_version`, `unsaved_changes` i
+  `save_note`, gdy zapisany plik projektu jest za wersją w pamięci. Skrócony wynik `edit` nazywa
+  klipy bez nazwy nazwą ich materiału. `get_words` dla materiału spoza osi albo z
+  `time_base: "media"` daje słowa w sekundach materiału, a każdy wynik podaje `time_base`.
+  `read_docs` przyjmuje kilka sekcji naraz (lista albo tekst rozdzielony `,`, `;` lub `|`) i podaje
+  `sections_missing`. `replace_media` klipu z Time Remap na obraz nieruchomy zachowuje punkt wejścia
+  z krzywej.
+- Agent, zadania i klatki: `todo_claim` wytycznej w stanie `failed` odmawia z jej notatką, a z
+  `retry: true` bierze ją ponownie; ta sama sesja dostaje swoją wytyczną z powrotem bez zmian.
+  `todo_list`, `todo_claim` i `todo_update` z `result: "compact"` zwracają tylko `id`, `state`,
+  `title`, `note` i `claimed_by` (`todo_claim` także tekst i folder). Kontekst wytycznej wymienia
+  też włączony element pod głowicą na każdej niewyciszonej ścieżce wideo. Nowe darmowe narzędzie
+  `item_frames` robi arkusz WebP z 2 do 36 klatek (domyślnie 6), które element gra na osi, z czasem
+  sekwencji i źródła przy każdej; `solo` rysuje tylko jego ścieżkę, a `note` mówi, czemu pola są
+  puste. `edit`, `import_media` i `save` podają ten sam numer wersji projektu; wcześniej `edit`
+  zwracał numer rewizji historii.
+- Agent, generacje i dźwięk: `quote_generation` wymienia rodzaje, które silnik naprawdę przyjmuje
+  (`image`, `video`, `image_to_video`, `first_last_frame`, `extend`, `broll`, `upscale`, `relight`,
+  `replace_background`, `lip_sync`). Starsze nazwy `transition` i `lipsync` dalej działają, a
+  `voice`, `music` i `sfx` dają `unavailable` z podpowiedzią, bez pytania o wycenę. `measure_audio`
+  dla programu z włączoną dynamiką na masterze dodaje `master_dynamics`, szacunek redukcji z
+  drugiego miksu z wyłączoną dynamiką (`master_dynamics: false` go pomija), i ostrzega przed
+  limiterem mastera, któremu wejście dokłada 6 dB albo więcej.
+- Warstwy web: strona wie, który klip rysuje (`hve.info.item`), i dostaje
+  `hve.onItemChange(item, previous)`, gdy klip się zmienia, bo jedna karta przeglądarki rysuje
+  wszystkie klipy komponentu. Klip, który nic nie rysuje, nie pokazuje już tego, co zbudował
+  poprzedni. Komponent „Cytat” z biblioteki ma opcjonalne tło: „Tło pod cytatem”, „Kolor tła”
+  (domyślnie Onyx 80%), „Margines tła” i „Ścięcie tła” (ścięcie rogu 30°), domyślnie wyłączone.
+- Agent, nadpisywanie, tempo i muzyka: `place_clip`, `overwrite_clip`, `move_items` i ich polecenia
+  w `edit` w trybie nadpisania wymieniają w wyniku każdy element sprzed wywołania, który przycięły,
+  podzieliły albo usunęły, także wyłączony (`warnings` i `overwritten` z `before`, `after`, `fate` i
+  `by`). `set_speed` z `duration` ustawia długość klipu na osi zamiast współczynnika; wynik ma
+  `speed`, a `note`, gdy długość wyszła inna. Nowe darmowe narzędzie `music_accents` podaje pierwsze
+  uderzenia taktów, uderzenia, początki dźwięków i początki basu (pasmo poniżej 200 Hz) z siłą od 0
+  do 1, w sekundach sekwencji albo materiału, razem z sekcjami utworu; z `markers: true` stawia
+  markery `beat` (najwyżej 500, jedna rewizja, jeden marker na klatkę). Starsza analiza rytmu bez
+  pasma basu daje `bass: null` z podpowiedzią, żeby ją powtórzyć. `measure_audio` z
+  `master_stages: true` mierzy program po każdym efekcie mastera i ostrzega, od którego etapu szczyt
+  przekracza pułap (-1 dBTP albo `ceiling_dbtp`). `import_media` nie podpowiada sekwencji dla kodów
+  ujęć, takich jak `v10-e2` i `v10-s30`.
+- Blender Link, bezpieczeństwo: każda ścieżka, którą podaje agent, jest sprawdzana z tekstu,
+  zanim program dotknie dysku. Dysk tego komputera przechodzi, ścieżka urządzenia nigdy, a udział
+  sieciowy tylko wtedy, gdy folder projektu albo jego materiały już na nim leżą. Dotyczy to
+  importu, referencji, Lottie, scen Blendera, plików do wysyłki i publikacji oraz wszystkiego, na
+  co wskazuje nowa edycja (materiały, proxy, foldery biblioteki, pliki LUT, maski, mapy głębi).
+  Surowe polecenia `edit` nie dodają ani nie zmieniają scen Blendera: służy do tego
+  `add_blender_scene`. Zaufany plik `.blend` jest czytany i liczony ponownie tuż przed każdym
+  startem ze skryptami, więc podmieniony plik nie startuje, a program pokazuje, że plik zmienił
+  się od zaufania. Edytuj w Blenderze otwiera tylko lokalny plik `.blend`. Dodatek hve_link jest instalowany tylko z kopii o
+  przypiętej sumie kontrolnej. `debug_logs` nie pokazuje agentowi folderów.
+- Agent, markery i wstawianie: `list_markers` i `get_marker` podają `added_at`, czas dodania
+  markera. Nowe narzędzie `markers_from_transcript` wpisuje do markerów to, co powiedziano wokół
+  chwili ich dodania (`window`, domyślnie 30 s), z transkrypcji spotkania z czasami zegarowymi,
+  podanej wprost albo jako plik JSON w projekcie; marker z opisem zostaje bez zmian, chyba że
+  `overwrite`. `replace_media` z `reset_motion` przywraca domyślne kadrowanie Motion (pozycja,
+  skala, obrót, punkt zaczepienia, pochylenie), a dopasowanie do kadru zostaje. Bez tej opcji wynik
+  ostrzega, gdy klip ma własne kadrowanie, a nowe źródło inny rozmiar obrazu. `place` z
+  `mode: "push"` w `edit` przesuwa element stojący na początku nowego o tyle, ile nowy potrzebuje,
+  razem z połączonymi częściami, efektami i kluczami; nic innego się nie rusza, więc muzyka zostaje
+  na miejscu. Wynik ma `pushed`.
+- Kompilator shaderów Direct3D 12 jest przypięty: program ma własny `dxcompiler.dll` (DXC 1.9.2609)
+  obok swoich plików i nie bierze już pierwszego, który znajdzie w systemie. Wcześniej
+  `dxcompiler.dll` z folderu innego programu na PATH mógł zamknąć edytor przy pierwszym obrazie. Gdy
+  dołączonego kompilatora nie da się użyć, program przechodzi na FXC z System32. `debug_media`
+  podaje `shader_compiler`. Potoki renderu budują się po jednym naraz, bo równoległa budowa z FXC
+  mogła skończyć się błędem albo zamknięciem programu; z DXC pierwsza budowa najdłuższego shadera
+  (NTSC) trwa na RTX 2080 Ti około pół sekundy zamiast około 20 s z FXC.
+- Pliki LUT: odczyt ma twarde limity (rozmiar pliku i wiersza, tabela najwyżej taka, jaką deklaruje
+  nagłówek), a ścieżki urządzeń Windows są odrzucane bez otwierania. Eksport czeka na plik LUT
+  najwyżej 60 s i potem zatrzymuje się z błędem, który podaje plik. Plik z błędną treścią nie jest
+  czytany ponownie, dopóki się nie zmieni; brakujący plik jest próbowany ponownie najpierw po 5 s,
+  potem coraz rzadziej, do 120 s.
+- Dźwięk: eksport na zajętym komputerze mógł dać inny dźwięk niż podgląd, bo wyrażenie parametru
+  audio, które nie zdążyło w 20 ms, brało wartość z klatek kluczowych. Miks bez odtwarzania
+  (eksport, zgranie ścieżki) liczy teraz te same kroki co odtwarzanie, z zapasem czasu 1 s.
+- Dwuklik zaraz po kliknięciu jest teraz dwuklikiem, a nie trzecim kliknięciem: w przeglądarce
+  warstw web kładzie warstwę, w przycisku kształtu robi maskę na całą warstwę, a w masce na obrazie
+  włącza przekształcanie swobodne wybranych punktów.
+- Strona hve.hexart.io znowu ma przycisk pobierania: w nagłówku, na pierwszym ekranie, na stronie
+  404 i w instrukcji, i prowadzi do najnowszego wydania. Rezerwacja pokazu zostaje obok jako druga
+  droga. Stare strony rozdziałów `/features/...` przekierowują na stałe do odpowiednich rozdziałów
+  instrukcji.
+
 ## 0.19.49 (2026-11-24)
 
 - Sceny Blendera jako materiał: plik `.blend` wchodzi do projektu (przez import albo przeciągnięcie,

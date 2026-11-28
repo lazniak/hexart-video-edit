@@ -82,7 +82,7 @@ $UninstallingMarker = '.hve-uninstalling'
 # The files of a packaged copy: an install made before the marker existed has them and no marker.
 $PackagedFiles = @('THIRD-PARTY-NOTICES.txt', 'hexart-video-edit.exe', 'hve.exe')
 # What the program keeps at the root of its folder.
-$ProgramFiles = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'hve-decklink.exe', 'hve-r3d.exe', 'LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt', 'install.ps1', 'uninstall.ps1')
+$ProgramFiles = @('hexart-video-edit.exe', 'hve.exe', 'hve-vfi.exe', 'hve-braw.exe', 'hve-decklink.exe', 'hve-r3d.exe', 'dxcompiler.dll', 'LICENSE.txt', 'THIRD-PARTY-NOTICES.txt', 'README.txt', 'install.ps1', 'uninstall.ps1')
 $ProgramDirs = @('ffmpeg', 'licenses', 'library', 'blender', 'update')
 # What the program writes into its data folder and into its cache folder, by name (a trailing
 # * matches the start of a name). The program holds the same lists (DATA_ENTRIES and

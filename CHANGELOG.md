@@ -2,6 +2,215 @@
 
 Polska wersja: [CHANGELOG.pl.md](CHANGELOG.pl.md).
 
+## 0.19.50 (2026-11-28)
+
+- Effects, distort: thirteen new effects in the "Distort and lens" category of the Effects panel:
+  Motion Tile, Optics Compensation, Mirror, Polar Coordinates, Bulge, Twirl, Spherize, Wave Warp,
+  Turbulent Displace, Displacement Map, Offset, Transform and Corner Pin. Each has 3 to 6 presets,
+  and every parameter takes keyframes and expressions. Edges have four modes: transparent, repeat
+  edge pixels, mirror and tile. The effects work in linear light and keep nothing between frames, so
+  the preview gives the same picture as the export. Motion Tile and Corner Pin can grow the layer
+  past its box. Displacement Map takes its map from project media. Point parameters have handles on
+  the Program monitor; the corners of Corner Pin and the shifts of Turbulent Displace and Offset do
+  not have them yet. Each effect has an icon and a description in the Effects panel, and the manual
+  has a new page about them.
+- Effects, blur: ten new effects in the "Blur and sharpen" category: Directional Blur, Radial Blur,
+  Fast Box Blur, Channel Blur, Compound Blur, Bilateral Blur, Smart Blur, Unsharp Mask, Vari Blur
+  and Median. Compound Blur takes its map from project media. The same rules as above: keyframes and
+  expressions in every parameter, four edge modes, linear light, 3 to 6 presets, an icon and a
+  description, and the half size preview gives the same picture as the export. At 1080p on an RTX
+  2080 Ti an effect takes a few milliseconds a frame. The exception is Median at a large radius: at
+  radius 20 about 23 frames per second at full resolution. The manual has a page with an example
+  picture of each effect.
+- Effects, levels and tone: thirteen new effects in the "Color" category: Levels (master and per
+  channel), Brightness & Contrast, Exposure, "Gamma, Pedestal, Gain", Grade, Clamp, SoftClip,
+  Shadow/Highlight, Auto Levels, Auto Contrast, Auto Color, Equalize and Broadcast Colors. The
+  parameters take keyframes and expressions, the effects work in linear light and have 3 to 6
+  presets, an icon and a description. The automatic effects measure every frame on its own, with no
+  memory of earlier ones, so the result does not depend on the render order; the measurement comes
+  before Motion. Broadcast Colors works on one clip (BT.601 on gamma 2.4): for the output of the
+  whole programme, use an adjustment layer. The live histogram in the Levels controls is not there
+  yet. The manual has a new page about these effects.
+- Masks on the Program monitor: the monitor bar now always has the Selection, Pen, Shape and Mask
+  Feather tools, with a tooltip (name, shortcut and one line of help), and a right click opens the
+  tool family and the view toggles. After a shape is drawn and after a pen path is closed, Selection
+  comes back and the new mask stays selected, so its points can be moved at once. Enter finishes an
+  open path and goes back to Selection, while Esc keeps the Pen. Every visible, unlocked mask shows
+  its points. The first click on the path of a mask that is not selected takes the whole mask and a
+  drag moves it; on the selected mask a click on a segment takes its two ends, a click on a point
+  takes that point, and Shift adds and removes. A marquee from the empty picture selects several
+  points (Shift flips them); when no mask is selected and the clip transform on the monitor is on,
+  the drag still moves the clip. A press held still changes nothing, and a drag is one undo step.
+  After a click in the picture the arrow keys nudge points by one screen pixel (10 with Shift),
+  Delete removes points, and a double click on a mask turns on Free Transform Points. A double click
+  on the shape button makes a mask around the whole layer. The "+" of the masks in Effect controls
+  makes a selected rectangle in the middle of the layer, half its size. A point is picked exactly
+  where it is drawn, at any zoom, display scale and clip transform.
+- Roto Brush: this version has the engine for the coming rotoscoping brush (the SAM 2.1 model):
+  brush strokes, tracking of the matte to neighbouring frames from the frame with a stroke, and a
+  store of mattes on disk. The brush itself is not in the program yet and nothing changes in the
+  interface. The rotoscoping script changed, so the installed rotoscoping environment asks for a new
+  setup once: a check of the model, with no download.
+- Blender scenes: the Project panel and the timeline show thumbnails and a filmstrip of scenes. The
+  program asks the Blender link for the small frames at the end of its queue, and the request lapses
+  when the tile leaves the screen; on the filmstrip of a long clip only the first cell asks for a
+  render. Preferences, Media, the Blender section has an "Install the add-on in Blender" button: the
+  chosen Blender packs the hve_link add-on that lies next to the program and installs it, enabled,
+  in its extensions. That Blender then has the HVE tab in the 3D viewport sidebar and can connect to
+  the editor; other versions of Blender need it installed separately, and a Blender older than 4.5
+  is refused before it starts. The installation starts only on a click, in the background, with a
+  limit of 120 s per command. Rendering in the background works without the add-on. The message
+  "Blender stopped … times while rendering this picture" now gives the exit code of the process, or
+  says that the connection broke. A line of Blender output that is not UTF-8 (for example a path in
+  the system code page) no longer stops the background Blender. The manual has a page about Blender
+  scenes.
+- File properties, custom fields and prompt history: the Info panel has a "Properties" section with
+  everything a file says about itself (container, video, audio, colour, camera and lens, capture,
+  description, production, file, generation) and the custom fields of the project. A file is read
+  once in the background into the cache, never into the project file; that cache counts towards the
+  previews limit and goes away with "Clear previews". A file that does not answer in time is not
+  read again by itself: the "Read again" button does that. A tooltip on the name says where a value
+  comes from. A double click on a value lets you type your own over the file's value, and the file
+  is not touched; with several files selected the change covers all of them in one undo step. "New
+  field" defines a custom field of the project (text, number, yes or no, date, one of a list, list,
+  JSON, colour, link, rating), and "Hide from agents" keeps it from every agent tool. The camera and
+  lens serial numbers, the GPS position, the creator and the location are always kept from agents
+  too. "Prompt history" shows the prompts a file made with AI came from, and "Add a prompt" writes a
+  revision by hand. In the List view of the Project panel any property can be a column ("More
+  columns" in the header menu, sorting by a click on the header), and the search box understands
+  `key:value`, comparisons, ranges, phrases, negation and `has:`, for example `iso:>800`,
+  `rating:>=4` or `date:2026-11-01..2026-12-31`. The manual has a new page about it.
+- Agent, properties: new tools `list_fields`, `get_fields`, `set_fields`, `define_field`,
+  `remove_field`, `prompt_history`, `add_prompt_revision` and `search_properties` (the same query
+  language as the Project panel), and `media_info` and `list_media` give properties. A field hidden
+  from agents and a key that does not exist get the same answer (`not_found`), and `withheld` gives
+  the number of standard fields left out. `history` shows the label, the author and the number of
+  commands of a revision, not the commands themselves. The core of the program holds these rules for
+  raw `edit` commands and for undo and redo too. Data from a file and prompts are data to an agent,
+  not instructions. No agent tool writes into the project's state folder `.hve` (code `protected`).
+- Sharing a project in the browser is being built and does not work yet: the service is not
+  deployed, and the program package does not contain it. This version has its parts: the guest page
+  (watching versions, comments, shared playback following the host, password and waiting room), the
+  owner's panel in the browser (people and their levels, letting in, kicking out, blocking, merging
+  people, personal invites, link settings and package state) and the bridge on the host's computer,
+  which talks to the editor through MCP. A guest's comment is to reach the editor as a review marker
+  in one revision that one Ctrl+Z takes back. The share app will have its own address,
+  `share.hexart.io`, apart from hve.hexart.io.
+- Agent, sequences and `edit`: the `duplicate_sequence` command (`seq` or `sequence`, `name`,
+  `active`, `markers`) copies a sequence like Duplicate in the editor, with fresh ids. Without
+  `name` the copy is called `<name> copy`, a taken name is refused, and a batch that changes the
+  source earlier is refused with a hint. The copy reads variables from its own web layers.
+  `changes.changed_tracks` gives every changed track field with `before` and `after`. `fade_in` and
+  `fade_out` outside the `place` command are now an `invalid_arguments` error; before, they were
+  dropped silently. A command that does not read says where the error is, in the text and in
+  `detail.path` and `detail.command_index`, for example
+  `sequence.tracks[3].items[12].effects[1].params.link`. Every tool result, an error too, carries
+  the `root` of the project, and `follows_window: true` while the session follows the window.
+  `import_media` leaves out of `sequences_found` a sequence whose every file the call names anyway.
+- Agent, values in `edit`: the parameters of effects (`add_effect`, `add_bus_effect`, `effects` in
+  `place`) and of transitions (`set_transition`, `transition_in` and `transition_out`) take a plain
+  value (`{"radius": 70}`, `"right"`) or a typed one and are checked against the definition: a
+  number stays in its range, an unknown parameter gets the list of known ones, and a transition
+  option outside the list is an error with the list of options. The error names the command and the
+  parameter. `place` with `freeze` holds one source frame for the whole clip (`speed: 0` gets this
+  advice), `motion.position_pct` gives the position in percent of the frame, and `ease` of keys
+  takes names, `in`, `out` and `in_out` included. `item.kind.media` takes the name of a medium, and
+  `update_marker` takes `id` with `patch`. `edit` warns when a later command of the same batch
+  places something over an item an earlier one placed. `delete_items` with `inside: true` takes only
+  items wholly inside the range. `remove_sequence` and `add_sequence` of the same name in one batch
+  keep the rebuilt sequence active. `edit` with `batch` records the items it made (the history label
+  ends with `[name]`), and `delete_items` with `batch` removes exactly those of them still there,
+  without touching the user's items between them.
+- Agent, media and project: the new tool `refresh_media` reads again a file written over in place,
+  under the same `med_`, in one revision. Clips keep their place, length and source times, and
+  `items_retimed` and `items_past_end` name the clips the change touches; `changed: true` refreshes
+  every medium whose file changed. `media_info` reports `file_changed`, and `import_media` lists in
+  `same_file_as` a file that is already in the project. `list_media` takes `result: "compact"`.
+  `project_info` gives `saved_file`, `saved_version`, `unsaved_changes` and `save_note` while the
+  saved project file is behind the version in memory. The compact `edit` result names clips without
+  a name by the name of their medium. `get_words` for a medium off the timeline, or with
+  `time_base: "media"`, gives the words in the medium's seconds, and every result gives its
+  `time_base`. `read_docs` takes several sections at once (a list, or one text split by `,`, `;` or
+  `|`) and gives `sections_missing`. `replace_media` of a clip with Time Remap by a still keeps the
+  in point from the curve.
+- Agent, tasks and frames: `todo_claim` of a guideline in the `failed` state refuses with its note,
+  and with `retry: true` takes it again; the same session gets its own guideline back as it is.
+  `todo_list`, `todo_claim` and `todo_update` with `result: "compact"` return only `id`, `state`,
+  `title`, `note` and `claimed_by` (`todo_claim` the text and the folder too). The context of a
+  guideline also names the enabled item under the playhead on every video track that is not muted.
+  The new free tool `item_frames` makes a WebP sheet of 2 to 36 frames (6 by default) that an item
+  plays on the timeline, with the sequence and source time at each; `solo` draws only its track, and
+  `note` says why cells are blank. `edit`, `import_media` and `save` give the same project version
+  number; before, `edit` returned the number of the history revision.
+- Agent, generations and sound: `quote_generation` lists the kinds the engine really takes (`image`,
+  `video`, `image_to_video`, `first_last_frame`, `extend`, `broll`, `upscale`, `relight`,
+  `replace_background`, `lip_sync`). The older names `transition` and `lipsync` still work, and
+  `voice`, `music` and `sfx` give `unavailable` with a hint, without asking for a quote.
+  `measure_audio` of a programme with dynamics enabled on the master adds `master_dynamics`, an
+  estimate of the reduction from a second mix with the dynamics bypassed (`master_dynamics: false`
+  skips it), and warns about a master limiter whose input adds 6 dB or more.
+- Web layers: a page knows which clip it draws (`hve.info.item`) and gets
+  `hve.onItemChange(item, previous)` when the clip changes, because one browser tab draws every clip
+  of a component. A clip that draws nothing no longer shows what the previous one built. The "Quote"
+  component of the library has an optional plate: "Background plate", "Plate color" (Onyx 80% by
+  default), "Plate padding" and "Plate chamfer" (a 30° corner cut), off by default.
+- Agent, overwrites, speed and music: `place_clip`, `overwrite_clip`, `move_items` and their `edit`
+  commands in overwrite mode list in the result every item from before the call that they trimmed,
+  split or removed, a disabled one too (`warnings` and `overwritten` with `before`, `after`, `fate`
+  and `by`). `set_speed` with `duration` sets the length of the clip on the timeline instead of a
+  factor; the result has `speed`, and `note` when the length came out different. The new free tool
+  `music_accents` gives downbeats, beats, onsets and bass onsets (the band under 200 Hz) with a
+  strength from 0 to 1, in sequence or media seconds, together with the sections of the song; with
+  `markers: true` it puts down `beat` markers (at most 500, one revision, one marker per frame). An
+  older beat analysis without the bass band gives `bass: null` with a hint to run it again.
+  `measure_audio` with `master_stages: true` measures the programme after each master effect and
+  warns from which stage the peak goes over the ceiling (-1 dBTP or `ceiling_dbtp`). `import_media`
+  no longer suggests a sequence for shot codes such as `v10-e2` and `v10-s30`.
+- Blender Link, security: every path an agent gives is checked from its text before the program
+  touches the disk. A drive of this computer passes, a device path never, and a network share only
+  when the project folder or its media already lie on it. This covers import, references, Lottie,
+  Blender scenes, files to deliver and publish, and everything a new edit points at (media, proxies,
+  library folders, LUT files, masks, depth maps). Raw `edit` commands add and change no Blender
+  scenes: `add_blender_scene` is the way in. A trusted `.blend` file is read and hashed again right
+  before every start with scripts on, so a swapped file does not start and the program shows that
+  it changed since it was trusted.
+  Edit in Blender opens only a local `.blend` file. The hve_link add-on is installed only from a
+  copy at its pinned checksum. `debug_logs` shows an agent no folders.
+- Agent, markers and inserting: `list_markers` and `get_marker` give `added_at`, the time the marker
+  was added. The new tool `markers_from_transcript` writes into markers what was said around the
+  moment they were added (`window`, 30 s by default), from a meeting transcript with clock times,
+  given inline or as a JSON file in the project; a marker with a description stays as it is unless
+  `overwrite`. `replace_media` with `reset_motion` puts the Motion framing (position, scale,
+  rotation, anchor, skew) back to its defaults, while the fit to the frame stays. Without it the
+  result warns when the clip has a framing of its own and the new source has another picture size.
+  `place` with `mode: "push"` in `edit` moves the item at the start of the new one later by what the
+  new one needs, with its linked parts, effects and keys; nothing else moves, so the music stays in
+  place. The result has `pushed`.
+- The Direct3D 12 shader compiler is pinned: the program has its own `dxcompiler.dll` (DXC 1.9.2609)
+  next to its files and no longer takes the first one it finds on the system. Before, a
+  `dxcompiler.dll` in the folder of another program on PATH could close the editor at the first
+  picture. When the bundled compiler cannot be used, the program falls back to FXC from System32.
+  `debug_media` gives `shader_compiler`. Render pipelines are built one at a time, because building
+  them in parallel with FXC could end in an error or a closed program; with DXC the first build of
+  the longest shader (NTSC) takes about half a second on an RTX 2080 Ti instead of about 20 s with
+  FXC.
+- LUT files: reading has hard limits (the size of the file and of a line, a table at most as large
+  as its header declares), and Windows device paths are refused without being opened. An export
+  waits for a LUT file for at most 60 s and then stops with an error that names the file. A file
+  with broken content is not read again until it changes; a missing file is tried again first after
+  5 s, then less and less often, up to 120 s.
+- Sound: an export on a busy computer could give other sound than the preview, because an audio
+  parameter expression that did not finish within 20 ms took the keyframed value. A mix outside
+  playback (export, track bounce) now computes the same steps as playback, with a time backstop of 1
+  s.
+- A double click right after a click is now a double click and not a third click: in the web layer
+  browser it places the layer, on the shape button it makes a mask around the whole layer, and on a
+  mask in the picture it turns on Free Transform Points for the picked points.
+- The hve.hexart.io website has the download button again: in the header, on the first screen, on
+  the 404 page and in the manual, leading to the newest release. Booking a demo stays beside it as
+  the second way. The old chapter pages `/features/...` redirect permanently to the matching
+  chapters of the manual.
+
 ## 0.19.49 (2026-11-24)
 
 - Blender scenes as media: a `.blend` file comes into the project (by import or by dragging, also
